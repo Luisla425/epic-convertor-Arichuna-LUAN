@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Epic Convertor LUAN ARICHUNA ⚡</title>
+    <style>
+        :root { --primary: #ffd700; --bg: #1a1a2e; --card: rgba(255,255,255,0.08); --success: #4ecca3; --warning: #ffa500; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: #fff; padding: 15px; min-height: 100vh; }
+        .header { text-align: center; margin-bottom: 20px; position: relative; }
+        .refresh-btn { position: absolute; right: 0; top: 0; background: var(--card); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 50%; cursor: pointer; }
+        h1 { color: var(--primary); font-size: 1.5rem; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+        .glass { background: var(--card); backdrop-filter: blur(10px); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .rate-card { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+        .rate-card.selected { border-color: var(--primary); background: rgba(255, 215, 0, 0.1); }
+        .val { font-size: 1.2rem; font-weight: bold; color: var(--success); display: block; }
+        .label { font-size: 0.7rem; color: #aaa; }
+        label { font-size: 0.75rem; color: var(--primary); display: block; margin-top: 12px; font-weight: bold; }
+        input { width: 100%; padding: 14px; margin: 5px 0; border-radius: 10px; border: 2px solid rgba(255,255,255,0.1); background: #252945; color: #fff; font-size: 1.1rem; outline: none; }
+        .tasa-input { border: 2px solid var(--primary) !important; }
+        .toggle-container { display:flex; gap:8px; margin: 15px 0; }
+        .toggle-btn { flex:1; padding:12px; border-radius:8px; border:none; background: #333; color: #fff; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        .active { background: var(--primary) !important; color: #1a1a2e !important; }
+        .res-box { background: rgba(78, 204, 163, 0.1); padding: 15px; border-radius: 12px; margin-top: 15px; text-align: center; border: 1px dashed var(--success); }
+        .btn-wa { background: #25D366; color: #fff; border: none; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="refresh-btn" onclick="loadData()">🔄</button>
+        <h1>Epic Converter LUAN ⚡</h1>
+    </div>
+
+    <div class="glass">
+        <h3 style="font-size: 0.8rem;">1. SELECCIONA REFERENCIA</h3>
+        <div class="grid">
+            <div class="rate-card selected" id="card-USD" onclick="selectCurrency('USD', 'Dólares')">
+                <span class="label">BCV ($)</span>
+                <span class="val" id="vUSD">0.00</span>
+            </div>
+            <div class="rate-card" id="card-EUR" onclick="selectCurrency('EUR', 'Euros')">
+                <span class="label">EURO Real (€)</span>
+                <span class="val" id="vEUR">0.00</span>
+            </div>
+            <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN', 'USDT')">
+                <span class="label">BINANCE (₮)</span>
+                <span class="val" id="vBIN">0.00</span>
+            </div>
+            <div class="rate-card" id="card-CON" onclick="selectCurrency('CON', 'Acuerdo')">
+                <span class="label">PERSONALIZADO</span>
+                <span class="val">---</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass">
+        <h3 style="font-size: 0.8rem;">2. ¿QUÉ OPERACIÓN HARÁS?</h3>
+        <div class="toggle-container">
+            <button id="btnDivisaABs" class="toggle-btn active" onclick="setDirection('DivisaABs')">
+                <span id="txtDivisaABs">De Dólares a Bs</span>
+            </button>
+            <button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')">
+                <span id="txtBsADivisa">De Bs a Dólares</span>
+            </button>
+        </div>
+
+        <label id="labelMonto">MONTO EN DÓLARES</label>
+        <input type="number" id="monto" placeholder="0.00" inputmode="decimal">
+        
+        <label id="labelTasa">TASA ACORDADA</label>
+        <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal">
+        
+        <div id="resBox" class="res-box" style="display:none;">
+            <p id="resLabel" style="font-size: 0.8rem; color: #aaa;">Resultado:</p>
+            <h2 id="resTotal" style="color: var(--success); font-size: 1.8rem;">0.00</h2>
+        </div>
+
+        <button class="btn-wa" onclick="sendWA()">📩 Enviar a WhatsApp</button>
+    </div>
+
+    <script>
+        let rates = { USD: 0, EUR: 0, BIN: 0 };
+        let currentCurrency = 'Dólares';
+        let currentCode = 'USD';
+        let direction = 'DivisaABs';
+
+        async function loadData() {
+            try {
+                // Carga de Dólar BCV y Paralelo
+                const resp = await fetch('https://ve.dolarapi.com/v1/dolares');
+                const data = await resp.json();
+                rates.USD = parseFloat(data.find(d => d.fuente === 'oficial').promedio);
+                const par = parseFloat(data.find(d => d.fuente === 'paralelo').promedio);
+                rates.BIN = par + 0.10;
+                
+                // Carga de Euro Real desde la API sugerida
+                const resEuro = await fetch('https://open.er-api.com/v6/latest/EUR').then(r => r.json());
+                if(resEuro.result === "success") {
+                    rates.EUR = resEuro.rates.VES;
+                } else {
+                    rates.EUR = rates.USD * 1.08; // Fallback por si falla la API
+                }
+                
+                document.getElementById('vUSD').innerText = rates.USD.toFixed(2);
+                document.getElementById('vEUR').innerText = rates.EUR.toFixed(2);
+                document.getElementById('vBIN').innerText = rates.BIN.toFixed(2);
+                
+                if(document.getElementById('tasa').value == "") {
+                    document.getElementById('tasa').value = rates.USD.toFixed(2);
+                }
+                calc();
+            } catch (e) { console.log("Error cargando tasas"); }
+        }
+
+        function selectCurrency(code, name) {
+            currentCurrency = name;
+            currentCode = code;
+            document.querySelectorAll('.rate-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('card-' + code).classList.add('selected');
+            
+            if(code !== 'CON') {
+                document.getElementById('tasa').value = rates[code].toFixed(2);
+            }
+            updateLabels();
+            calc();
+        }
+
+        function setDirection(dir) {
+            direction = dir;
+            document.getElementById('btnDivisaABs').classList.toggle('active', dir === 'DivisaABs');
+            document.getElementById('btnBsADivisa').classList.toggle('active', dir === 'BsADivisa');
+            updateLabels();
+            calc();
+        }
+
+        function updateLabels() {
+            const labelMonto = document.getElementById('labelMonto');
+            const labelTasa = document.getElementById('labelTasa');
+            const resLabel = document.getElementById('resLabel');
+            const txtDivisaABs = document.getElementById('txtDivisaABs');
+            const txtBsADivisa = document.getElementById('txtBsADivisa');
+
+            if(currentCode === 'CON') {
+                txtDivisaABs.innerText = "$ en Acuerdo, a Bs";
+                txtBsADivisa.innerText = "Bs en Acuerdo, a $";
+            } else {
+                txtDivisaABs.innerText = `De ${currentCurrency} a Bs`;
+                txtBsADivisa.innerText = `De Bs a ${currentCurrency}`;
+            }
+            
+            if(direction === 'DivisaABs') {
+                labelMonto.innerText = (currentCode === 'CON') ? "MONTO EN $" : `MONTO EN ${currentCurrency.toUpperCase()}`;
+                labelTasa.innerText = (currentCode === 'CON') ? "SU TASA EN EL ACUERDO (Bs)" : "TASA ACORDADA";
+                resLabel.innerText = "TOTAL A RECIBIR (Bs):";
+            } else {
+                labelMonto.innerText = "MONTO EN BOLÍVARES (Bs)";
+                labelTasa.innerText = (currentCode === 'CON') ? "SU TASA EN EL ACUERDO ($)" : "TASA ACORDADA";
+                resLabel.innerText = (currentCode === 'CON') ? "$ A RECIBIR:" : `${currentCurrency.toUpperCase()} A RECIBIR:`;
+            }
+        }
+
+        function calc() {
+            const m = parseFloat(document.getElementById('monto').value) || 0;
+            const t = parseFloat(document.getElementById('tasa').value) || 0;
+            const resBox = document.getElementById('resBox');
+            const resTotal = document.getElementById('resTotal');
+
+            if(m > 0 && t > 0) {
+                resBox.style.display = 'block';
+                if(direction === 'DivisaABs') {
+                    resTotal.innerText = "Bs " + (m * t).toLocaleString('es-VE', {minimumFractionDigits:2});
+                } else {
+                    const simbolo = (currentCode === 'CON' || currentCode === 'USD' || currentCode === 'BIN') ? "$" : (currentCode === 'EUR' ? "€" : "");
+                    resTotal.innerText = (m / t).toFixed(2) + " " + (currentCode === 'CON' ? "$" : currentCurrency);
+                }
+            } else { resBox.style.display = 'none'; }
+        }
+
+        function sendWA() {
+            const m = document.getElementById('monto').value;
+            const t = document.getElementById('tasa').value;
+            const total = document.getElementById('resTotal').innerText;
+            const nombreMoneda = (currentCode === 'CON') ? "$" : currentCurrency;
+            
+            let msg = "";
+            if(direction === 'DivisaABs') {
+                msg = `⚡ *Epic Converter LUAN*\n\n` +
+                      `🤝 *Operación:* Venta de ${nombreMoneda}\n` +
+                      `💵 *Cantidad:* ${m} ${nombreMoneda}\n` +
+                      `📊 *Tasa:* ${t} Bs\n` +
+                      `💰 *Total a pagar en Bs:* ${total}\n\n` +
+                      `_LUANSystem™ Professional_`;
+            } else {
+                msg = `⚡ *Epic Converter LUAN*\n\n` +
+                      `🤝 *Operación:* Compra de ${nombreMoneda} con Bs\n` +
+                      `💸 *Monto enviado:* ${m} Bs\n` +
+                      `📊 *Tasa:* ${t} Bs\n` +
+                      `💎 *Total en ${nombreMoneda}:* ${total}\n\n` +
+                      `_LUANSystem™ Professional_`;
+            }
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        document.getElementById('monto').oninput = calc;
+        document.getElementById('tasa').oninput = calc;
+        loadData();
+    </script>
+</body>
+</html>
