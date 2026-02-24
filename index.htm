@@ -24,7 +24,7 @@
         .toggle-btn { flex:1; padding:12px; border-radius:8px; border:none; background: #333; color: #fff; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .active { background: var(--primary) !important; color: #1a1a2e !important; }
         .res-box { background: rgba(78, 204, 163, 0.1); padding: 15px; border-radius: 12px; margin-top: 15px; text-align: center; border: 1px dashed var(--success); }
-        .btn-wa { background: #25D366; color: #fff; border: none; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+        .btn-wa { background: #25D366; color: #fff; border: none; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -89,26 +89,26 @@
 
         async function loadData() {
             try {
-                // Carga de Dólar BCV y Paralelo
+                // BCV + Paralelo (usado para Binance)
                 const resp = await fetch('https://ve.dolarapi.com/v1/dolares');
                 const data = await resp.json();
                 rates.USD = parseFloat(data.find(d => d.fuente === 'oficial').promedio);
                 const par = parseFloat(data.find(d => d.fuente === 'paralelo').promedio);
-                rates.BIN = par + 0.10;
-                
-                // Carga de Euro Real desde la API sugerida
+                rates.BIN = par;
+
+                // Euro real desde API
                 const resEuro = await fetch('https://open.er-api.com/v6/latest/EUR').then(r => r.json());
-                if(resEuro.result === "success") {
+                if (resEuro.result === "success") {
                     rates.EUR = resEuro.rates.VES;
                 } else {
-                    rates.EUR = rates.USD * 1.08; // Fallback por si falla la API
+                    rates.EUR = rates.USD * 1.08;
                 }
-                
+
                 document.getElementById('vUSD').innerText = rates.USD.toFixed(2);
                 document.getElementById('vEUR').innerText = rates.EUR.toFixed(2);
                 document.getElementById('vBIN').innerText = rates.BIN.toFixed(2);
-                
-                if(document.getElementById('tasa').value == "") {
+
+                if (document.getElementById('tasa').value == "") {
                     document.getElementById('tasa').value = rates.USD.toFixed(2);
                 }
                 calc();
@@ -120,8 +120,7 @@
             currentCode = code;
             document.querySelectorAll('.rate-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('card-' + code).classList.add('selected');
-            
-            if(code !== 'CON') {
+            if (code !== 'CON') {
                 document.getElementById('tasa').value = rates[code].toFixed(2);
             }
             updateLabels();
@@ -137,27 +136,36 @@
         }
 
         function updateLabels() {
-            const labelMonto = document.getElementById('labelMonto');
-            const labelTasa = document.getElementById('labelTasa');
-            const resLabel = document.getElementById('resLabel');
             const txtDivisaABs = document.getElementById('txtDivisaABs');
             const txtBsADivisa = document.getElementById('txtBsADivisa');
 
-            if(currentCode === 'CON') {
+            if (currentCode === 'CON') {
                 txtDivisaABs.innerText = "$ en Acuerdo, a Bs";
                 txtBsADivisa.innerText = "Bs en Acuerdo, a $";
             } else {
                 txtDivisaABs.innerText = `De ${currentCurrency} a Bs`;
                 txtBsADivisa.innerText = `De Bs a ${currentCurrency}`;
             }
-            
-            if(direction === 'DivisaABs') {
+
+            const labelMonto = document.getElementById('labelMonto');
+            const labelTasa = document.getElementById('labelTasa');
+            const resLabel = document.getElementById('resLabel');
+
+            // Etiqueta de la tasa según moneda
+            const labelsTasa = {
+                'USD': 'TASA DÓLAR $',
+                'EUR': 'TASA EURO €',
+                'BIN': 'TASA BINANCE ₮',
+                'CON': direction === 'DivisaABs' ? 'SU TASA EN EL ACUERDO (Bs)' : 'SU TASA EN EL ACUERDO ($)'
+            };
+
+            if (direction === 'DivisaABs') {
                 labelMonto.innerText = (currentCode === 'CON') ? "MONTO EN $" : `MONTO EN ${currentCurrency.toUpperCase()}`;
-                labelTasa.innerText = (currentCode === 'CON') ? "SU TASA EN EL ACUERDO (Bs)" : "TASA ACORDADA";
+                labelTasa.innerText = labelsTasa[currentCode];
                 resLabel.innerText = "TOTAL A RECIBIR (Bs):";
             } else {
                 labelMonto.innerText = "MONTO EN BOLÍVARES (Bs)";
-                labelTasa.innerText = (currentCode === 'CON') ? "SU TASA EN EL ACUERDO ($)" : "TASA ACORDADA";
+                labelTasa.innerText = labelsTasa[currentCode];
                 resLabel.innerText = (currentCode === 'CON') ? "$ A RECIBIR:" : `${currentCurrency.toUpperCase()} A RECIBIR:`;
             }
         }
@@ -168,39 +176,78 @@
             const resBox = document.getElementById('resBox');
             const resTotal = document.getElementById('resTotal');
 
-            if(m > 0 && t > 0) {
+            if (m > 0 && t > 0) {
                 resBox.style.display = 'block';
-                if(direction === 'DivisaABs') {
-                    resTotal.innerText = "Bs " + (m * t).toLocaleString('es-VE', {minimumFractionDigits:2});
+                if (direction === 'DivisaABs') {
+                    resTotal.innerText = "Bs " + (m * t).toLocaleString('es-VE', { minimumFractionDigits: 2 });
                 } else {
-                    const simbolo = (currentCode === 'CON' || currentCode === 'USD' || currentCode === 'BIN') ? "$" : (currentCode === 'EUR' ? "€" : "");
                     resTotal.innerText = (m / t).toFixed(2) + " " + (currentCode === 'CON' ? "$" : currentCurrency);
                 }
-            } else { resBox.style.display = 'none'; }
+            } else {
+                resBox.style.display = 'none';
+            }
+        }
+
+        // Devuelve el nombre de la fuente para el mensaje de WhatsApp
+        function getFuenteLabel() {
+            switch (currentCode) {
+                case 'USD': return 'Banco Central de Venezuela (BCV)';
+                case 'EUR': return 'Tasa Euro Oficial (EUR/VES)';
+                case 'BIN': return 'Binance P2P — Tasa Paralelo';
+                case 'CON': return 'Tasa Personalizada / Acuerdo';
+                default:    return '';
+            }
+        }
+
+        // Devuelve el emoji del tipo de tasa
+        function getFuenteEmoji() {
+            switch (currentCode) {
+                case 'USD': return '🏦';
+                case 'EUR': return '🇪🇺';
+                case 'BIN': return '🟡';
+                case 'CON': return '🤝';
+                default:    return '📌';
+            }
         }
 
         function sendWA() {
-            const m = document.getElementById('monto').value;
-            const t = document.getElementById('tasa').value;
+            const m  = document.getElementById('monto').value;
+            const t  = document.getElementById('tasa').value;
             const total = document.getElementById('resTotal').innerText;
             const nombreMoneda = (currentCode === 'CON') ? "$" : currentCurrency;
-            
+            const fuente = getFuenteLabel();
+            const emoji  = getFuenteEmoji();
+
+            // Nombre de la tasa en el mensaje
+            let labelTasaMsg = '';
+            if (currentCode === 'USD') labelTasaMsg = 'Tasa Del BCV';
+            else if (currentCode === 'EUR') labelTasaMsg = 'Tasa Euro';
+            else if (currentCode === 'BIN') labelTasaMsg = 'Tasa Binance P2P';
+            else labelTasaMsg = 'Tasa Acordada';
+
             let msg = "";
-            if(direction === 'DivisaABs') {
-                msg = `⚡ *Epic Converter LUAN*\n\n` +
-                      `🤝 *Operación:* Venta de ${nombreMoneda}\n` +
-                      `💵 *Cantidad:* ${m} ${nombreMoneda}\n` +
-                      `📊 *Tasa:* ${t} Bs\n` +
-                      `💰 *Total a pagar en Bs:* ${total}\n\n` +
-                      `_LUANSystem™ Professional_`;
+            if (direction === 'DivisaABs') {
+                msg =
+                    `⚡ *Epic Converter LUAN*\n\n` +
+                    `🤝 *Operación:* Venta de ${nombreMoneda}\n` +
+                    `💵 *Cantidad:* ${m} ${nombreMoneda}\n` +
+                    `📊 *${labelTasaMsg}:* ${t} Bs\n` +
+                    `💰 *Total a pagar en Bs:* ${total}\n\n` +
+                    `${emoji} _Referencia: ${fuente}_\n` +
+                    `_LUANSystem™ Professional_\n` +
+                    `_Ing. LuisLa_`;
             } else {
-                msg = `⚡ *Epic Converter LUAN*\n\n` +
-                      `🤝 *Operación:* Compra de ${nombreMoneda} con Bs\n` +
-                      `💸 *Monto enviado:* ${m} Bs\n` +
-                      `📊 *Tasa:* ${t} Bs\n` +
-                      `💎 *Total en ${nombreMoneda}:* ${total}\n\n` +
-                      `_LUANSystem™ Professional_`;
+                msg =
+                    `⚡ *Epic Converter LUAN*\n\n` +
+                    `🤝 *Operación:* Compra de ${nombreMoneda} con Bs\n` +
+                    `💸 *Monto enviado:* ${m} Bs\n` +
+                    `📊 *${labelTasaMsg}:* ${t} Bs\n` +
+                    `💎 *Total en ${nombreMoneda}:* ${total}\n\n` +
+                    `${emoji} _Referencia: ${fuente}_\n` +
+                    `_LUANSystem™ Professional_\n` +
+                    `_Ing. LuisLa_`;
             }
+
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
