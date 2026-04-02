@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Epic Converter LUAN ARICHUNA ⚡</title>
     
-    <!-- 📱 PWA: Meta Tags para instalación -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#ffd700">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,16 +12,15 @@
     <link rel="apple-touch-icon" href="./logo.png">
     
     <style>
-        /* ===== VARIABLES GLOBALES ===== */
         :root { 
             --primary: #ffd700; 
             --bg: #1a1a2e; 
             --card: rgba(255,255,255,0.08); 
             --success: #4ecca3; 
-            --warning: #ffa500; 
+            --warning: #ffa500;
+
         }
         
-        /* ===== RESET Y BASE ===== */
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
         body { 
             background: var(--bg); 
@@ -86,6 +84,7 @@
             cursor: pointer; 
             border: 2px solid transparent; 
             transition: all 0.2s ease;
+            position: relative;
         }
         .rate-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.05); }
         .rate-card.selected { 
@@ -104,6 +103,7 @@
             color: #aaa; 
             text-transform: uppercase;
         }
+
         
         /* ===== INPUTS ===== */
         label { 
@@ -132,6 +132,22 @@
             color: var(--primary) !important; 
             font-weight: bold;
         }
+
+        /* ===== MEJORA 4: Botón "Usar tasa oficial" ===== */
+        .btn-usar-oficial {
+            background: rgba(255,215,0,0.12);
+            border: 1px solid rgba(255,215,0,0.4);
+            color: var(--primary);
+            font-size: 0.72rem;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 4px;
+            display: none; /* Solo visible en modo CON */
+            transition: background 0.2s;
+        }
+        .btn-usar-oficial:active { background: rgba(255,215,0,0.25); }
         
         /* ===== TOGGLE BUTTONS ===== */
         .toggle-container { 
@@ -198,7 +214,7 @@
         }
         .btn-wa:active { background: #128C7E; }
         
-        /* ===== TOAST NOTIFICATION (NUEVO) ===== */
+        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -216,8 +232,8 @@
         }
         @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--warning); }
+        .toast.success { background: var(--success); color: #1a1a2e; }
+        .toast.error { background: var(--warning); color: #1a1a2e; }
     </style>
 </head>
 <body>
@@ -241,11 +257,10 @@
                 <span class="label">🇪🇺 EURO Real (€)</span>
                 <span class="val" id="vEUR">--</span>
             </div>
-            <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN', 'USDT')" role="button" tabindex="0">
-                <span class="label">🟡 BINANCE (₮)</span>
+            <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN', 'Dólares')" role="button" tabindex="0">
+                <span class="label">💹 PARALELO ($)</span>
                 <span class="val" id="vBIN">--</span>
             </div>
-            <!-- 💡 ESTA ES LA CLAVE: Conveniencia/Acuerdo -->
             <div class="rate-card" id="card-CON" onclick="selectCurrency('CON', 'Acuerdo')" role="button" tabindex="0">
                 <span class="label">🤝 PERSONALIZADO</span>
                 <span class="val">---</span>
@@ -270,6 +285,11 @@
         
         <label id="labelTasa">TASA ACORDADA (Negocia tu precio)</label>
         <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal" aria-label="Tasa negociada">
+
+        <!-- MEJORA 4: Botón "Usar tasa oficial" visible solo en modo CON -->
+        <button class="btn-usar-oficial" id="btnUsarOficial" onclick="usarTasaOficial()">
+            ← Usar tasa BCV como base
+        </button>
         
         <div id="resBox" class="res-box" style="display:none;" aria-live="polite">
             <p class="res-label" id="resLabel">Resultado:</p>
@@ -279,36 +299,36 @@
         <button class="btn-wa" onclick="sendWA()">📩 Enviar a WhatsApp</button>
     </div>
 
-    <!-- Toast container -->
     <div id="toastContainer"></div>
 
     <script>
         // ========================================
-        // 🧠 ESTADO GLOBAL DE LA APP
+        // 🧠 ESTADO GLOBAL
         // ========================================
         let rates = { USD: 0, EUR: 0, BIN: 0 };
         let currentCurrency = 'Dólares';
-        let currentCode = 'USD';
-        let direction = 'DivisaABs';
-        let lastFetchTime = null;
+        let currentCode     = 'USD';
+        let direction       = 'DivisaABs';
+        let lastFetchTime   = null;
 
         // ========================================
-        // 🎯 ELEMENTOS DEL DOM (Cacheados para rendimiento)
+        // 🎯 ELEMENTOS DOM CACHEADOS
         // ========================================
         const els = {
-            monto: document.getElementById('monto'),
-            tasa: document.getElementById('tasa'),
-            resBox: document.getElementById('resBox'),
-            resTotal: document.getElementById('resTotal'),
-            resLabel: document.getElementById('resLabel'),
+            monto:      document.getElementById('monto'),
+            tasa:       document.getElementById('tasa'),
+            resBox:     document.getElementById('resBox'),
+            resTotal:   document.getElementById('resTotal'),
+            resLabel:   document.getElementById('resLabel'),
             labelMonto: document.getElementById('labelMonto'),
-            labelTasa: document.getElementById('labelTasa'),
+            labelTasa:  document.getElementById('labelTasa'),
             refreshBtn: document.getElementById('refreshBtn'),
-            lastUpdate: document.getElementById('lastUpdate')
+            lastUpdate: document.getElementById('lastUpdate'),
+            btnUsarOficial: document.getElementById('btnUsarOficial') // MEJORA 4
         };
 
         // ========================================
-        // 🔔 SISTEMA DE NOTIFICACIONES TOAST
+        // 🔔 TOAST
         // ========================================
         function toast(msg, type = 'info', duration = 3000) {
             const container = document.getElementById('toastContainer');
@@ -319,61 +339,57 @@
             setTimeout(() => t.remove(), duration);
         }
 
-        // ========================================
-        // 🔄 CARGAR TASAS DESDE APIS (CORREGIDO ✅)
-        // ========================================
         async function loadData() {
             els.refreshBtn.classList.add('loading');
-            
+
             try {
-                // 1️⃣ BCV + Paralelo desde DolarAPI Venezuela
-                // ✅ URL corregida: sin espacios al final
+                // 1️⃣ BCV oficial + Paralelo desde DolarAPI Venezuela
                 const resp = await fetch('https://ve.dolarapi.com/v1/dolares');
                 if (!resp.ok) throw new Error('Error en API Dólar');
                 const data = await resp.json();
-                
-                rates.USD = parseFloat(data.find(d => d.fuente === 'oficial')?.promedio || 0);
-                const par = parseFloat(data.find(d => d.fuente === 'paralelo')?.promedio || 0);
-                rates.BIN = par; // Binance usa paralelo como referencia
 
-                // 2️⃣ Euro Real desde API internacional
-                // ✅ URL corregida: sin espacios al final
+                rates.USD = parseFloat(data.find(d => d.fuente === 'oficial')?.promedio  || 0);
+                rates.BIN = parseFloat(data.find(d => d.fuente === 'paralelo')?.promedio || 0);
+
+                // 2️⃣ Euro desde API internacional
                 const resEuro = await fetch('https://open.er-api.com/v6/latest/EUR');
                 if (resEuro.ok) {
                     const euroData = await resEuro.json();
-                    if (euroData.result === "success") {
+                    if (euroData.result === 'success') {
                         rates.EUR = parseFloat(euroData.rates.VES || 0);
                     }
                 }
 
-                // Actualizar UI con las tasas
+                // Actualizar UI
                 document.getElementById('vUSD').innerText = rates.USD > 0 ? rates.USD.toFixed(2) : '--';
                 document.getElementById('vEUR').innerText = rates.EUR > 0 ? rates.EUR.toFixed(2) : '--';
                 document.getElementById('vBIN').innerText = rates.BIN > 0 ? rates.BIN.toFixed(2) : '--';
 
-                // Guardar timestamp
                 lastFetchTime = new Date();
                 updateLastUpdateTime();
 
-                // Auto-llenar tasa si está vacía (solo si no es personalizado)
-                if (els.tasa.value === "" && currentCode !== 'CON') {
+                // Auto-llenar tasa si está vacía
+                if (els.tasa.value === '' && currentCode !== 'CON') {
                     els.tasa.value = rates[currentCode]?.toFixed(2) || rates.USD.toFixed(2);
                 }
-                
+
+                // ✅ FIX 3: Guardar en localStorage SOLO después de fetch exitoso
+                localStorage.setItem('luan_rates', JSON.stringify(rates));
+
                 calc();
                 toast('✅ Tasas actualizadas', 'success', 2000);
-                
+
             } catch (e) {
-                console.error("❌ Error cargando tasas:", e);
+                console.error('❌ Error cargando tasas:', e);
                 toast('⚠️ Usando último valor guardado', 'error', 4000);
-                
-                // Fallback: intentar leer de localStorage si existe
+
+                // Fallback offline desde localStorage
                 const saved = localStorage.getItem('luan_rates');
                 if (saved) {
                     rates = JSON.parse(saved);
-                    document.getElementById('vUSD').innerText = rates.USD?.toFixed(2) || '--';
-                    document.getElementById('vEUR').innerText = rates.EUR?.toFixed(2) || '--';
-                    document.getElementById('vBIN').innerText = rates.BIN?.toFixed(2) || '--';
+                    document.getElementById('vUSD').innerText = rates.USD > 0 ? rates.USD.toFixed(2) : '--';
+                    document.getElementById('vEUR').innerText = rates.EUR > 0 ? rates.EUR.toFixed(2) : '--';
+                    document.getElementById('vBIN').innerText = rates.BIN > 0 ? rates.BIN.toFixed(2) : '--';
                 }
             } finally {
                 els.refreshBtn.classList.remove('loading');
@@ -385,33 +401,51 @@
         // ========================================
         function selectCurrency(code, name) {
             currentCurrency = name;
-            currentCode = code;
-            
-            // UI: marcar como seleccionada
+            currentCode     = code;
+
             document.querySelectorAll('.rate-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('card-' + code).classList.add('selected');
-            
-            // Si NO es personalizado, auto-llenar la tasa
+
             if (code !== 'CON' && rates[code] > 0) {
                 els.tasa.value = rates[code].toFixed(2);
             }
-            
+
+            // MEJORA 4: mostrar/ocultar botón "Usar tasa oficial"
+            els.btnUsarOficial.style.display = (code === 'CON') ? 'inline-block' : 'none';
+
             updateLabels();
             calc();
         }
 
         // ========================================
-        // 🔄 CAMBIAR DIRECCIÓN DE OPERACIÓN
+        // MEJORA 4: Rellenar tasa desde BCV en modo CON
+        // ========================================
+        function usarTasaOficial() {
+            if (rates.USD > 0) {
+                els.tasa.value = rates.USD.toFixed(2);
+                toast('📌 Tasa BCV cargada como base', 'success', 2000);
+                calc();
+            } else {
+                toast('⚠️ Primero actualiza las tasas', 'error', 2000);
+            }
+        }
+
+        // ========================================
+        // 🔄 CAMBIAR DIRECCIÓN — FIX 2
         // ========================================
         function setDirection(dir) {
             direction = dir;
-            
-            // UI: actualizar botones activos
+
             document.getElementById('btnDivisaABs').classList.toggle('active', dir === 'DivisaABs');
             document.getElementById('btnBsADivisa').classList.toggle('active', dir === 'BsADivisa');
             document.getElementById('btnDivisaABs').setAttribute('aria-selected', dir === 'DivisaABs');
             document.getElementById('btnBsADivisa').setAttribute('aria-selected', dir === 'BsADivisa');
-            
+
+            // ✅ FIX 2: Re-llenar la tasa al cambiar dirección (si no es CON)
+            if (currentCode !== 'CON' && rates[currentCode] > 0) {
+                els.tasa.value = rates[currentCode].toFixed(2);
+            }
+
             updateLabels();
             calc();
         }
@@ -423,55 +457,48 @@
             const txtDivisaABs = document.getElementById('txtDivisaABs');
             const txtBsADivisa = document.getElementById('txtBsADivisa');
 
-            // Textos de los botones según moneda
             if (currentCode === 'CON') {
-                txtDivisaABs.innerText = "$ en Acuerdo, a Bs";
-                txtBsADivisa.innerText = "Bs en Acuerdo, a $";
+                txtDivisaABs.innerText = '$ en Acuerdo, a Bs';
+                txtBsADivisa.innerText = 'Bs en Acuerdo, a $';
             } else {
                 txtDivisaABs.innerText = `De ${currentCurrency} a Bs`;
                 txtBsADivisa.innerText = `De Bs a ${currentCurrency}`;
             }
 
-            // Labels de inputs
             const labelsTasa = {
                 'USD': 'TASA DÓLAR $ (BCV)',
                 'EUR': 'TASA EURO € (Internacional)',
-                'BIN': 'TASA BINANCE ₮ (P2P)',
+                'BIN': 'TASA PARALELO $ (Ref.)',
                 'CON': direction === 'DivisaABs' ? '💬 TU TASA ACORDADA (Bs por $)' : '💬 TU TASA ACORDADA ($ por Bs)'
             };
 
             if (direction === 'DivisaABs') {
-                // Modo: Vendo divisa → Recibo Bolívares
-                els.labelMonto.innerText = (currentCode === 'CON') ? "MONTO EN $" : `MONTO EN ${currentCurrency.toUpperCase()}`;
-                els.labelTasa.innerText = labelsTasa[currentCode];
-                els.resLabel.innerText = "💰 TOTAL A RECIBIR (Bs):";
+                els.labelMonto.innerText = (currentCode === 'CON') ? 'MONTO EN $' : `MONTO EN ${currentCurrency.toUpperCase()}`;
+                els.labelTasa.innerText  = labelsTasa[currentCode];
+                els.resLabel.innerText   = '💰 TOTAL A RECIBIR (Bs):';
             } else {
-                // Modo: Compro divisa → Pago Bolívares
-                els.labelMonto.innerText = "MONTO EN BOLÍVARES (Bs)";
-                els.labelTasa.innerText = labelsTasa[currentCode];
-                els.resLabel.innerText = (currentCode === 'CON') ? "💎 $ A RECIBIR:" : `${currentCurrency.toUpperCase()} A RECIBIR:`;
+                els.labelMonto.innerText = 'MONTO EN BOLÍVARES (Bs)';
+                els.labelTasa.innerText  = labelsTasa[currentCode];
+                els.resLabel.innerText   = (currentCode === 'CON') ? '💎 $ A RECIBIR:' : `${currentCurrency.toUpperCase()} A RECIBIR:`;
             }
         }
 
         // ========================================
-        // 🧮 CALCULAR RESULTADO (LÓGICA CORREGIDA ✅)
+        // 🧮 CALCULAR RESULTADO
         // ========================================
         function calc() {
             const m = parseFloat(els.monto.value) || 0;
             const t = parseFloat(els.tasa.value) || 0;
-            
+
             if (m > 0 && t > 0) {
                 els.resBox.style.display = 'block';
-                
                 if (direction === 'DivisaABs') {
-                    // ✅ VENDO divisa: monto * tasa = Bolívares a recibir
                     const total = m * t;
-                    els.resTotal.innerText = "Bs " + total.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+                    els.resTotal.innerText = 'Bs ' + total.toLocaleString('es-VE', { minimumFractionDigits: 2 });
                 } else {
-                    // ✅ COMPRO divisa: monto / tasa = Divisa a recibir
-                    const total = m / t;
-                    const simbolo = currentCode === 'CON' ? "$" : (currentCode === 'EUR' ? "€" : currentCurrency);
-                    els.resTotal.innerText = total.toFixed(2) + " " + simbolo;
+                    const total  = m / t;
+                    const simbolo = currentCode === 'CON' ? '$' : (currentCode === 'EUR' ? '€' : currentCurrency);
+                    els.resTotal.innerText = total.toFixed(2) + ' ' + simbolo;
                 }
             } else {
                 els.resBox.style.display = 'none';
@@ -479,7 +506,7 @@
         }
 
         // ========================================
-        // 🕐 ACTUALIZAR TIMESTAMP
+        // 🕐 TIMESTAMP
         // ========================================
         function updateLastUpdateTime() {
             if (lastFetchTime) {
@@ -489,32 +516,30 @@
         }
 
         // ========================================
-        // 📱 ENVIAR A WHATSAPP (CORREGIDO ✅)
+        // 📱 ENVIAR A WHATSAPP
         // ========================================
         function sendWA() {
-            const m = els.monto.value.trim();
-            const t = els.tasa.value.trim();
+            const m     = els.monto.value.trim();
+            const t     = els.tasa.value.trim();
             const total = els.resTotal.innerText.trim();
-            
+
             if (!m || !t) {
                 toast('⚠️ Ingresa monto y tasa primero', 'error');
                 return;
             }
-            
-            const nombreMoneda = (currentCode === 'CON') ? "$" : currentCurrency;
-            const fuente = getFuenteLabel();
-            const emoji = getFuenteEmoji();
 
-            // Nombre legible de la tasa para el mensaje
+            const nombreMoneda = (currentCode === 'CON') ? '$' : currentCurrency;
+            const fuente       = getFuenteLabel();
+            const emoji        = getFuenteEmoji();
+
             let labelTasaMsg = '';
-            if (currentCode === 'USD') labelTasaMsg = 'Tasa BCV';
+            if (currentCode === 'USD')      labelTasaMsg = 'Tasa BCV';
             else if (currentCode === 'EUR') labelTasaMsg = 'Tasa Euro';
-            else if (currentCode === 'BIN') labelTasaMsg = 'Tasa Binance P2P';
-            else labelTasaMsg = 'Tasa Acordada';
+            else if (currentCode === 'BIN') labelTasaMsg = 'Tasa Paralelo';
+            else                            labelTasaMsg = 'Tasa Acordada';
 
-            let msg = "";
+            let msg = '';
             if (direction === 'DivisaABs') {
-                // Mensaje para VENTA de divisa
                 msg = `⚡ *Epic Converter LUAN*\n\n` +
                     `🤝 *Operación:* Venta de ${nombreMoneda}\n` +
                     `💵 *Cantidad:* ${m} ${nombreMoneda}\n` +
@@ -524,7 +549,6 @@
                     `_LUANSystem™ Professional_\n` +
                     `_Ing. LuisLa_`;
             } else {
-                // Mensaje para COMPRA de divisa
                 msg = `⚡ *Epic Converter LUAN*\n\n` +
                     `🤝 *Operación:* Compra de ${nombreMoneda} con Bs\n` +
                     `💸 *Monto enviado:* ${m} Bs\n` +
@@ -535,32 +559,30 @@
                     `_Ing. LuisLa_`;
             }
 
-            // ✅ URL corregida: sin espacios después de ?text=
             const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
             toast('📤 Abriendo WhatsApp...', 'success', 2000);
         }
 
         // ========================================
-        // 🏷️ HELPERS PARA WHATSAPP
+        // 🏷️ HELPERS WHATSAPP
         // ========================================
         function getFuenteLabel() {
             switch (currentCode) {
                 case 'USD': return 'Banco Central de Venezuela (BCV)';
                 case 'EUR': return 'Tasa Euro Oficial (EUR/VES)';
-                case 'BIN': return 'Binance P2P — Tasa Paralelo';
+                case 'BIN': return 'Dólar Paralelo (Ref. DolarAPI)';
                 case 'CON': return '💬 Tasa Personalizada / Acuerdo entre partes';
-                default: return '';
+                default:    return '';
             }
         }
-
         function getFuenteEmoji() {
             switch (currentCode) {
                 case 'USD': return '🏦';
                 case 'EUR': return '🇪🇺';
-                case 'BIN': return '🟡';
+                case 'BIN': return '💹';
                 case 'CON': return '🤝';
-                default: return '📌';
+                default:    return '📌';
             }
         }
 
@@ -569,14 +591,10 @@
         // ========================================
         els.monto.addEventListener('input', calc);
         els.tasa.addEventListener('input', calc);
-        
-        // Permitir calcular con Enter
+
         [els.monto, els.tasa].forEach(input => {
             input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    calc();
-                    input.blur();
-                }
+                if (e.key === 'Enter') { calc(); input.blur(); }
             });
         });
 
@@ -587,9 +605,6 @@
             window.addEventListener('load', async () => {
                 try {
                     const registration = await navigator.serviceWorker.register('./service-worker.js');
-                    console.log('✅ Service Worker registrado:', registration.scope);
-                    
-                    // Notificar si hay nueva versión
                     registration.addEventListener('updatefound', () => {
                         const newWorker = registration.installing;
                         newWorker.addEventListener('statechange', () => {
@@ -605,21 +620,18 @@
         }
 
         // ========================================
-        // 🚀 INICIALIZACIÓN
+        // 🚀 INICIALIZACIÓN — FIX 3: sin guardar ceros al arranque
         // ========================================
         document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            
-            // Auto-refresh cada 5 minutos si está visible y online
+            loadData(); // El localStorage se guarda DENTRO de loadData() solo si el fetch es exitoso
+
             setInterval(() => {
                 if (document.visibilityState === 'visible' && navigator.onLine) {
                     loadData();
                 }
             }, 5 * 60 * 1000);
-            
-            // Guardar tasas en localStorage para fallback offline
-            localStorage.setItem('luan_rates', JSON.stringify(rates));
         });
     </script>
 </body>
 </html>
+
