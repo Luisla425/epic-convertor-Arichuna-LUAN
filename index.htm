@@ -1,1 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Epic Converter LUAN ⚡</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#ffd700">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <style>
+        :root {
+            --primary: #ffd700;
+            --bg: #1a1a2e;
+            --card: rgba(255,255,255,0.08);
+            --success: #4ecca3;
+            --warning: #ffa500;
+            --danger: #ff6b6b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+        body { background:var(--bg); color:#fff; padding:15px; min-height:100vh; }
 
+        .header { text-align:center; margin-bottom:20px; position:relative; }
+        .refresh-btn {
+            position:absolute; right:0; top:0;
+            background:var(--card); border:1px solid var(--primary);
+            color:var(--primary); padding:10px; border-radius:50%;
+            cursor:pointer; font-size:1.1rem; transition:transform 0.2s;
+        }
+        .refresh-btn:active { transform:rotate(180deg); }
+        .refresh-btn.loading { animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        h1 { color:var(--primary); font-size:1.5rem; text-shadow:0 0 10px rgba(255,215,0,0.3); line-height:1.3; }
+        #lastUpdate { font-size:0.7rem; color:#aaa; margin-top:5px; transition:color 0.4s; }
+        #lastUpdate.reciente { color:var(--success); }
+        #lastUpdate.viejo    { color:var(--warning); }
+        #offlineBadge {
+            display:none; background:var(--danger); color:#fff;
+            font-size:0.68rem; font-weight:bold; padding:3px 12px;
+            border-radius:20px; margin-top:5px; letter-spacing:0.5px;
+        }
+        #offlineBadge.visible { display:inline-block; }
+
+        .glass {
+            background:var(--card); backdrop-filter:blur(10px);
+            border-radius:15px; padding:15px; margin-bottom:15px;
+            border:1px solid rgba(255,255,255,0.1);
+        }
+        .section-title { font-size:0.8rem; margin-bottom:10px; color:#ccc; }
+
+        .multi-res {
+            background:var(--card); backdrop-filter:blur(10px);
+            border-radius:15px; padding:14px; margin-bottom:15px;
+            border:1px solid rgba(255,255,255,0.1); display:none;
+        }
+        .multi-res.visible { display:block; }
+        .multi-title { font-size:0.7rem; color:#aaa; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
+        .multi-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+        }
+        .multi-row:last-child { border-bottom:none; }
+        .multi-lbl { font-size:0.82rem; color:#aaa; }
+        .multi-val { font-size:1rem; font-weight:bold; color:var(--success); }
+        .multi-val.hl { color:var(--primary); font-size:1.1rem; }
+
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+        .rate-card {
+            background:rgba(0,0,0,0.2); padding:12px; border-radius:12px;
+            text-align:center; cursor:pointer; border:2px solid transparent;
+            transition:all 0.2s ease;
+        }
+        .rate-card:active { transform:scale(0.97); }
+        .rate-card.selected {
+            border-color:var(--primary);
+            background:rgba(255,215,0,0.1);
+            box-shadow:0 0 12px rgba(255,215,0,0.2);
+        }
+        .val { font-size:1.2rem; font-weight:bold; color:var(--success); display:block; }
+        .lbl { font-size:0.7rem; color:#aaa; text-transform:uppercase; }
+
+        label { font-size:0.75rem; color:var(--primary); display:block; margin-top:12px; font-weight:bold; }
+        input[type="number"] {
+            width:100%; padding:14px; margin:5px 0; border-radius:10px;
+            border:2px solid rgba(255,255,255,0.1); background:#252945;
+            color:#fff; font-size:1.1rem; outline:none; transition:border-color 0.2s;
+            -moz-appearance:textfield;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; }
+        input[type="number"]:focus { border-color:var(--primary); }
+        input::placeholder { color:#666; }
+        .tasa-input { border:2px solid var(--primary) !important; color:var(--primary) !important; font-weight:bold; }
+        .tasa-input.manual { border-color:var(--warning) !important; color:var(--warning) !important; }
+
+        .btn-usar-oficial {
+            background:rgba(255,215,0,0.12); border:1px solid rgba(255,215,0,0.4);
+            color:var(--primary); font-size:0.72rem; font-weight:bold;
+            padding:6px 12px; border-radius:20px; cursor:pointer;
+            margin-top:4px; display:none; transition:background 0.2s;
+        }
+        .btn-usar-oficial:active { background:rgba(255,215,0,0.25); }
+
+        .montos-rapidos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 12px;
+        }
+        .monto-btn {
+            flex: 1 0 auto;
+            min-width: 60px;
+            padding: 10px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255,215,0,0.3);
+            background: rgba(255,215,0,0.07);
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .monto-btn:active {
+            background: rgba(255,215,0,0.25);
+            transform: scale(0.96);
+        }
+        .acumulador-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin: 5px 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suma-actual {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--primary);
+            background: rgba(0,0,0,0.5);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        .btn-acum {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .btn-acum:active { transform: scale(0.95); }
+        .btn-enter {
+            background: var(--success);
+            color: #1a1a2e;
+        }
+        .btn-limpiar {
+            background: rgba(255,107,107,0.7);
+        }
+
+        .toggle-container { display:flex; gap:8px; margin:15px 0; align-items:center; }
+        .toggle-btn {
+            flex:1; padding:12px; border-radius:8px; border:none;
+            background:#333; color:#fff; font-weight:bold; font-size:0.8rem;
+            cursor:pointer; transition:all 0.2s;
+        }
+        .toggle-btn:active { transform:scale(0.98); }
+        .active { background:var(--primary) !important; color:#1a1a2e !important; }
+        .btn-swap {
+            background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.18);
+            color:#fff; font-size:1.2rem; width:42px; height:42px; border-radius:50%;
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; transition:all 0.2s;
+        }
+        .btn-swap:active { transform:rotate(180deg) scale(0.9); background:rgba(255,215,0,0.15); }
+
+        .res-box {
+            background:rgba(78,204,163,0.1); padding:15px; border-radius:12px;
+            margin-top:15px; text-align:center; border:1px dashed var(--success);
+            animation:slideUp 0.3s ease; display:none; position:relative;
+        }
+        @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+        .res-label { font-size:0.8rem; color:#aaa; margin-bottom:5px; }
+        .res-total { color:var(--success); font-size:1.8rem; font-weight:bold; }
+        .btn-copy-res {
+            position:absolute; top:10px; right:12px;
+            background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+            color:#aaa; font-size:0.85rem; padding:4px 9px; border-radius:8px;
+            cursor:pointer; transition:all 0.15s;
+        }
+        .btn-copy-res:active { background:rgba(255,215,0,0.2); color:var(--primary); }
+        .res-comp { font-size:0.72rem; margin-top:7px; padding:5px 10px; border-radius:7px; display:none; }
+        .res-comp.mejor { background:rgba(78,204,163,0.15); color:var(--success); display:block; }
+        .res-comp.peor  { background:rgba(255,107,107,0.15); color:var(--danger);  display:block; }
+        .res-comp.igual { background:rgba(255,255,255,0.07); color:#aaa;           display:block; }
+
+        .btn-wa {
+            background:#25D366; color:#fff; border:none; width:100%;
+            padding:16px; border-radius:10px; font-weight:bold;
+            margin-top:15px; cursor:pointer; font-size:1rem; transition:background 0.2s;
+        }
+        .btn-wa:active { background:#128C7E; }
+
+        .toast {
+            position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+            padding:12px 20px; border-radius:50px; background:#333; color:#fff;
+            font-size:0.9rem; font-weight:500; z-index:9999;
+            box-shadow:0 4px 20px rgba(0,0,0,0.3);
+            animation:tIn 0.3s ease, tOut 0.3s ease 2.7s forwards;
+        }
+        @keyframes tIn  { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%)} }
+        @keyframes tOut { to{opacity:0} }
+        .toast.success { background:var(--success); color:#1a1a2e; }
+        .toast.error   { background:var(--warning); color:#1a1a2e; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <button class="refresh-btn" id="refreshBtn" onclick="loadData()" aria-label="Actualizar tasas">🔄</button>
+    <h1>Epic Converter LUAN ⚡</h1>
+    <div id="lastUpdate">Actualizado: --:--</div>
+    <span id="offlineBadge">📡 OFFLINE — última tasa guardada</span>
+</div>
+
+<div class="multi-res" id="multiRes">
+    <div class="multi-title">⚡ Con ese monto, al cambio de:</div>
+    <div class="multi-row"><span class="multi-lbl">🏦 BCV ($)</span><span class="multi-val" id="mUSD">--</span></div>
+    <div class="multi-row"><span class="multi-lbl">💹 Binance P2P ($)</span><span class="multi-val" id="mBIN">--</span></div>
+    <div class="multi-row"><span class="multi-lbl">🇪🇺 Euro (€)</span><span class="multi-val" id="mEUR">--</span></div>
+    <div class="multi-row" id="rowBS"><span class="multi-lbl">💱 En Bolívares</span><span class="multi-val hl" id="mBS">--</span></div>
+</div>
+
+<div class="glass">
+    <div class="section-title">1. SELECCIONA REFERENCIA</div>
+    <div class="grid">
+        <div class="rate-card selected" id="card-USD" onclick="selectCurrency('USD','Dólares')" role="button" tabindex="0">
+            <span class="lbl">🏦 BCV ($)</span><span class="val" id="vUSD">--</span>
+        </div>
+        <div class="rate-card" id="card-EUR" onclick="selectCurrency('EUR','Euros')" role="button" tabindex="0">
+            <span class="lbl">🇪🇺 EURO Real (€)</span><span class="val" id="vEUR">--</span>
+        </div>
+        <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN','Dólares')" role="button" tabindex="0">
+            <span class="lbl">💹 BINANCE P2P</span><span class="val" id="vBIN">--</span>
+        </div>
+        <div class="rate-card" id="card-CON" onclick="selectCurrency('CON','Acuerdo')" role="button" tabindex="0">
+            <span class="lbl">🤝 PERSONALIZADO</span><span class="val">---</span>
+        </div>
+    </div>
+</div>
+
+<div class="glass">
+    <div class="section-title">2. ¿QUÉ OPERACIÓN HARÁS?</div>
+
+    <div class="toggle-container" role="tablist">
+        <button id="btnDivisaABs" class="toggle-btn active" onclick="setDirection('DivisaABs')" role="tab" aria-selected="true">
+            <span id="txtDivisaABs">De $ a Bs</span>
+        </button>
+        <button class="btn-swap" onclick="intercambiarValores()" title="⇄ Invertir">⇄</button>
+        <button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')" role="tab" aria-selected="false">
+            <span id="txtBsADivisa">De Bs a $</span>
+        </button>
+    </div>
+
+    <label id="labelMonto">MONTO EN DÓLARES</label>
+
+    <div class="montos-rapidos" id="montosRapidos">
+        <!-- Botones dinámicos generados por JS -->
+    </div>
+
+    <input type="number" id="monto" placeholder="0.00" inputmode="decimal"
+           aria-label="Monto" autocomplete="off"
+           onfocus="this.select()" oninput="onMontoInput()">
+
+    <div class="acumulador-panel">
+        <span class="suma-actual" id="sumaActual">➕ Suma actual: 0</span>
+        <div style="display: flex; gap: 6px;">
+            <button class="btn-acum btn-limpiar" id="btnLimpiarAcum">🗑️ Limpiar</button>
+            <button class="btn-acum btn-enter" id="btnEnterAcum">✅ Enter</button>
+        </div>
+    </div>
+
+    <label id="labelTasa">TASA</label>
+    <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal"
+           aria-label="Tasa" autocomplete="off"
+           onfocus="this.select()" oninput="onTasaInput()">
+
+    <button class="btn-usar-oficial" id="btnUsarOficial" onclick="usarTasaOficial()">
+        ← Usar tasa BCV como base
+    </button>
+
+    <div id="resBox" class="res-box" aria-live="polite">
+        <button class="btn-copy-res" onclick="copiarResultado()">📋</button>
+        <p class="res-label" id="resLabel">Resultado:</p>
+        <h2 class="res-total" id="resTotal">0.00</h2>
+        <div class="res-comp" id="resComp"></div>
+    </div>
+
+    <button class="btn-wa" onclick="sendWA()">📩 Enviar a WhatsApp</button>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// 🧠 STATE
+// ══════════════════════════════════════════════
+const state = {
+    rates:        { USD: 0, EUR: 0, BIN: 0 },
+    current:      { code: 'USD', name: 'Dólares' },
+    direction:    'DivisaABs',
+    lastFetch:    null,
+    tasaManual:   false,
+    tasaManualCode: null
+};
+
+let acumulador = 0;
+
+const els = {
+    monto:       document.getElementById('monto'),
+    tasa:        document.getElementById('tasa'),
+    resBox:      document.getElementById('resBox'),
+    resTotal:    document.getElementById('resTotal'),
+    resLabel:    document.getElementById('resLabel'),
+    resComp:     document.getElementById('resComp'),
+    labelMonto:  document.getElementById('labelMonto'),
+    labelTasa:   document.getElementById('labelTasa'),
+    refreshBtn:  document.getElementById('refreshBtn'),
+    lastUpdate:  document.getElementById('lastUpdate'),
+    offlineBadge:document.getElementById('offlineBadge'),
+    btnUsarOf:   document.getElementById('btnUsarOficial'),
+    montosRap:   document.getElementById('montosRapidos'),
+    multiRes:    document.getElementById('multiRes'),
+    mUSD: document.getElementById('mUSD'),
+    mBIN: document.getElementById('mBIN'),
+    mEUR: document.getElementById('mEUR'),
+    mBS:  document.getElementById('mBS'),
+    rowBS:document.getElementById('rowBS'),
+    sumaActual:  document.getElementById('sumaActual')
+};
+
+// ══════════════════════════════════════════════
+// 🔔 TOAST
+// ══════════════════════════════════════════════
+function toast(msg, type = 'info', dur = 3000) {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), dur);
+}
+
+// ══════════════════════════════════════════════
+// 🔢 PRECISIÓN
+// ══════════════════════════════════════════════
+function round(n, d = 2) {
+    if (!isFinite(n) || isNaN(n)) return 0; // FIX A10: guard NaN/Infinity
+    return Number(Math.round(n + 'e' + d) + 'e-' + d);
+}
+function fmt(n) {
+    if (n == null || isNaN(n)) return '--';
+    return round(n).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+// ══════════════════════════════════════════════
+// 🌐 CARGAR TASAS
+// ══════════════════════════════════════════════
+async function loadData() {
+    els.refreshBtn.classList.add('loading');
+    try {
+        // FIX A12: timeout 10s para no colgar spinner si API no responde
+        const ctrl = new AbortController();
+        const tId  = setTimeout(() => ctrl.abort(), 10000);
+        const r1 = await fetch('https://ve.dolarapi.com/v1/dolares', { signal: ctrl.signal });
+        clearTimeout(tId);
+        if (!r1.ok) throw new Error('API dólar');
+        const d1 = await r1.json();
+
+        const usdBCV = parseFloat(d1.find(d => d.fuente === 'oficial')?.promedio  || 0);
+        // BIN = Binance P2P desde CriptoYa (ask=compra, bid=venta)
+        let usdPAR = 0;
+        try {
+            const rBIN  = await fetch('https://criptoya.com/api/binancep2p/usdt/ves/1', { signal: ctrl.signal });
+            const dBIN  = await rBIN.json();
+            // ask: cuántos Bs pago por 1 USDT (compra de $)
+            // bid: cuántos Bs recibo por 1 USDT (venta de $)
+            // Usamos promedio ask/bid como referencia neutral
+            const askBIN = parseFloat(dBIN.ask || 0);
+            const bidBIN = parseFloat(dBIN.bid || 0);
+            if (askBIN > 0 && bidBIN > 0) usdPAR = round((askBIN + bidBIN) / 2);
+            else usdPAR = askBIN || bidBIN;
+        } catch(e) {}
+
+        let eurBs = 0;
+        try {
+            const r2 = await fetch('https://open.er-api.com/v6/latest/USD');
+            const d2 = await r2.json();
+            const eurUsd = d2.rates?.EUR || 0;
+            if (eurUsd > 0 && usdBCV > 0) eurBs = round(usdBCV / eurUsd);
+        } catch(e) {}
+
+        if (usdBCV > 0) state.rates.USD = usdBCV;
+        if (usdPAR > 0) state.rates.BIN = usdPAR;
+        if (eurBs  > 0) state.rates.EUR = eurBs;
+
+        state.lastFetch = new Date();
+        localStorage.setItem('luan_rates', JSON.stringify(state.rates));
+        localStorage.setItem('luan_fetch', state.lastFetch.toISOString());
+
+        renderTasas();
+        actualizarTimestamp();
+        els.offlineBadge.classList.remove('visible');
+
+        if (!state.tasaManual && state.current.code !== 'CON' && state.rates[state.current.code] > 0) {
+            els.tasa.value = state.rates[state.current.code].toFixed(2);
+            els.tasa.classList.remove('manual');
+        }
+        calc();
+        toast('✅ Tasas actualizadas', 'success', 2000);
+    } catch(e) {
+        const msg = !navigator.onLine ? '📴 Sin internet — usando tasa guardada' : '⚠️ Error de servidor — usando tasa guardada';
+        toast(msg, 'error', 4000);
+        const saved = localStorage.getItem('luan_rates');
+        if (saved) { Object.assign(state.rates, JSON.parse(saved)); renderTasas(); }
+        const t = localStorage.getItem('luan_fetch');
+        if (t) state.lastFetch = new Date(t);
+        actualizarTimestamp();
+        els.offlineBadge.classList.add('visible');
+    } finally {
+        els.refreshBtn.classList.remove('loading');
+    }
+}
+
+function renderTasas() {
+    document.getElementById('vUSD').textContent = state.rates.USD > 0 ? fmt(state.rates.USD) : '--';
+    document.getElementById('vEUR').textContent = state.rates.EUR > 0 ? fmt(state.rates.EUR) : '--';
+    document.getElementById('vBIN').textContent = state.rates.BIN > 0 ? fmt(state.rates.BIN) : '--';
+}
+
+function actualizarTimestamp() {
+    if (!state.lastFetch) return;
+    const mins = (Date.now() - state.lastFetch) / 60000;
+    const hhmm = state.lastFetch.toLocaleTimeString('es-VE', { hour:'2-digit', minute:'2-digit' });
+    const ago  = mins < 1 ? 'ahora mismo' : mins < 60 ? `hace ${Math.floor(mins)}min` : `hace ${Math.floor(mins/60)}h`;
+    els.lastUpdate.textContent = `Actualizado: ${hhmm} (${ago})`;
+    els.lastUpdate.className   = mins < 5 ? 'reciente' : 'viejo';
+}
+
+// ══════════════════════════════════════════════
+// 🎯 SELECCIONAR MONEDA
+// ══════════════════════════════════════════════
+function selectCurrency(code, name) {
+    state.current = { code, name };
+    document.querySelectorAll('.rate-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('card-' + code).classList.add('selected');
+
+    if (state.tasaManual && state.tasaManualCode !== code) {
+        state.tasaManual = false;
+        state.tasaManualCode = null;
+        els.tasa.classList.remove('manual');
+    }
+    if (!state.tasaManual) {
+        els.tasa.value = (code !== 'CON' && state.rates[code] > 0) ? state.rates[code].toFixed(2) : '';
+        els.tasa.classList.remove('manual');
+    }
+    els.btnUsarOf.style.display = code === 'CON' ? 'inline-block' : 'none';
+    
+    limpiarAcumulador(true); // FIX A1: silencioso al cambiar moneda
+    actualizarBotonesYAcumulador();
+    updateLabels();
+    calc();
+    saveSession(); // FIX A19: persistir selección de moneda
+}
+
+// ══════════════════════════════════════════════
+// 🔄 DIRECCIÓN
+// ══════════════════════════════════════════════
+function setDirection(dir) {
+    state.direction = dir;
+    document.getElementById('btnDivisaABs').classList.toggle('active', dir === 'DivisaABs');
+    document.getElementById('btnBsADivisa').classList.toggle('active', dir === 'BsADivisa');
+    document.getElementById('btnDivisaABs').setAttribute('aria-selected', dir === 'DivisaABs');
+    document.getElementById('btnBsADivisa').setAttribute('aria-selected', dir === 'BsADivisa');
+    
+    if (!state.tasaManual && state.current.code !== 'CON' && state.rates[state.current.code] > 0) {
+        els.tasa.value = state.rates[state.current.code].toFixed(2);
+    }
+    
+    limpiarAcumulador(true); // FIX A1: silencioso al cambiar dirección
+    actualizarBotonesYAcumulador();
+    updateLabels();
+    calc();
+    saveSession();
+}
+
+// ══════════════════════════════════════════════
+// 🔄 INTERCAMBIAR
+// ══════════════════════════════════════════════
+function intercambiarValores() {
+    const raw = els.resTotal.textContent
+        .replace(/[^\d.,]/g, '')
+        .replace(/\./g, '')
+        .replace(',', '.');
+    const val = parseFloat(raw) || 0;
+    if (val <= 0) { toast('⚠️ Calcula primero un resultado', 'error'); return; }
+    els.monto.value = val.toFixed(2);
+    setDirection(state.direction === 'DivisaABs' ? 'BsADivisa' : 'DivisaABs');
+    toast('⇄ Valores invertidos', 'info', 1200);
+    navigator.vibrate && navigator.vibrate(10);
+}
+
+// ══════════════════════════════════════════════
+// 💰 BOTONES DINÁMICOS Y ACUMULADOR
+// ══════════════════════════════════════════════
+function actualizarBotonesYAcumulador() {
+    const esModoBs = (state.direction === 'BsADivisa');
+    let valores = [];
+    let unidad = '';
+    
+    if (esModoBs) {
+        valores = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+        unidad = 'Bs';
+    } else {
+        valores = [1, 2, 5, 10, 20, 50, 100, 200];
+        unidad = (state.current.code === 'EUR') ? '€' : '$';
+    }
+    
+    const container = els.montosRap;
+    container.innerHTML = '';
+
+    // FIX A3: en modo CON no tiene sentido mostrar montos rápidos
+    if (state.current.code === 'CON') {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+
+    valores.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = 'monto-btn';
+        btn.textContent = `${v}${unidad}`;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sumarAlAcumulador(v);
+        });
+        container.appendChild(btn);
+    });
+    
+    actualizarDisplayAcumulador();
+}
+
+function sumarAlAcumulador(valor) {
+    if (acumulador + valor > 1_000_000) { // FIX A16: límite máximo
+        toast('⚠️ Límite máximo alcanzado', 'error', 2000); return;
+    }
+    acumulador += valor;
+    actualizarDisplayAcumulador();
+    navigator.vibrate && navigator.vibrate(8);
+}
+
+function limpiarAcumulador(silencioso = false) {
+    acumulador = 0;
+    actualizarDisplayAcumulador();
+    if (!silencioso) toast('🧹 Acumulador reiniciado', 'info', 3000); // FIX A8: dur=3000 para coincidir con animación
+}
+
+function aplicarAcumulador() {
+    if (acumulador <= 0) {
+        toast('⚠️ No hay suma acumulada para aplicar', 'error');
+        return;
+    }
+    els.monto.value = acumulador;
+    calc();
+    toast(`✅ Monto fijado: ${acumulador.toLocaleString('es-VE')}`, 'success', 1500);
+    limpiarAcumulador(true); // FIX A2: silencioso — no apilar toast
+}
+
+function actualizarDisplayAcumulador() {
+    const esModoBs = (state.direction === 'BsADivisa');
+    let unidad = '';
+    if (esModoBs) {
+        unidad = 'Bs';
+    } else {
+        unidad = (state.current.code === 'EUR') ? '€' : '$';
+    }
+    els.sumaActual.textContent = `➕ Suma: ${acumulador.toLocaleString('es-VE')} ${unidad}`; // FIX A5: formato es-VE
+}
+
+// ══════════════════════════════════════════════
+// 🏷️ LABELS
+// ══════════════════════════════════════════════
+function updateLabels() {
+    const { code, name } = state.current;
+    const dir = state.direction;
+    document.getElementById('txtDivisaABs').textContent = code === 'CON' ? '$ en Acuerdo, a Bs' : `De ${name} a Bs`;
+    document.getElementById('txtBsADivisa').textContent = code === 'CON' ? 'Bs en Acuerdo, a $' : `De Bs a ${name}`;
+    const t = { USD:'TASA DÓLAR $ (BCV)', EUR:'TASA EURO € (Real)', BIN:'TASA BINANCE P2P',
+                CON: dir === 'DivisaABs' ? '💬 TU TASA (Bs por $)' : '💬 TU TASA ($ por Bs)' };
+    if (dir === 'DivisaABs') {
+        els.labelMonto.textContent = code === 'CON' ? 'MONTO EN $' : `MONTO EN ${name.toUpperCase()}`;
+        els.labelTasa.textContent  = t[code];
+        els.resLabel.textContent   = '💰 TOTAL A RECIBIR (Bs):';
+    } else {
+        els.labelMonto.textContent = 'MONTO EN BOLÍVARES (Bs)';
+        els.labelTasa.textContent  = t[code];
+        els.resLabel.textContent   = code === 'CON' ? '💎 $ A RECIBIR:' : `${name.toUpperCase()} A RECIBIR:`;
+    }
+}
+
+// ══════════════════════════════════════════════
+// 🧮 CALCULAR
+// ══════════════════════════════════════════════
+function calcular(m, t, dir) {
+    if (m <= 0 || t <= 0) return null;
+    return dir === 'DivisaABs' ? round(m * t) : round(m / t);
+}
+
+function renderResultado(total) {
+    if (total === null) { els.resBox.style.display = 'none'; return; }
+    els.resBox.style.display = 'block';
+    const { code, name } = state.current;
+    const dir = state.direction;
+    if (dir === 'DivisaABs') {
+        els.resTotal.textContent = 'Bs ' + fmt(total);
+        if (code !== 'BIN' && state.rates.BIN > 0) {
+            const m   = parseFloat(els.monto.value) || 0;
+            const par = round(m * state.rates.BIN);
+            const df  = round(total - par);
+            if (Math.abs(df) < 0.01) {
+                els.resComp.textContent = '≈ Igual que Binance P2P';
+                els.resComp.className   = 'res-comp igual';
+            } else if (df > 0) {
+                els.resComp.textContent = `✅ Bs ${fmt(df)} más que Binance P2P`;
+                els.resComp.className   = 'res-comp mejor';
+            } else {
+                els.resComp.textContent = `⚠️ Bs ${fmt(Math.abs(df))} menos que Binance P2P`;
+                els.resComp.className   = 'res-comp peor';
+            }
+        } else { els.resComp.className = 'res-comp'; }
+    } else {
+        const sim = code === 'EUR' ? '€' : '$';
+        els.resTotal.textContent = fmt(total) + ' ' + sim;
+        els.resComp.className = 'res-comp';
+    }
+}
+
+function calc() {
+    const m = parseFloat(els.monto.value) || 0;
+    const t = parseFloat(els.tasa.value)  || 0;
+    if (m > 1_000_000) { toast('⚠️ Monto muy alto', 'error'); return; }
+    if (m < 0 || t < 0) return;
+    renderResultado(calcular(m, t, state.direction));
+    renderMulti(m);
+    saveSession();
+}
+
+// ══════════════════════════════════════════════
+// ⚡ MULTI-RESULTADO
+// ══════════════════════════════════════════════
+function renderMulti(m) {
+    if (m <= 0) { els.multiRes.classList.remove('visible'); return; }
+    els.multiRes.classList.add('visible');
+    const dir = state.direction;
+    if (dir === 'DivisaABs') {
+        els.mUSD.textContent = state.rates.USD > 0 ? 'Bs ' + fmt(round(m * state.rates.USD)) : '--';
+        els.mBIN.textContent = state.rates.BIN > 0 ? 'Bs ' + fmt(round(m * state.rates.BIN)) : '--';
+        els.mEUR.textContent = state.rates.EUR > 0 ? 'Bs ' + fmt(round(m * state.rates.EUR)) : '--';
+        els.rowBS.style.display = 'none';
+    } else {
+        els.rowBS.style.display = 'flex';
+        els.mUSD.textContent = (state.rates.USD > 0) ? fmt(round(m / state.rates.USD)) + ' $'  : '--';
+        els.mBIN.textContent = (state.rates.BIN > 0) ? fmt(round(m / state.rates.BIN)) + ' $'  : '--';
+        els.mEUR.textContent = (state.rates.EUR > 0) ? fmt(round(m / state.rates.EUR)) + ' €'  : '--';
+        els.mBS.textContent  = fmt(m) + ' Bs';
+    }
+}
+
+// ══════════════════════════════════════════════
+// 📋 COPIAR
+// ══════════════════════════════════════════════
+function copiarResultado() {
+    const txt = els.resTotal.textContent.trim();
+    if (!txt) return;
+    navigator.clipboard.writeText(txt).then(() => {
+        toast('📋 Copiado: ' + txt, 'success', 2000);
+        navigator.vibrate && navigator.vibrate(15);
+    });
+}
+
+// ══════════════════════════════════════════════
+// 🔁 USAR TASA OFICIAL
+// ══════════════════════════════════════════════
+function usarTasaOficial() {
+    if (state.rates.USD > 0) {
+        els.tasa.value = state.rates.USD.toFixed(2);
+        state.tasaManual = false;
+        els.tasa.classList.remove('manual');
+        toast('📌 Tasa BCV cargada', 'success', 2000);
+        calc();
+    } else toast('⚠️ Primero actualiza las tasas', 'error', 2000);
+}
+
+// ══════════════════════════════════════════════
+// 📲 WHATSAPP
+// ══════════════════════════════════════════════
+function sendWA() {
+    const m = els.monto.value.trim();
+    const t = els.tasa.value.trim();
+    if (!m || !t) { toast('⚠️ Ingresa monto y tasa primero', 'error'); return; }
+    // FIX A9: chequear contenido real, no inline style (puede no estar seteado al inicio)
+    const hayResultado = els.resTotal.textContent.trim() && els.resTotal.textContent.trim() !== '0.00';
+    if (!hayResultado) {
+        toast('⚠️ Primero calcula un resultado', 'error'); return;
+    }
+    const total = els.resTotal.textContent.trim();
+    const { code, name } = state.current;
+    const nom  = code === 'CON' ? '$' : name;
+    const mF   = parseFloat(m).toLocaleString('es-VE', { minimumFractionDigits:2 });
+    const tF   = parseFloat(t).toLocaleString('es-VE', { minimumFractionDigits:2 });
+    const lab  = { USD:'Tasa BCV', EUR:'Tasa Euro', BIN:'Tasa Paralelo', CON:'Tasa Acordada' };
+    const src  = { USD:'Banco Central de Venezuela (BCV)', EUR:'Tasa Euro Oficial',
+                   BIN:'Binance P2P · CriptoYa (USDT/VES)', CON:'Tasa Personalizada / Acuerdo' };
+    const emo  = { USD:'🏦', EUR:'🇪🇺', BIN:'💹', CON:'🤝' };
+    const l1   = state.direction === 'DivisaABs'
+        ? `🤝 *Operación:* Venta de ${nom}\n💵 *Cantidad:* ${mF} ${nom}`
+        : `🤝 *Operación:* Compra de ${nom} con Bs\n💸 *Monto enviado:* ${mF} Bs`;
+    const l2   = state.direction === 'DivisaABs'
+        ? `💰 *Total a recibir en Bs:* ${total}`
+        : `💎 *Total en ${nom}:* ${total}`;
+    const msg  = `⚡ *Epic Converter LUAN*\n\n${l1}\n📊 *${lab[code]}:* ${tF} Bs\n${l2}\n\n${emo[code]} _Ref: ${src[code]}_\n_LUANSystem™ Professional · Ing. LuisLa_`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    toast('📤 Abriendo WhatsApp...', 'success', 2000);
+}
+
+// ══════════════════════════════════════════════
+// 💾 SESIÓN
+// ══════════════════════════════════════════════
+function saveSession() {
+    localStorage.setItem('luan_session', JSON.stringify({
+        monto: els.monto.value, tasa: els.tasa.value,
+        code: state.current.code, name: state.current.name,
+        direction: state.direction, tasaManual: state.tasaManual,
+        tasaManualCode: state.tasaManualCode,
+        acumulador: acumulador // FIX A6: persistir acumulador
+    }));
+}
+
+function restoreSession() {
+    try {
+        const s = JSON.parse(localStorage.getItem('luan_session') || 'null');
+        if (!s) return;
+        if (s.monto) els.monto.value = s.monto;
+        if (s.tasa)  els.tasa.value  = s.tasa;
+        if (s.tasaManual) {
+            state.tasaManual     = true;
+            state.tasaManualCode = s.tasaManualCode || null;
+            els.tasa.classList.add('manual');
+        }
+        if (s.code)  selectCurrency(s.code, s.name || s.code);
+        if (s.direction) setTimeout(() => setDirection(s.direction), 60);
+        if (s.acumulador > 0) { acumulador = s.acumulador; actualizarDisplayAcumulador(); } // FIX A6
+    } catch(e) {}
+}
+
+// ══════════════════════════════════════════════
+// ⌨️ HANDLERS
+// ══════════════════════════════════════════════
+function onMontoInput() { calc(); }
+function onTasaInput()  {
+    state.tasaManual     = true;
+    state.tasaManualCode = state.current.code;
+    els.tasa.classList.add('manual');
+    calc();
+}
+
+// ══════════════════════════════════════════════
+// 🚀 INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    restoreSession();
+    loadData();
+    setTimeout(() => els.monto.focus(), 500);
+    
+    document.getElementById('btnLimpiarAcum').addEventListener('click', () => limpiarAcumulador());
+    document.getElementById('btnEnterAcum').addEventListener('click', () => aplicarAcumulador());
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && document.activeElement !== els.monto && document.activeElement !== els.tasa) {
+            aplicarAcumulador();
+        }
+    });
+    
+    setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine) loadData(); }, 5 * 60 * 1000);
+    setInterval(actualizarTimestamp, 60 * 1000);
+});
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        try {
+            const reg = await navigator.serviceWorker.register('./service-worker.js');
+            reg.addEventListener('updatefound', () => {
+                reg.installing?.addEventListener('statechange', function() {
+                    if (this.state === 'installed' && navigator.serviceWorker.controller)
+                        toast('🔄 Nueva versión disponible. Recarga para actualizar.', 'info', 5000);
+                });
+            });
+        } catch(e) {}
+    });
+}
+</script>
+</body>
+</html>
