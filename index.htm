@@ -274,6 +274,10 @@
         <!-- Botones dinámicos generados por JS -->
     </div>
 
+    <input type="number" id="monto" placeholder="0.00" inputmode="decimal"
+           aria-label="Monto" autocomplete="off"
+           onfocus="this.select()" oninput="onMontoInput()">
+
     <div class="acumulador-panel">
         <span class="suma-actual" id="sumaActual">➕ Suma actual: 0</span>
         <div style="display: flex; gap: 6px;">
@@ -281,10 +285,6 @@
             <button class="btn-acum btn-enter" id="btnEnterAcum">✅ Enter</button>
         </div>
     </div>
-
-    <input type="number" id="monto" placeholder="0.00" inputmode="decimal"
-           aria-label="Monto" autocomplete="off"
-           onfocus="this.select()" oninput="onMontoInput()">
 
     <label id="labelTasa">TASA</label>
     <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal"
@@ -360,6 +360,7 @@ function toast(msg, type = 'info', dur = 3000) {
 // 🔢 PRECISIÓN
 // ══════════════════════════════════════════════
 function round(n, d = 2) {
+    if (!isFinite(n) || isNaN(n)) return 0; // FIX A10: guard NaN/Infinity
     return Number(Math.round(n + 'e' + d) + 'e-' + d);
 }
 function fmt(n) {
@@ -373,7 +374,11 @@ function fmt(n) {
 async function loadData() {
     els.refreshBtn.classList.add('loading');
     try {
-        const r1 = await fetch('https://ve.dolarapi.com/v1/dolares');
+        // FIX A12: timeout 10s para no colgar spinner si API no responde
+        const ctrl = new AbortController();
+        const tId  = setTimeout(() => ctrl.abort(), 10000);
+        const r1 = await fetch('https://ve.dolarapi.com/v1/dolares', { signal: ctrl.signal });
+        clearTimeout(tId);
         if (!r1.ok) throw new Error('API dólar');
         const d1 = await r1.json();
 
@@ -454,10 +459,11 @@ function selectCurrency(code, name) {
     }
     els.btnUsarOf.style.display = code === 'CON' ? 'inline-block' : 'none';
     
-    limpiarAcumulador();
+    limpiarAcumulador(true); // FIX A1: silencioso al cambiar moneda
     actualizarBotonesYAcumulador();
     updateLabels();
     calc();
+    saveSession(); // FIX A19: persistir selección de moneda
 }
 
 // ══════════════════════════════════════════════
@@ -474,7 +480,7 @@ function setDirection(dir) {
         els.tasa.value = state.rates[state.current.code].toFixed(2);
     }
     
-    limpiarAcumulador();
+    limpiarAcumulador(true); // FIX A1: silencioso al cambiar dirección
     actualizarBotonesYAcumulador();
     updateLabels();
     calc();
@@ -515,11 +521,18 @@ function actualizarBotonesYAcumulador() {
     
     const container = els.montosRap;
     container.innerHTML = '';
+
+    // FIX A3: en modo CON no tiene sentido mostrar montos rápidos
+    if (state.current.code === 'CON') {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+
     valores.forEach(v => {
         const btn = document.createElement('button');
         btn.className = 'monto-btn';
         btn.textContent = `${v}${unidad}`;
-        btn.setAttribute('data-val', v);
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             sumarAlAcumulador(v);
@@ -531,15 +544,18 @@ function actualizarBotonesYAcumulador() {
 }
 
 function sumarAlAcumulador(valor) {
+    if (acumulador + valor > 1_000_000) { // FIX A16: límite máximo
+        toast('⚠️ Límite máximo alcanzado', 'error', 2000); return;
+    }
     acumulador += valor;
     actualizarDisplayAcumulador();
     navigator.vibrate && navigator.vibrate(8);
 }
 
-function limpiarAcumulador() {
+function limpiarAcumulador(silencioso = false) {
     acumulador = 0;
     actualizarDisplayAcumulador();
-    toast('🧹 Acumulador reiniciado', 'info', 1000);
+    if (!silencioso) toast('🧹 Acumulador reiniciado', 'info', 3000); // FIX A8: dur=3000 para coincidir con animación
 }
 
 function aplicarAcumulador() {
@@ -549,8 +565,8 @@ function aplicarAcumulador() {
     }
     els.monto.value = acumulador;
     calc();
-    toast(`✅ Monto fijado en ${acumulador}`, 'success', 1500);
-    limpiarAcumulador();
+    toast(`✅ Monto fijado: ${acumulador.toLocaleString('es-VE')}`, 'success', 1500);
+    limpiarAcumulador(true); // FIX A2: silencioso — no apilar toast
 }
 
 function actualizarDisplayAcumulador() {
@@ -561,7 +577,7 @@ function actualizarDisplayAcumulador() {
     } else {
         unidad = (state.current.code === 'EUR') ? '€' : '$';
     }
-    els.sumaActual.textContent = `➕ Suma actual: ${acumulador}${unidad}`;
+    els.sumaActual.textContent = `➕ Suma: ${acumulador.toLocaleString('es-VE')} ${unidad}`; // FIX A5: formato es-VE
 }
 
 // ══════════════════════════════════════════════
@@ -685,7 +701,9 @@ function sendWA() {
     const m = els.monto.value.trim();
     const t = els.tasa.value.trim();
     if (!m || !t) { toast('⚠️ Ingresa monto y tasa primero', 'error'); return; }
-    if (els.resBox.style.display === 'none' || !els.resTotal.textContent.trim()) {
+    // FIX A9: chequear contenido real, no inline style (puede no estar seteado al inicio)
+    const hayResultado = els.resTotal.textContent.trim() && els.resTotal.textContent.trim() !== '0.00';
+    if (!hayResultado) {
         toast('⚠️ Primero calcula un resultado', 'error'); return;
     }
     const total = els.resTotal.textContent.trim();
@@ -716,7 +734,8 @@ function saveSession() {
         monto: els.monto.value, tasa: els.tasa.value,
         code: state.current.code, name: state.current.name,
         direction: state.direction, tasaManual: state.tasaManual,
-        tasaManualCode: state.tasaManualCode
+        tasaManualCode: state.tasaManualCode,
+        acumulador: acumulador // FIX A6: persistir acumulador
     }));
 }
 
@@ -733,6 +752,7 @@ function restoreSession() {
         }
         if (s.code)  selectCurrency(s.code, s.name || s.code);
         if (s.direction) setTimeout(() => setDirection(s.direction), 60);
+        if (s.acumulador > 0) { acumulador = s.acumulador; actualizarDisplayAcumulador(); } // FIX A6
     } catch(e) {}
 }
 
