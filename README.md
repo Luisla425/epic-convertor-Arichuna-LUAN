@@ -1,1 +1,2 @@
-# epic-convertor-Arichuna-LUAN
+# epic-convertor-Arichuna/LUAN
+Por El ING. LUIS LÁREZ
