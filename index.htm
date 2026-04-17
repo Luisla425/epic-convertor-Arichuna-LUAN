@@ -524,10 +524,10 @@ function actualizarBotonesYAcumulador() {
     let unidad = '';
     
     if (esModoBs) {
-        valores = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+        valores = [0,05 ,0.25, 0.50, 1, 2 ,5, 10, 20, 50, 100, 500, 1000, 5000, 10000, 20000, 50000];
         unidad = 'Bs';
     } else {
-        valores = [1, 2, 5, 10, 20, 50, 100, 200];
+        valores = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
         unidad = (state.current.code === 'EUR') ? '€' : '$';
     }
     
