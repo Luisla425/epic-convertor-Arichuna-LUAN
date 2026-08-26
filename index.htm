@@ -17,10 +17,13 @@
             --success: #4ecca3;
             --warning: #ffa500;
             --danger: #ff6b6b;
+            --up: #4ecca3;
+            --down: #ff6b6b;
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
         body { background:var(--bg); color:#fff; padding:15px; min-height:100vh; }
 
+        /* ===== HEADER ===== */
         .header { text-align:center; margin-bottom:20px; position:relative; }
         .refresh-btn {
             position:absolute; right:0; top:0;
@@ -42,6 +45,7 @@
         }
         #offlineBadge.visible { display:inline-block; }
 
+        /* ===== GLASS ===== */
         .glass {
             background:var(--card); backdrop-filter:blur(10px);
             border-radius:15px; padding:15px; margin-bottom:15px;
@@ -49,6 +53,7 @@
         }
         .section-title { font-size:0.8rem; margin-bottom:10px; color:#ccc; }
 
+        /* ===== MULTI RESULTADO ===== */
         .multi-res {
             background:var(--card); backdrop-filter:blur(10px);
             border-radius:15px; padding:14px; margin-bottom:15px;
@@ -65,11 +70,12 @@
         .multi-val { font-size:1rem; font-weight:bold; color:var(--success); }
         .multi-val.hl { color:var(--primary); font-size:1.1rem; }
 
+        /* ===== GRID TASAS ===== */
         .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
         .rate-card {
             background:rgba(0,0,0,0.2); padding:12px; border-radius:12px;
             text-align:center; cursor:pointer; border:2px solid transparent;
-            transition:all 0.2s ease;
+            transition:all 0.2s ease; position:relative;
         }
         .rate-card:active { transform:scale(0.97); }
         .rate-card.selected {
@@ -80,16 +86,26 @@
         .val { font-size:1.2rem; font-weight:bold; color:var(--success); display:block; }
         .lbl { font-size:0.7rem; color:#aaa; text-transform:uppercase; }
 
+        /* ===== TENDENCIA ▲▼ ===== */
+        .trend {
+            font-size:0.62rem; font-weight:bold;
+            display:block; margin-top:2px; height:14px;
+        }
+        .trend.up   { color:var(--up); }
+        .trend.down { color:var(--down); }
+        .trend.flat { color:#555; }
+
+        /* ===== INPUTS ===== */
         label { font-size:0.75rem; color:var(--primary); display:block; margin-top:12px; font-weight:bold; }
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             width:100%; padding:14px; margin:5px 0; border-radius:10px;
             border:2px solid rgba(255,255,255,0.1); background:#252945;
             color:#fff; font-size:1.1rem; outline:none; transition:border-color 0.2s;
-            -moz-appearance:textfield;
         }
+        input[type="number"] { -moz-appearance:textfield; }
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; }
-        input[type="number"]:focus { border-color:var(--primary); }
+        input[type="number"]:focus, input[type="text"]:focus { border-color:var(--primary); }
         input::placeholder { color:#666; }
         .tasa-input { border:2px solid var(--primary) !important; color:var(--primary) !important; font-weight:bold; }
         .tasa-input.manual { border-color:var(--warning) !important; color:var(--warning) !important; }
@@ -102,68 +118,35 @@
         }
         .btn-usar-oficial:active { background:rgba(255,215,0,0.25); }
 
-        .montos-rapidos {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 8px 0 12px;
-        }
+        /* ===== ACUMULADOR ===== */
+        .montos-rapidos { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
         .monto-btn {
-            flex: 1 0 auto;
-            min-width: 60px;
-            padding: 10px 0;
-            border-radius: 8px;
-            border: 1px solid rgba(255,215,0,0.3);
-            background: rgba(255,215,0,0.07);
-            color: var(--primary);
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.15s;
+            flex:1 0 auto; min-width:60px; padding:10px 0;
+            border-radius:8px; border:1px solid rgba(255,215,0,0.3);
+            background:rgba(255,215,0,0.07); color:var(--primary);
+            font-size:0.9rem; font-weight:bold; cursor:pointer; transition:all 0.15s;
         }
-        .monto-btn:active {
-            background: rgba(255,215,0,0.25);
-            transform: scale(0.96);
-        }
+        .monto-btn:active { background:rgba(255,215,0,0.25); transform:scale(0.96); }
         .acumulador-panel {
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            padding: 8px 12px;
-            margin: 5px 0 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
+            background:rgba(0,0,0,0.3); border-radius:12px;
+            padding:8px 12px; margin:5px 0 10px;
+            display:flex; align-items:center; justify-content:space-between;
+            flex-wrap:wrap; gap:8px;
         }
         .suma-actual {
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--primary);
-            background: rgba(0,0,0,0.5);
-            padding: 6px 12px;
-            border-radius: 20px;
+            font-size:1rem; font-weight:bold; color:var(--primary);
+            background:rgba(0,0,0,0.5); padding:6px 12px; border-radius:20px;
         }
         .btn-acum {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.1s;
+            background:rgba(255,255,255,0.1); border:none; color:white;
+            padding:6px 14px; border-radius:30px; font-size:0.8rem;
+            font-weight:bold; cursor:pointer; transition:0.1s;
         }
-        .btn-acum:active { transform: scale(0.95); }
-        .btn-enter {
-            background: var(--success);
-            color: #1a1a2e;
-        }
-        .btn-limpiar {
-            background: rgba(255,107,107,0.7);
-        }
+        .btn-acum:active { transform:scale(0.95); }
+        .btn-enter  { background:var(--success); color:#1a1a2e; }
+        .btn-limpiar { background:rgba(255,107,107,0.7); }
 
+        /* ===== TOGGLE OPERACIÓN ===== */
         .toggle-container { display:flex; gap:8px; margin:15px 0; align-items:center; }
         .toggle-btn {
             flex:1; padding:12px; border-radius:8px; border:none;
@@ -180,6 +163,58 @@
         }
         .btn-swap:active { transform:rotate(180deg) scale(0.9); background:rgba(255,215,0,0.15); }
 
+        /* ===== SELECTOR DE TIPO DE OPERACIÓN (MOTIVO WA) ===== */
+        .op-type-section {
+            margin-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 14px;
+        }
+        .op-type-label {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .op-type-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .op-type-btn {
+            padding: 11px 8px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: #ccc;
+            font-size: 0.88rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .op-type-btn:active { transform: scale(0.97); }
+        .op-type-btn.sel-venta   { border-color: var(--success); background: rgba(78,204,163,0.12); color: var(--success); }
+        .op-type-btn.sel-compra  { border-color: #7eb8ff;        background: rgba(126,184,255,0.12); color: #7eb8ff; }
+        .op-type-btn.sel-pago    { border-color: var(--warning);  background: rgba(255,165,0,0.12);  color: var(--warning); }
+        .op-type-btn.sel-cambio  { border-color: var(--primary);  background: rgba(255,215,0,0.12);  color: var(--primary); }
+
+        .motivo-wrap { display:none; animation:slideUp 0.25s ease; }
+        .motivo-wrap.visible { display:block; }
+        .motivo-hint {
+            font-size: 0.72rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        input.motivo-input {
+            border: 2px solid rgba(255,255,255,0.15) !important;
+            font-size: 1rem;
+            color: #fff;
+        }
+        input.motivo-input:focus { border-color: var(--primary) !important; }
+
+        /* ===== RESULTADO ===== */
         .res-box {
             background:rgba(78,204,163,0.1); padding:15px; border-radius:12px;
             margin-top:15px; text-align:center; border:1px dashed var(--success);
@@ -200,6 +235,7 @@
         .res-comp.peor  { background:rgba(255,107,107,0.15); color:var(--danger);  display:block; }
         .res-comp.igual { background:rgba(255,255,255,0.07); color:#aaa;           display:block; }
 
+        /* ===== WHATSAPP ===== */
         .btn-wa {
             background:#25D366; color:#fff; border:none; width:100%;
             padding:16px; border-radius:10px; font-weight:bold;
@@ -207,6 +243,7 @@
         }
         .btn-wa:active { background:#128C7E; }
 
+        /* ===== TOAST ===== */
         .toast {
             position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
             padding:12px 20px; border-radius:50px; background:#333; color:#fff;
@@ -222,6 +259,7 @@
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
     <button class="refresh-btn" id="refreshBtn" onclick="loadData()" aria-label="Actualizar tasas">🔄</button>
     <h1>Epic Converter LUAN ⚡</h1>
@@ -229,6 +267,7 @@
     <span id="offlineBadge">📡 OFFLINE — última tasa guardada</span>
 </div>
 
+<!-- MULTI RESULTADO -->
 <div class="multi-res" id="multiRes">
     <div class="multi-title">⚡ Con ese monto, al cambio de:</div>
     <div class="multi-row"><span class="multi-lbl">🏦 BCV ($)</span><span class="multi-val" id="mUSD">--</span></div>
@@ -237,24 +276,33 @@
     <div class="multi-row" id="rowBS"><span class="multi-lbl">💱 En Bolívares</span><span class="multi-val hl" id="mBS">--</span></div>
 </div>
 
+<!-- SECCIÓN 1: REFERENCIA -->
 <div class="glass">
     <div class="section-title">1. SELECCIONA REFERENCIA</div>
     <div class="grid">
         <div class="rate-card selected" id="card-USD" onclick="selectCurrency('USD','Dólares')" role="button" tabindex="0">
-            <span class="lbl">🏦 BCV ($)</span><span class="val" id="vUSD">--</span>
+            <span class="lbl">🏦 BCV ($)</span>
+            <span class="val" id="vUSD">--</span>
+            <span class="trend flat" id="tUSD"></span>
         </div>
         <div class="rate-card" id="card-EUR" onclick="selectCurrency('EUR','Euros')" role="button" tabindex="0">
-            <span class="lbl">🇪🇺 EURO Real (€)</span><span class="val" id="vEUR">--</span>
+            <span class="lbl">🇪🇺 EURO Real (€)</span>
+            <span class="val" id="vEUR">--</span>
+            <span class="trend flat" id="tEUR"></span>
         </div>
         <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN','Dólares')" role="button" tabindex="0">
-            <span class="lbl">💹 BINANCE P2P</span><span class="val" id="vBIN">--</span>
+            <span class="lbl">💹 BINANCE P2P</span>
+            <span class="val" id="vBIN">--</span>
+            <span class="trend flat" id="tBIN"></span>
         </div>
         <div class="rate-card" id="card-CON" onclick="selectCurrency('CON','Acuerdo')" role="button" tabindex="0">
-            <span class="lbl">🤝 PERSONALIZADO</span><span class="val">---</span>
+            <span class="lbl">🤝 PERSONALIZADO</span>
+            <span class="val">---</span>
         </div>
     </div>
 </div>
 
+<!-- SECCIÓN 2: OPERACIÓN -->
 <div class="glass">
     <div class="section-title">2. ¿QUÉ OPERACIÓN HARÁS?</div>
 
@@ -270,9 +318,7 @@
 
     <label id="labelMonto">MONTO EN DÓLARES</label>
 
-    <div class="montos-rapidos" id="montosRapidos">
-        <!-- Botones dinámicos generados por JS -->
-    </div>
+    <div class="montos-rapidos" id="montosRapidos"></div>
 
     <input type="number" id="monto" placeholder="0.00" inputmode="decimal"
            aria-label="Monto" autocomplete="off"
@@ -280,9 +326,9 @@
 
     <div class="acumulador-panel">
         <span class="suma-actual" id="sumaActual">➕ Suma actual: 0</span>
-        <div style="display: flex; gap: 6px;">
+        <div style="display:flex;gap:6px;">
             <button class="btn-acum btn-limpiar" id="btnLimpiarAcum">🗑️ Limpiar</button>
-            <button class="btn-acum btn-enter" id="btnEnterAcum">✅ Enter</button>
+            <button class="btn-acum btn-enter"   id="btnEnterAcum">✅ Enter</button>
         </div>
     </div>
 
@@ -295,6 +341,25 @@
         ← Usar tasa BCV como base
     </button>
 
+    <!-- ===== SECCIÓN MOTIVO / TIPO DE OPERACIÓN ===== -->
+    <div class="op-type-section">
+        <span class="op-type-label">3. ¿QUÉ VAS A HACER? (para el mensaje de WhatsApp)</span>
+        <div class="op-type-btns">
+            <button class="op-type-btn" id="opVenta"  onclick="seleccionarTipoOp('venta')">💰 Vender</button>
+            <button class="op-type-btn" id="opCompra" onclick="seleccionarTipoOp('compra')">🛒 Comprar</button>
+            <button class="op-type-btn" id="opPago"   onclick="seleccionarTipoOp('pago')">💳 Pagar</button>
+            <button class="op-type-btn" id="opCambio" onclick="seleccionarTipoOp('cambio')">🔄 Cambiar $</button>
+        </div>
+
+        <div class="motivo-wrap" id="motivoWrap">
+            <p class="motivo-hint" id="motivoHint">¿Qué estás vendiendo?</p>
+            <input type="text" id="motivoInput" class="motivo-input"
+                   placeholder="Ej: 1/2 kg de maní" maxlength="80"
+                   autocomplete="off" oninput="saveSession()">
+        </div>
+    </div>
+
+    <!-- RESULTADO -->
     <div id="resBox" class="res-box" aria-live="polite">
         <button class="btn-copy-res" onclick="copiarResultado()">📋</button>
         <p class="res-label" id="resLabel">Resultado:</p>
@@ -312,43 +377,48 @@
 // 🧠 STATE
 // ══════════════════════════════════════════════
 const state = {
-    rates:        { USD: 0, EUR: 0, BIN: 0 },
-    current:      { code: 'USD', name: 'Dólares' },
-    direction:    'DivisaABs',
-    lastFetch:    null,
-    tasaManual:   false,
-    tasaManualCode: null
+    rates:          { USD:0, EUR:0, BIN:0 },
+    prevRates:      { USD:0, EUR:0, BIN:0 },
+    current:        { code:'USD', name:'Dólares' },
+    direction:      'DivisaABs',
+    lastFetch:      null,
+    tasaManual:     false,
+    tasaManualCode: null,
+    tipoOp:         null   // 'venta' | 'compra' | 'pago' | 'cambio'
 };
 
 let acumulador = 0;
 
 const els = {
-    monto:       document.getElementById('monto'),
-    tasa:        document.getElementById('tasa'),
-    resBox:      document.getElementById('resBox'),
-    resTotal:    document.getElementById('resTotal'),
-    resLabel:    document.getElementById('resLabel'),
-    resComp:     document.getElementById('resComp'),
-    labelMonto:  document.getElementById('labelMonto'),
-    labelTasa:   document.getElementById('labelTasa'),
-    refreshBtn:  document.getElementById('refreshBtn'),
-    lastUpdate:  document.getElementById('lastUpdate'),
-    offlineBadge:document.getElementById('offlineBadge'),
-    btnUsarOf:   document.getElementById('btnUsarOficial'),
-    montosRap:   document.getElementById('montosRapidos'),
-    multiRes:    document.getElementById('multiRes'),
-    mUSD: document.getElementById('mUSD'),
-    mBIN: document.getElementById('mBIN'),
-    mEUR: document.getElementById('mEUR'),
-    mBS:  document.getElementById('mBS'),
-    rowBS:document.getElementById('rowBS'),
-    sumaActual:  document.getElementById('sumaActual')
+    monto:        document.getElementById('monto'),
+    tasa:         document.getElementById('tasa'),
+    resBox:       document.getElementById('resBox'),
+    resTotal:     document.getElementById('resTotal'),
+    resLabel:     document.getElementById('resLabel'),
+    resComp:      document.getElementById('resComp'),
+    labelMonto:   document.getElementById('labelMonto'),
+    labelTasa:    document.getElementById('labelTasa'),
+    refreshBtn:   document.getElementById('refreshBtn'),
+    lastUpdate:   document.getElementById('lastUpdate'),
+    offlineBadge: document.getElementById('offlineBadge'),
+    btnUsarOf:    document.getElementById('btnUsarOficial'),
+    montosRap:    document.getElementById('montosRapidos'),
+    multiRes:     document.getElementById('multiRes'),
+    mUSD:         document.getElementById('mUSD'),
+    mBIN:         document.getElementById('mBIN'),
+    mEUR:         document.getElementById('mEUR'),
+    mBS:          document.getElementById('mBS'),
+    rowBS:        document.getElementById('rowBS'),
+    sumaActual:   document.getElementById('sumaActual'),
+    motivoWrap:   document.getElementById('motivoWrap'),
+    motivoHint:   document.getElementById('motivoHint'),
+    motivoInput:  document.getElementById('motivoInput')
 };
 
 // ══════════════════════════════════════════════
 // 🔔 TOAST
 // ══════════════════════════════════════════════
-function toast(msg, type = 'info', dur = 3000) {
+function toast(msg, type='info', dur=3000) {
     const t = document.createElement('div');
     t.className = `toast ${type}`;
     t.textContent = msg;
@@ -359,8 +429,8 @@ function toast(msg, type = 'info', dur = 3000) {
 // ══════════════════════════════════════════════
 // 🔢 PRECISIÓN
 // ══════════════════════════════════════════════
-function round(n, d = 2) {
-    if (!isFinite(n) || isNaN(n)) return 0; // FIX A10: guard NaN/Infinity
+function round(n, d=2) {
+    if (!isFinite(n) || isNaN(n)) return 0;
     return Number(Math.round(n + 'e' + d) + 'e-' + d);
 }
 function fmt(n) {
@@ -369,28 +439,47 @@ function fmt(n) {
 }
 
 // ══════════════════════════════════════════════
+// 📈 TENDENCIA ▲▼
+// ══════════════════════════════════════════════
+function updateTrend(code) {
+    const el   = document.getElementById('t' + code);
+    if (!el) return;
+    const prev = state.prevRates[code];
+    const curr = state.rates[code];
+    if (!prev || prev === 0) { el.className = 'trend flat'; el.textContent = ''; return; }
+    const diff = curr - prev;
+    if (Math.abs(diff) < 0.01) {
+        el.className = 'trend flat'; el.textContent = '';
+    } else if (diff > 0) {
+        el.className = 'trend up';
+        el.textContent = `▲ +${diff.toFixed(2)}`;
+    } else {
+        el.className = 'trend down';
+        el.textContent = `▼ ${diff.toFixed(2)}`;
+    }
+}
+
+// ══════════════════════════════════════════════
 // 🌐 CARGAR TASAS
 // ══════════════════════════════════════════════
 async function loadData() {
     els.refreshBtn.classList.add('loading');
+    // Guardar tasas anteriores antes de actualizar (para ▲▼)
+    state.prevRates = { ...state.rates };
     try {
-        // FIX A12: timeout 10s para no colgar spinner si API no responde
         const ctrl = new AbortController();
         const tId  = setTimeout(() => ctrl.abort(), 10000);
-        const r1 = await fetch('https://ve.dolarapi.com/v1/dolares', { signal: ctrl.signal });
+        const r1   = await fetch('https://ve.dolarapi.com/v1/dolares', { signal:ctrl.signal });
         clearTimeout(tId);
         if (!r1.ok) throw new Error('API dólar');
         const d1 = await r1.json();
 
-        const usdBCV = parseFloat(d1.find(d => d.fuente === 'oficial')?.promedio  || 0);
-        // BIN = Binance P2P desde CriptoYa (ask=compra, bid=venta)
+        const usdBCV = parseFloat(d1.find(d => d.fuente === 'oficial')?.promedio || 0);
+
         let usdPAR = 0;
         try {
-            const rBIN  = await fetch('https://criptoya.com/api/binancep2p/usdt/ves/1', { signal: ctrl.signal });
+            const rBIN  = await fetch('https://criptoya.com/api/binancep2p/usdt/ves/1', { signal:ctrl.signal });
             const dBIN  = await rBIN.json();
-            // ask: cuántos Bs pago por 1 USDT (compra de $)
-            // bid: cuántos Bs recibo por 1 USDT (venta de $)
-            // Usamos promedio ask/bid como referencia neutral
             const askBIN = parseFloat(dBIN.ask || 0);
             const bidBIN = parseFloat(dBIN.bid || 0);
             if (askBIN > 0 && bidBIN > 0) usdPAR = round((askBIN + bidBIN) / 2);
@@ -414,6 +503,9 @@ async function loadData() {
         localStorage.setItem('luan_fetch', state.lastFetch.toISOString());
 
         renderTasas();
+        updateTrend('USD');
+        updateTrend('EUR');
+        updateTrend('BIN');
         actualizarTimestamp();
         els.offlineBadge.classList.remove('visible');
 
@@ -424,7 +516,9 @@ async function loadData() {
         calc();
         toast('✅ Tasas actualizadas', 'success', 2000);
     } catch(e) {
-        const msg = !navigator.onLine ? '📴 Sin internet — usando tasa guardada' : '⚠️ Error de servidor — usando tasa guardada';
+        const msg = !navigator.onLine
+            ? '📴 Sin internet — usando tasa guardada'
+            : '⚠️ Error de servidor — usando tasa guardada';
         toast(msg, 'error', 4000);
         const saved = localStorage.getItem('luan_rates');
         if (saved) { Object.assign(state.rates, JSON.parse(saved)); renderTasas(); }
@@ -470,12 +564,12 @@ function selectCurrency(code, name) {
         els.tasa.classList.remove('manual');
     }
     els.btnUsarOf.style.display = code === 'CON' ? 'inline-block' : 'none';
-    
-    limpiarAcumulador(true); // FIX A1: silencioso al cambiar moneda
+
+    limpiarAcumulador(true);
     actualizarBotonesYAcumulador();
     updateLabels();
     calc();
-    saveSession(); // FIX A19: persistir selección de moneda
+    saveSession();
 }
 
 // ══════════════════════════════════════════════
@@ -487,12 +581,11 @@ function setDirection(dir) {
     document.getElementById('btnBsADivisa').classList.toggle('active', dir === 'BsADivisa');
     document.getElementById('btnDivisaABs').setAttribute('aria-selected', dir === 'DivisaABs');
     document.getElementById('btnBsADivisa').setAttribute('aria-selected', dir === 'BsADivisa');
-    
+
     if (!state.tasaManual && state.current.code !== 'CON' && state.rates[state.current.code] > 0) {
         els.tasa.value = state.rates[state.current.code].toFixed(2);
     }
-    
-    limpiarAcumulador(true); // FIX A1: silencioso al cambiar dirección
+    limpiarAcumulador(true);
     actualizarBotonesYAcumulador();
     updateLabels();
     calc();
@@ -503,10 +596,7 @@ function setDirection(dir) {
 // 🔄 INTERCAMBIAR
 // ══════════════════════════════════════════════
 function intercambiarValores() {
-    const raw = els.resTotal.textContent
-        .replace(/[^\d.,]/g, '')
-        .replace(/\./g, '')
-        .replace(',', '.');
+    const raw = els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');
     const val = parseFloat(raw) || 0;
     if (val <= 0) { toast('⚠️ Calcula primero un resultado', 'error'); return; }
     els.monto.value = val.toFixed(2);
@@ -520,76 +610,84 @@ function intercambiarValores() {
 // ══════════════════════════════════════════════
 function actualizarBotonesYAcumulador() {
     const esModoBs = (state.direction === 'BsADivisa');
-    let valores = [];
-    let unidad = '';
-    
+    let valores = [], unidad = '';
     if (esModoBs) {
-        valores = [0.05, 0.1, 0.2, 0.50, 1, 2 ,5 ,10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
+        valores = [0.05,0.1,0.2,0.50,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000];
         unidad = 'Bs';
     } else {
-        valores = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
-        unidad = (state.current.code === 'EUR') ? '€' : '$';
+        valores = [1,2,5,10,20,50,100,200,500,1000,2000,5000];
+        unidad  = (state.current.code === 'EUR') ? '€' : '$';
     }
-    
     const container = els.montosRap;
     container.innerHTML = '';
-
-    // FIX A3: en modo CON no tiene sentido mostrar montos rápidos
-    if (state.current.code === 'CON') {
-        container.style.display = 'none';
-        return;
-    }
+    if (state.current.code === 'CON') { container.style.display='none'; return; }
     container.style.display = 'flex';
-
     valores.forEach(v => {
         const btn = document.createElement('button');
         btn.className = 'monto-btn';
         btn.textContent = `${v}${unidad}`;
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sumarAlAcumulador(v);
-        });
+        btn.addEventListener('click', e => { e.stopPropagation(); sumarAlAcumulador(v); });
         container.appendChild(btn);
     });
-    
     actualizarDisplayAcumulador();
 }
 
 function sumarAlAcumulador(valor) {
-    if (acumulador + valor > 1_000_000) { // FIX A16: límite máximo
-        toast('⚠️ Límite máximo alcanzado', 'error', 2000); return;
-    }
+    if (acumulador + valor > 1_000_000) { toast('⚠️ Límite máximo alcanzado','error',2000); return; }
     acumulador += valor;
     actualizarDisplayAcumulador();
     navigator.vibrate && navigator.vibrate(8);
 }
 
-function limpiarAcumulador(silencioso = false) {
+function limpiarAcumulador(silencioso=false) {
     acumulador = 0;
     actualizarDisplayAcumulador();
-    if (!silencioso) toast('🧹 Acumulador reiniciado', 'info', 3000); // FIX A8: dur=3000 para coincidir con animación
+    if (!silencioso) toast('🧹 Acumulador reiniciado','info',3000);
 }
 
 function aplicarAcumulador() {
-    if (acumulador <= 0) {
-        toast('⚠️ No hay suma acumulada para aplicar', 'error');
-        return;
-    }
+    if (acumulador <= 0) { toast('⚠️ No hay suma acumulada','error'); return; }
     els.monto.value = acumulador;
     calc();
     toast(`✅ Monto fijado: ${acumulador.toLocaleString('es-VE')}`, 'success', 1500);
-    limpiarAcumulador(true); // FIX A2: silencioso — no apilar toast
+    limpiarAcumulador(true);
 }
 
 function actualizarDisplayAcumulador() {
-    const esModoBs = (state.direction === 'BsADivisa');
-    let unidad = '';
-    if (esModoBs) {
-        unidad = 'Bs';
-    } else {
-        unidad = (state.current.code === 'EUR') ? '€' : '$';
+    const unidad = (state.direction === 'BsADivisa') ? 'Bs' : (state.current.code === 'EUR' ? '€' : '$');
+    els.sumaActual.textContent = `➕ Suma: ${acumulador.toLocaleString('es-VE')} ${unidad}`;
+}
+
+// ══════════════════════════════════════════════
+// 🗂️ TIPO DE OPERACIÓN (MOTIVO WA)
+// ══════════════════════════════════════════════
+const OP_CONFIG = {
+    venta:  { clase:'sel-venta',  hint:'¿Qué estás vendiendo?',  placeholder:'Ej: 1/2 kg de maní' },
+    compra: { clase:'sel-compra', hint:'¿Qué estás comprando?',  placeholder:'Ej: unos zapatos deportivos' },
+    pago:   { clase:'sel-pago',   hint:'¿Qué estás pagando?',    placeholder:'Ej: cartón de huevos' },
+    cambio: { clase:'sel-cambio', hint:'¿Qué estás cambiando?',  placeholder:'Ej: dólares a bolívares' }
+};
+
+function seleccionarTipoOp(tipo) {
+    // Si ya estaba seleccionado, deseleccionar (toggle)
+    if (state.tipoOp === tipo) {
+        state.tipoOp = null;
+        document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
+        els.motivoWrap.classList.remove('visible');
+        saveSession();
+        return;
     }
-    els.sumaActual.textContent = `➕ Suma: ${acumulador.toLocaleString('es-VE')} ${unidad}`; // FIX A5: formato es-VE
+    state.tipoOp = tipo;
+    // Limpiar selección anterior
+    document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
+    // Aplicar clase al seleccionado
+    document.getElementById('op' + tipo.charAt(0).toUpperCase() + tipo.slice(1)).className = `op-type-btn ${OP_CONFIG[tipo].clase}`;
+    // Mostrar campo de motivo
+    els.motivoWrap.classList.add('visible');
+    els.motivoHint.textContent        = OP_CONFIG[tipo].hint;
+    els.motivoInput.placeholder       = OP_CONFIG[tipo].placeholder;
+    els.motivoInput.focus();
+    saveSession();
 }
 
 // ══════════════════════════════════════════════
@@ -601,15 +699,15 @@ function updateLabels() {
     document.getElementById('txtDivisaABs').textContent = code === 'CON' ? '$ en Acuerdo, a Bs' : `De ${name} a Bs`;
     document.getElementById('txtBsADivisa').textContent = code === 'CON' ? 'Bs en Acuerdo, a $' : `De Bs a ${name}`;
     const t = { USD:'TASA DÓLAR $ (BCV)', EUR:'TASA EURO € (Real)', BIN:'TASA BINANCE P2P',
-                CON: dir === 'DivisaABs' ? '💬 TU TASA (Bs por $)' : '💬 TU TASA ($ por Bs)' };
+                CON: dir==='DivisaABs' ? '💬 TU TASA (Bs por $)' : '💬 TU TASA ($ por Bs)' };
     if (dir === 'DivisaABs') {
-        els.labelMonto.textContent = code === 'CON' ? 'MONTO EN $' : `MONTO EN ${name.toUpperCase()}`;
+        els.labelMonto.textContent = code==='CON' ? 'MONTO EN $' : `MONTO EN ${name.toUpperCase()}`;
         els.labelTasa.textContent  = t[code];
         els.resLabel.textContent   = '💰 TOTAL A RECIBIR (Bs):';
     } else {
         els.labelMonto.textContent = 'MONTO EN BOLÍVARES (Bs)';
         els.labelTasa.textContent  = t[code];
-        els.resLabel.textContent   = code === 'CON' ? '💎 $ A RECIBIR:' : `${name.toUpperCase()} A RECIBIR:`;
+        els.resLabel.textContent   = code==='CON' ? '💎 $ A RECIBIR:' : `${name.toUpperCase()} A RECIBIR:`;
     }
 }
 
@@ -622,9 +720,9 @@ function calcular(m, t, dir) {
 }
 
 function renderResultado(total) {
-    if (total === null) { els.resBox.style.display = 'none'; return; }
+    if (total === null) { els.resBox.style.display='none'; return; }
     els.resBox.style.display = 'block';
-    const { code, name } = state.current;
+    const { code } = state.current;
     const dir = state.direction;
     if (dir === 'DivisaABs') {
         els.resTotal.textContent = 'Bs ' + fmt(total);
@@ -653,7 +751,7 @@ function renderResultado(total) {
 function calc() {
     const m = parseFloat(els.monto.value) || 0;
     const t = parseFloat(els.tasa.value)  || 0;
-    if (m > 1_000_000) { toast('⚠️ Monto muy alto', 'error'); return; }
+    if (m > 1_000_000) { toast('⚠️ Monto muy alto','error'); return; }
     if (m < 0 || t < 0) return;
     renderResultado(calcular(m, t, state.direction));
     renderMulti(m);
@@ -661,7 +759,7 @@ function calc() {
 }
 
 // ══════════════════════════════════════════════
-// ⚡ MULTI-RESULTADO
+// ⚡ MULTI RESULTADO
 // ══════════════════════════════════════════════
 function renderMulti(m) {
     if (m <= 0) { els.multiRes.classList.remove('visible'); return; }
@@ -674,9 +772,9 @@ function renderMulti(m) {
         els.rowBS.style.display = 'none';
     } else {
         els.rowBS.style.display = 'flex';
-        els.mUSD.textContent = (state.rates.USD > 0) ? fmt(round(m / state.rates.USD)) + ' $'  : '--';
-        els.mBIN.textContent = (state.rates.BIN > 0) ? fmt(round(m / state.rates.BIN)) + ' $'  : '--';
-        els.mEUR.textContent = (state.rates.EUR > 0) ? fmt(round(m / state.rates.EUR)) + ' €'  : '--';
+        els.mUSD.textContent = state.rates.USD > 0 ? fmt(round(m / state.rates.USD)) + ' $' : '--';
+        els.mBIN.textContent = state.rates.BIN > 0 ? fmt(round(m / state.rates.BIN)) + ' $' : '--';
+        els.mEUR.textContent = state.rates.EUR > 0 ? fmt(round(m / state.rates.EUR)) + ' €' : '--';
         els.mBS.textContent  = fmt(m) + ' Bs';
     }
 }
@@ -701,41 +799,95 @@ function usarTasaOficial() {
         els.tasa.value = state.rates.USD.toFixed(2);
         state.tasaManual = false;
         els.tasa.classList.remove('manual');
-        toast('📌 Tasa BCV cargada', 'success', 2000);
+        toast('📌 Tasa BCV cargada','success',2000);
         calc();
-    } else toast('⚠️ Primero actualiza las tasas', 'error', 2000);
+    } else toast('⚠️ Primero actualiza las tasas','error',2000);
 }
 
 // ══════════════════════════════════════════════
-// 📲 WHATSAPP
+// 📲 WHATSAPP — con motivo inteligente
 // ══════════════════════════════════════════════
 function sendWA() {
     const m = els.monto.value.trim();
     const t = els.tasa.value.trim();
-    if (!m || !t) { toast('⚠️ Ingresa monto y tasa primero', 'error'); return; }
-    // FIX A9: chequear contenido real, no inline style (puede no estar seteado al inicio)
+    if (!m || !t) { toast('⚠️ Ingresa monto y tasa primero','error'); return; }
     const hayResultado = els.resTotal.textContent.trim() && els.resTotal.textContent.trim() !== '0.00';
-    if (!hayResultado) {
-        toast('⚠️ Primero calcula un resultado', 'error'); return;
-    }
-    const total = els.resTotal.textContent.trim();
+    if (!hayResultado) { toast('⚠️ Primero calcula un resultado','error'); return; }
+
+    const total       = els.resTotal.textContent.trim();
     const { code, name } = state.current;
-    const nom  = code === 'CON' ? '$' : name;
-    const mF   = parseFloat(m).toLocaleString('es-VE', { minimumFractionDigits:2 });
-    const tF   = parseFloat(t).toLocaleString('es-VE', { minimumFractionDigits:2 });
-    const lab  = { USD:'Tasa BCV', EUR:'Tasa Euro', BIN:'Tasa Paralelo', CON:'Tasa Acordada' };
-    const src  = { USD:'Banco Central de Venezuela (BCV)', EUR:'Tasa Euro Oficial',
-                   BIN:'Binance P2P · CriptoYa (USDT/VES)', CON:'Tasa Personalizada / Acuerdo' };
-    const emo  = { USD:'🏦', EUR:'🇪🇺', BIN:'💹', CON:'🤝' };
-    const l1   = state.direction === 'DivisaABs'
-        ? `🤝 *Operación:* Venta de ${nom}\n💵 *Cantidad:* ${mF} ${nom}`
-        : `🤝 *Operación:* Compra de ${nom} con Bs\n💸 *Monto enviado:* ${mF} Bs`;
-    const l2   = state.direction === 'DivisaABs'
-        ? `💰 *Total a recibir en Bs:* ${total}`
-        : `💎 *Total en ${nom}:* ${total}`;
-    const msg  = `⚡ *Epic Converter LUAN*\n\n${l1}\n📊 *${lab[code]}:* ${tF} Bs\n${l2}\n\n${emo[code]} _Ref: ${src[code]}_\n_LUANSystem™ Professional · Ing. LuisLa_`;
+    const monto       = parseFloat(m);
+    const mF          = monto.toLocaleString('es-VE', { minimumFractionDigits:2 });
+    const tF          = parseFloat(t).toLocaleString('es-VE', { minimumFractionDigits:2 });
+    const sim         = code === 'EUR' ? '€' : '$';
+    const nomMoneda   = code === 'CON' ? '$' : name;
+    const dir         = state.direction;
+
+    // Etiquetas de tasa y fuente
+    const labTasa = { USD:'Tasa BCV', EUR:'Tasa Euro', BIN:'Tasa Binance P2P', CON:'Tasa Acordada' };
+    const src     = { USD:'Banco Central de Venezuela (BCV)', EUR:'Tasa Euro Oficial',
+                      BIN:'Binance P2P · CriptoYa (USDT/VES)', CON:'Tasa Personalizada / Acuerdo' };
+    const emo     = { USD:'🏦', EUR:'🇪🇺', BIN:'💹', CON:'🤝' };
+
+    // ── Construir línea de operación ──
+    const motivo  = els.motivoInput.value.trim();
+    const tipo    = state.tipoOp;
+    let lineaOp   = '';
+    let lineaMonto= '';
+    let lineaTotal= '';
+
+    if (tipo && motivo) {
+        // Con tipo de operación y descripción
+        const emojiTipo = { venta:'💰', compra:'🛒', pago:'💳', cambio:'🔄' };
+        const verboOp   = {
+            venta:  `Venta de ${motivo}`,
+            compra: `Compra de ${motivo}`,
+            pago:   `Pago de ${motivo}`,
+            cambio: `Cambio — ${motivo}`
+        };
+        lineaOp = `${emojiTipo[tipo]} *Operación:* ${verboOp[tipo]}`;
+
+        if (tipo === 'venta' || tipo === 'cambio') {
+            if (dir === 'DivisaABs') {
+                lineaMonto = `💵 *Recibes:* ${mF} ${sim} → Bs`;
+                lineaTotal = `💰 *Total a recibir en Bs:* ${total}`;
+            } else {
+                lineaMonto = `💸 *Entregas:* ${mF} Bs`;
+                lineaTotal = `💎 *Total a recibir en ${sim}:* ${total}`;
+            }
+        } else {
+            // compra o pago
+            if (dir === 'DivisaABs') {
+                lineaMonto = `💵 *Monto:* ${mF} ${sim}`;
+                lineaTotal = `💳 *Total a pagar en Bs:* ${total}`;
+            } else {
+                lineaMonto = `💸 *Pagas:* ${mF} Bs`;
+                lineaTotal = `💎 *Recibes en ${sim}:* ${total}`;
+            }
+        }
+    } else if (tipo && !motivo) {
+        // Tipo seleccionado pero sin descripción
+        const verboGen = { venta:'Venta', compra:'Compra', pago:'Pago', cambio:'Cambio de divisas' };
+        lineaOp   = `🤝 *Operación:* ${verboGen[tipo]}`;
+        lineaMonto = dir === 'DivisaABs' ? `💵 *Cantidad:* ${mF} ${sim}` : `💸 *Monto enviado:* ${mF} Bs`;
+        lineaTotal = dir === 'DivisaABs' ? `💰 *Total a recibir en Bs:* ${total}` : `💎 *Total en ${sim}:* ${total}`;
+    } else {
+        // Sin tipo ni motivo — comportamiento original
+        lineaOp   = dir === 'DivisaABs'
+            ? `🤝 *Operación:* Venta de ${nomMoneda}`
+            : `🤝 *Operación:* Compra de ${nomMoneda} con Bs`;
+        lineaMonto = dir === 'DivisaABs'
+            ? `💵 *Cantidad:* ${mF} ${sim}`
+            : `💸 *Monto enviado:* ${mF} Bs`;
+        lineaTotal = dir === 'DivisaABs'
+            ? `💰 *Total a recibir en Bs:* ${total}`
+            : `💎 *Total en ${nomMoneda}:* ${total}`;
+    }
+
+    const msg = `⚡ *Epic Converter LUAN*\n\n${lineaOp}\n${lineaMonto}\n📊 *${labTasa[code]}:* ${tF} Bs\n${lineaTotal}\n\n${emo[code]} _Ref: ${src[code]}_\n_LUANSystem™ Professional · Ing. LuisLa_`;
+
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-    toast('📤 Abriendo WhatsApp...', 'success', 2000);
+    toast('📤 Abriendo WhatsApp...','success',2000);
 }
 
 // ══════════════════════════════════════════════
@@ -743,11 +895,16 @@ function sendWA() {
 // ══════════════════════════════════════════════
 function saveSession() {
     localStorage.setItem('luan_session', JSON.stringify({
-        monto: els.monto.value, tasa: els.tasa.value,
-        code: state.current.code, name: state.current.name,
-        direction: state.direction, tasaManual: state.tasaManual,
+        monto:          els.monto.value,
+        tasa:           els.tasa.value,
+        code:           state.current.code,
+        name:           state.current.name,
+        direction:      state.direction,
+        tasaManual:     state.tasaManual,
         tasaManualCode: state.tasaManualCode,
-        acumulador: acumulador // FIX A6: persistir acumulador
+        acumulador:     acumulador,
+        tipoOp:         state.tipoOp,
+        motivo:         els.motivoInput.value
     }));
 }
 
@@ -762,9 +919,11 @@ function restoreSession() {
             state.tasaManualCode = s.tasaManualCode || null;
             els.tasa.classList.add('manual');
         }
-        if (s.code)  selectCurrency(s.code, s.name || s.code);
+        if (s.code)      selectCurrency(s.code, s.name || s.code);
         if (s.direction) setTimeout(() => setDirection(s.direction), 60);
-        if (s.acumulador > 0) { acumulador = s.acumulador; actualizarDisplayAcumulador(); } // FIX A6
+        if (s.acumulador > 0) { acumulador = s.acumulador; actualizarDisplayAcumulador(); }
+        if (s.tipoOp)    setTimeout(() => seleccionarTipoOp(s.tipoOp), 80);
+        if (s.motivo)    setTimeout(() => { els.motivoInput.value = s.motivo; }, 90);
     } catch(e) {}
 }
 
@@ -786,16 +945,16 @@ document.addEventListener('DOMContentLoaded', () => {
     restoreSession();
     loadData();
     setTimeout(() => els.monto.focus(), 500);
-    
+
     document.getElementById('btnLimpiarAcum').addEventListener('click', () => limpiarAcumulador());
-    document.getElementById('btnEnterAcum').addEventListener('click', () => aplicarAcumulador());
-    
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && document.activeElement !== els.monto && document.activeElement !== els.tasa) {
+    document.getElementById('btnEnterAcum').addEventListener('click',   () => aplicarAcumulador());
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.activeElement !== els.monto && document.activeElement !== els.tasa && document.activeElement !== els.motivoInput) {
             aplicarAcumulador();
         }
     });
-    
+
     setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine) loadData(); }, 5 * 60 * 1000);
     setInterval(actualizarTimestamp, 60 * 1000);
 });
@@ -807,7 +966,7 @@ if ('serviceWorker' in navigator) {
             reg.addEventListener('updatefound', () => {
                 reg.installing?.addEventListener('statechange', function() {
                     if (this.state === 'installed' && navigator.serviceWorker.controller)
-                        toast('🔄 Nueva versión disponible. Recarga para actualizar.', 'info', 5000);
+                        toast('🔄 Nueva versión disponible. Recarga para actualizar.','info',5000);
                 });
             });
         } catch(e) {}
