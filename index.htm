@@ -34,6 +34,13 @@
         .refresh-btn:active { transform:rotate(180deg); }
         .refresh-btn.loading { animation:spin 1s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
+        .btn-ajustes {
+            position:absolute; left:0; top:0;
+            background:var(--card); border:1px solid rgba(255,255,255,0.2);
+            color:#fff; padding:10px; border-radius:50%;
+            cursor:pointer; font-size:1.1rem; transition:all 0.2s;
+        }
+        .btn-ajustes:active { background:rgba(255,215,0,0.2); }
         h1 { color:var(--primary); font-size:1.5rem; text-shadow:0 0 10px rgba(255,215,0,0.3); line-height:1.3; }
         #lastUpdate { font-size:0.7rem; color:#aaa; margin-top:5px; transition:color 0.4s; }
         #lastUpdate.reciente { color:var(--success); }
@@ -44,6 +51,37 @@
             border-radius:20px; margin-top:5px; letter-spacing:0.5px;
         }
         #offlineBadge.visible { display:inline-block; }
+
+        /* ===== MODAL AJUSTES ===== */
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.7); z-index:1000;
+            align-items:center; justify-content:center; padding:20px;
+        }
+        .modal-overlay.visible { display:flex; }
+        .modal {
+            background:#1e2140; border-radius:20px; padding:24px;
+            width:100%; max-width:400px;
+            border:1px solid rgba(255,215,0,0.3);
+            animation:slideUp 0.3s ease;
+        }
+        .modal-title {
+            color:var(--primary); font-size:1.1rem; font-weight:bold;
+            margin-bottom:18px; text-align:center;
+        }
+        .modal label { margin-top:14px; }
+        .modal-hint { font-size:0.7rem; color:#888; margin-top:3px; }
+        .modal-btns { display:flex; gap:10px; margin-top:20px; }
+        .btn-modal-save {
+            flex:1; background:var(--primary); color:#1a1a2e;
+            border:none; padding:14px; border-radius:10px;
+            font-weight:bold; font-size:1rem; cursor:pointer;
+        }
+        .btn-modal-cancel {
+            flex:1; background:rgba(255,255,255,0.08); color:#fff;
+            border:1px solid rgba(255,255,255,0.15); padding:14px;
+            border-radius:10px; font-weight:bold; font-size:1rem; cursor:pointer;
+        }
 
         /* ===== GLASS ===== */
         .glass {
@@ -79,18 +117,12 @@
         }
         .rate-card:active { transform:scale(0.97); }
         .rate-card.selected {
-            border-color:var(--primary);
-            background:rgba(255,215,0,0.1);
+            border-color:var(--primary); background:rgba(255,215,0,0.1);
             box-shadow:0 0 12px rgba(255,215,0,0.2);
         }
         .val { font-size:1.2rem; font-weight:bold; color:var(--success); display:block; }
         .lbl { font-size:0.7rem; color:#aaa; text-transform:uppercase; }
-
-        /* ===== TENDENCIA ▲▼ ===== */
-        .trend {
-            font-size:0.62rem; font-weight:bold;
-            display:block; margin-top:2px; height:14px;
-        }
+        .trend { font-size:0.62rem; font-weight:bold; display:block; margin-top:2px; height:14px; }
         .trend.up   { color:var(--up); }
         .trend.down { color:var(--down); }
         .trend.flat { color:#555; }
@@ -109,7 +141,6 @@
         input::placeholder { color:#666; }
         .tasa-input { border:2px solid var(--primary) !important; color:var(--primary) !important; font-weight:bold; }
         .tasa-input.manual { border-color:var(--warning) !important; color:var(--warning) !important; }
-
         .btn-usar-oficial {
             background:rgba(255,215,0,0.12); border:1px solid rgba(255,215,0,0.4);
             color:var(--primary); font-size:0.72rem; font-weight:bold;
@@ -146,7 +177,7 @@
         .btn-enter  { background:var(--success); color:#1a1a2e; }
         .btn-limpiar { background:rgba(255,107,107,0.7); }
 
-        /* ===== TOGGLE OPERACIÓN ===== */
+        /* ===== TOGGLE ===== */
         .toggle-container { display:flex; gap:8px; margin:15px 0; align-items:center; }
         .toggle-btn {
             flex:1; padding:12px; border-radius:8px; border:none;
@@ -163,56 +194,37 @@
         }
         .btn-swap:active { transform:rotate(180deg) scale(0.9); background:rgba(255,215,0,0.15); }
 
-        /* ===== SELECTOR DE TIPO DE OPERACIÓN (MOTIVO WA) ===== */
+        /* ===== SECCIÓN OPERACIÓN WA ===== */
         .op-type-section {
-            margin-top: 18px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            padding-top: 14px;
+            margin-top:18px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;
         }
-        .op-type-label {
-            font-size: 0.75rem;
-            color: var(--primary);
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .op-type-btns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
+        .op-type-label { font-size:0.75rem; color:var(--primary); font-weight:bold; margin-bottom:10px; display:block; }
+        .op-type-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
         .op-type-btn {
-            padding: 11px 8px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.2);
-            color: #ccc;
-            font-size: 0.88rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
+            padding:11px 8px; border-radius:10px; border:2px solid rgba(255,255,255,0.1);
+            background:rgba(0,0,0,0.2); color:#ccc; font-size:0.88rem;
+            font-weight:bold; cursor:pointer; text-align:center; transition:all 0.2s;
         }
-        .op-type-btn:active { transform: scale(0.97); }
-        .op-type-btn.sel-venta   { border-color: var(--success); background: rgba(78,204,163,0.12); color: var(--success); }
-        .op-type-btn.sel-compra  { border-color: #7eb8ff;        background: rgba(126,184,255,0.12); color: #7eb8ff; }
-        .op-type-btn.sel-pago    { border-color: var(--warning);  background: rgba(255,165,0,0.12);  color: var(--warning); }
-        .op-type-btn.sel-cambio  { border-color: var(--primary);  background: rgba(255,215,0,0.12);  color: var(--primary); }
+        .op-type-btn:active { transform:scale(0.97); }
+        .op-type-btn.sel-venta  { border-color:var(--success); background:rgba(78,204,163,0.12); color:var(--success); }
+        .op-type-btn.sel-compra { border-color:#7eb8ff; background:rgba(126,184,255,0.12); color:#7eb8ff; }
+        .op-type-btn.sel-pago   { border-color:var(--warning); background:rgba(255,165,0,0.12); color:var(--warning); }
+        .op-type-btn.sel-cambio { border-color:var(--primary); background:rgba(255,215,0,0.12); color:var(--primary); }
 
-        .motivo-wrap { display:none; animation:slideUp 0.25s ease; }
-        .motivo-wrap.visible { display:block; }
-        .motivo-hint {
-            font-size: 0.72rem;
-            color: #888;
-            margin-bottom: 4px;
+        .op-detalles { display:none; animation:slideUp 0.25s ease; }
+        .op-detalles.visible { display:block; }
+        .op-hint { font-size:0.72rem; color:#888; margin-bottom:4px; margin-top:10px; }
+
+        /* Pill de participantes */
+        .participantes-pill {
+            display:none; background:rgba(0,0,0,0.35);
+            border-radius:30px; padding:8px 14px; margin-top:10px;
+            font-size:0.88rem; color:#ddd; text-align:center;
+            border:1px solid rgba(255,255,255,0.08);
         }
-        input.motivo-input {
-            border: 2px solid rgba(255,255,255,0.15) !important;
-            font-size: 1rem;
-            color: #fff;
-        }
-        input.motivo-input:focus { border-color: var(--primary) !important; }
+        .participantes-pill.visible { display:block; }
+        .pill-yo { color:var(--primary); font-weight:bold; }
+        .pill-otro { color:var(--success); font-weight:bold; }
 
         /* ===== RESULTADO ===== */
         .res-box {
@@ -226,20 +238,19 @@
         .btn-copy-res {
             position:absolute; top:10px; right:12px;
             background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
-            color:#aaa; font-size:0.85rem; padding:4px 9px; border-radius:8px;
-            cursor:pointer; transition:all 0.15s;
+            color:#aaa; font-size:0.85rem; padding:4px 9px; border-radius:8px; cursor:pointer;
         }
         .btn-copy-res:active { background:rgba(255,215,0,0.2); color:var(--primary); }
         .res-comp { font-size:0.72rem; margin-top:7px; padding:5px 10px; border-radius:7px; display:none; }
         .res-comp.mejor { background:rgba(78,204,163,0.15); color:var(--success); display:block; }
-        .res-comp.peor  { background:rgba(255,107,107,0.15); color:var(--danger);  display:block; }
-        .res-comp.igual { background:rgba(255,255,255,0.07); color:#aaa;           display:block; }
+        .res-comp.peor  { background:rgba(255,107,107,0.15); color:var(--danger); display:block; }
+        .res-comp.igual { background:rgba(255,255,255,0.07); color:#aaa; display:block; }
 
         /* ===== WHATSAPP ===== */
         .btn-wa {
             background:#25D366; color:#fff; border:none; width:100%;
             padding:16px; border-radius:10px; font-weight:bold;
-            margin-top:15px; cursor:pointer; font-size:1rem; transition:background 0.2s;
+            margin-top:15px; cursor:pointer; font-size:1rem;
         }
         .btn-wa:active { background:#128C7E; }
 
@@ -259,8 +270,23 @@
 </head>
 <body>
 
+<!-- MODAL AJUSTES -->
+<div class="modal-overlay" id="modalAjustes">
+    <div class="modal">
+        <div class="modal-title">⚙️ Mis Ajustes</div>
+        <label>TU NOMBRE O ALIAS</label>
+        <input type="text" id="inputMiNombre" placeholder="Ej: Luis, Peggy, Milagros..." maxlength="30">
+        <p class="modal-hint">Así aparecerás en el mensaje de WhatsApp</p>
+        <div class="modal-btns">
+            <button class="btn-modal-cancel" onclick="cerrarAjustes()">Cancelar</button>
+            <button class="btn-modal-save" onclick="guardarAjustes()">💾 Guardar</button>
+        </div>
+    </div>
+</div>
+
 <!-- HEADER -->
 <div class="header">
+    <button class="btn-ajustes" onclick="abrirAjustes()" aria-label="Ajustes">⚙️</button>
     <button class="refresh-btn" id="refreshBtn" onclick="loadData()" aria-label="Actualizar tasas">🔄</button>
     <h1>Epic Converter LUAN ⚡</h1>
     <div id="lastUpdate">Actualizado: --:--</div>
@@ -276,53 +302,46 @@
     <div class="multi-row" id="rowBS"><span class="multi-lbl">💱 En Bolívares</span><span class="multi-val hl" id="mBS">--</span></div>
 </div>
 
-<!-- SECCIÓN 1: REFERENCIA -->
+<!-- SECCIÓN 1 -->
 <div class="glass">
     <div class="section-title">1. SELECCIONA REFERENCIA</div>
     <div class="grid">
         <div class="rate-card selected" id="card-USD" onclick="selectCurrency('USD','Dólares')" role="button" tabindex="0">
-            <span class="lbl">🏦 BCV ($)</span>
-            <span class="val" id="vUSD">--</span>
+            <span class="lbl">🏦 BCV ($)</span><span class="val" id="vUSD">--</span>
             <span class="trend flat" id="tUSD"></span>
         </div>
         <div class="rate-card" id="card-EUR" onclick="selectCurrency('EUR','Euros')" role="button" tabindex="0">
-            <span class="lbl">🇪🇺 EURO Real (€)</span>
-            <span class="val" id="vEUR">--</span>
+            <span class="lbl">🇪🇺 EURO Real (€)</span><span class="val" id="vEUR">--</span>
             <span class="trend flat" id="tEUR"></span>
         </div>
         <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN','Dólares')" role="button" tabindex="0">
-            <span class="lbl">💹 BINANCE P2P</span>
-            <span class="val" id="vBIN">--</span>
+            <span class="lbl">💹 BINANCE P2P</span><span class="val" id="vBIN">--</span>
             <span class="trend flat" id="tBIN"></span>
         </div>
         <div class="rate-card" id="card-CON" onclick="selectCurrency('CON','Acuerdo')" role="button" tabindex="0">
-            <span class="lbl">🤝 PERSONALIZADO</span>
-            <span class="val">---</span>
+            <span class="lbl">🤝 PERSONALIZADO</span><span class="val">---</span>
         </div>
     </div>
 </div>
 
-<!-- SECCIÓN 2: OPERACIÓN -->
+<!-- SECCIÓN 2 -->
 <div class="glass">
     <div class="section-title">2. ¿QUÉ OPERACIÓN HARÁS?</div>
 
     <div class="toggle-container" role="tablist">
-        <button id="btnDivisaABs" class="toggle-btn active" onclick="setDirection('DivisaABs')" role="tab" aria-selected="true">
+        <button id="btnDivisaABs" class="toggle-btn active" onclick="setDirection('DivisaABs')" role="tab">
             <span id="txtDivisaABs">De $ a Bs</span>
         </button>
         <button class="btn-swap" onclick="intercambiarValores()" title="⇄ Invertir">⇄</button>
-        <button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')" role="tab" aria-selected="false">
+        <button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')" role="tab">
             <span id="txtBsADivisa">De Bs a $</span>
         </button>
     </div>
 
     <label id="labelMonto">MONTO EN DÓLARES</label>
-
     <div class="montos-rapidos" id="montosRapidos"></div>
-
     <input type="number" id="monto" placeholder="0.00" inputmode="decimal"
-           aria-label="Monto" autocomplete="off"
-           onfocus="this.select()" oninput="onMontoInput()">
+           autocomplete="off" onfocus="this.select()" oninput="onMontoInput()">
 
     <div class="acumulador-panel">
         <span class="suma-actual" id="sumaActual">➕ Suma actual: 0</span>
@@ -334,28 +353,37 @@
 
     <label id="labelTasa">TASA</label>
     <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal"
-           aria-label="Tasa" autocomplete="off"
-           onfocus="this.select()" oninput="onTasaInput()">
-
+           autocomplete="off" onfocus="this.select()" oninput="onTasaInput()">
     <button class="btn-usar-oficial" id="btnUsarOficial" onclick="usarTasaOficial()">
         ← Usar tasa BCV como base
     </button>
 
-    <!-- ===== SECCIÓN MOTIVO / TIPO DE OPERACIÓN ===== -->
+    <!-- SECCIÓN 3: OPERACIÓN WA -->
     <div class="op-type-section">
-        <span class="op-type-label">3. ¿QUÉ VAS A HACER? (para el mensaje de WhatsApp)</span>
+        <span class="op-type-label">3. DETALLE DEL MENSAJE DE WHATSAPP</span>
         <div class="op-type-btns">
             <button class="op-type-btn" id="opVenta"  onclick="seleccionarTipoOp('venta')">💰 Vender</button>
             <button class="op-type-btn" id="opCompra" onclick="seleccionarTipoOp('compra')">🛒 Comprar</button>
             <button class="op-type-btn" id="opPago"   onclick="seleccionarTipoOp('pago')">💳 Pagar</button>
-            <button class="op-type-btn" id="opCambio" onclick="seleccionarTipoOp('cambio')">🔄 Cambiar $</button>
+            <button class="op-type-btn" id="opCambio" onclick="seleccionarTipoOp('cambio')">🔄 Cambiar</button>
         </div>
 
-        <div class="motivo-wrap" id="motivoWrap">
-            <p class="motivo-hint" id="motivoHint">¿Qué estás vendiendo?</p>
-            <input type="text" id="motivoInput" class="motivo-input"
-                   placeholder="Ej: 1/2 kg de maní" maxlength="80"
-                   autocomplete="off" oninput="saveSession()">
+        <div class="op-detalles" id="opDetalles">
+            <p class="op-hint" id="hintQue"></p>
+            <input type="text" id="motivoInput" placeholder="" maxlength="80"
+                   autocomplete="off" oninput="actualizarPill(); saveSession();">
+
+            <p class="op-hint">¿Con quién transas?</p>
+            <input type="text" id="contraparte" placeholder="Ej: Pedro, Amparo, Carlos..."
+                   maxlength="30" autocomplete="off"
+                   oninput="actualizarPill(); saveSession();">
+
+            <!-- Pill visual de participantes -->
+            <div class="participantes-pill" id="participantesPill">
+                <span class="pill-yo" id="pillYo">Tú</span>
+                <span id="pillFlecha"> → </span>
+                <span class="pill-otro" id="pillOtro">?</span>
+            </div>
         </div>
     </div>
 
@@ -384,9 +412,8 @@ const state = {
     lastFetch:      null,
     tasaManual:     false,
     tasaManualCode: null,
-    tipoOp:         null   // 'venta' | 'compra' | 'pago' | 'cambio'
+    tipoOp:         null
 };
-
 let acumulador = 0;
 
 const els = {
@@ -404,16 +431,66 @@ const els = {
     btnUsarOf:    document.getElementById('btnUsarOficial'),
     montosRap:    document.getElementById('montosRapidos'),
     multiRes:     document.getElementById('multiRes'),
-    mUSD:         document.getElementById('mUSD'),
-    mBIN:         document.getElementById('mBIN'),
-    mEUR:         document.getElementById('mEUR'),
-    mBS:          document.getElementById('mBS'),
-    rowBS:        document.getElementById('rowBS'),
+    mUSD: document.getElementById('mUSD'),
+    mBIN: document.getElementById('mBIN'),
+    mEUR: document.getElementById('mEUR'),
+    mBS:  document.getElementById('mBS'),
+    rowBS:document.getElementById('rowBS'),
     sumaActual:   document.getElementById('sumaActual'),
-    motivoWrap:   document.getElementById('motivoWrap'),
-    motivoHint:   document.getElementById('motivoHint'),
-    motivoInput:  document.getElementById('motivoInput')
+    opDetalles:   document.getElementById('opDetalles'),
+    motivoInput:  document.getElementById('motivoInput'),
+    contraparte:  document.getElementById('contraparte'),
+    pill:         document.getElementById('participantesPill'),
+    pillYo:       document.getElementById('pillYo'),
+    pillOtro:     document.getElementById('pillOtro'),
+    pillFlecha:   document.getElementById('pillFlecha')
 };
+
+// ══════════════════════════════════════════════
+// ⚙️ AJUSTES — nombre del usuario
+// ══════════════════════════════════════════════
+function getMiNombre() {
+    return localStorage.getItem('luan_nombre') || '';
+}
+function abrirAjustes() {
+    document.getElementById('inputMiNombre').value = getMiNombre();
+    document.getElementById('modalAjustes').classList.add('visible');
+}
+function cerrarAjustes() {
+    document.getElementById('modalAjustes').classList.remove('visible');
+}
+function guardarAjustes() {
+    const nombre = document.getElementById('inputMiNombre').value.trim();
+    if (!nombre) { toast('⚠️ Escribe tu nombre primero','error'); return; }
+    localStorage.setItem('luan_nombre', nombre);
+    cerrarAjustes();
+    actualizarPill();
+    toast(`✅ Hola, ${nombre}! Tu nombre está guardado.`,'success',2500);
+}
+
+// ══════════════════════════════════════════════
+// 👥 PILL DE PARTICIPANTES
+// ══════════════════════════════════════════════
+function actualizarPill() {
+    const yo    = getMiNombre() || 'Yo';
+    const otro  = els.contraparte.value.trim() || '?';
+    const tipo  = state.tipoOp;
+    if (!tipo) { els.pill.classList.remove('visible'); return; }
+
+    // La flecha indica quién entrega a quién según tipo y dirección
+    // venta/cambio(DivisaABs): yo → otro (yo entrego $ o producto, otro paga Bs)
+    // compra/pago(DivisaABs): otro → yo (yo recibo)
+    let izq, der, flecha = ' → ';
+    if (tipo === 'venta') { izq = yo; der = otro; }
+    else if (tipo === 'compra') { izq = otro; der = yo; }
+    else if (tipo === 'pago') { izq = yo; der = otro; }
+    else if (tipo === 'cambio') { izq = yo; der = otro; }
+
+    els.pillYo.textContent    = izq;
+    els.pillFlecha.textContent = flecha;
+    els.pillOtro.textContent  = der;
+    els.pill.classList.add('visible');
+}
 
 // ══════════════════════════════════════════════
 // 🔔 TOAST
@@ -430,33 +507,26 @@ function toast(msg, type='info', dur=3000) {
 // 🔢 PRECISIÓN
 // ══════════════════════════════════════════════
 function round(n, d=2) {
-    if (!isFinite(n) || isNaN(n)) return 0;
-    return Number(Math.round(n + 'e' + d) + 'e-' + d);
+    if (!isFinite(n)||isNaN(n)) return 0;
+    return Number(Math.round(n+'e'+d)+'e-'+d);
 }
 function fmt(n) {
-    if (n == null || isNaN(n)) return '--';
-    return round(n).toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    if (n==null||isNaN(n)) return '--';
+    return round(n).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
 // ══════════════════════════════════════════════
 // 📈 TENDENCIA ▲▼
 // ══════════════════════════════════════════════
 function updateTrend(code) {
-    const el   = document.getElementById('t' + code);
+    const el = document.getElementById('t'+code);
     if (!el) return;
-    const prev = state.prevRates[code];
-    const curr = state.rates[code];
-    if (!prev || prev === 0) { el.className = 'trend flat'; el.textContent = ''; return; }
+    const prev = state.prevRates[code], curr = state.rates[code];
+    if (!prev||prev===0) { el.className='trend flat'; el.textContent=''; return; }
     const diff = curr - prev;
-    if (Math.abs(diff) < 0.01) {
-        el.className = 'trend flat'; el.textContent = '';
-    } else if (diff > 0) {
-        el.className = 'trend up';
-        el.textContent = `▲ +${diff.toFixed(2)}`;
-    } else {
-        el.className = 'trend down';
-        el.textContent = `▼ ${diff.toFixed(2)}`;
-    }
+    if (Math.abs(diff)<0.01) { el.className='trend flat'; el.textContent=''; }
+    else if (diff>0) { el.className='trend up'; el.textContent=`▲ +${diff.toFixed(2)}`; }
+    else { el.className='trend down'; el.textContent=`▼ ${diff.toFixed(2)}`; }
 }
 
 // ══════════════════════════════════════════════
@@ -464,229 +534,164 @@ function updateTrend(code) {
 // ══════════════════════════════════════════════
 async function loadData() {
     els.refreshBtn.classList.add('loading');
-    // Guardar tasas anteriores antes de actualizar (para ▲▼)
-    state.prevRates = { ...state.rates };
+    state.prevRates = {...state.rates};
     try {
         const ctrl = new AbortController();
-        const tId  = setTimeout(() => ctrl.abort(), 10000);
-        const r1   = await fetch('https://ve.dolarapi.com/v1/dolares', { signal:ctrl.signal });
+        const tId  = setTimeout(()=>ctrl.abort(),10000);
+        const r1   = await fetch('https://ve.dolarapi.com/v1/dolares',{signal:ctrl.signal});
         clearTimeout(tId);
         if (!r1.ok) throw new Error('API dólar');
         const d1 = await r1.json();
-
-        const usdBCV = parseFloat(d1.find(d => d.fuente === 'oficial')?.promedio || 0);
-
-        let usdPAR = 0;
+        const usdBCV = parseFloat(d1.find(d=>d.fuente==='oficial')?.promedio||0);
+        let usdPAR=0;
         try {
-            const rBIN  = await fetch('https://criptoya.com/api/binancep2p/usdt/ves/1', { signal:ctrl.signal });
-            const dBIN  = await rBIN.json();
-            const askBIN = parseFloat(dBIN.ask || 0);
-            const bidBIN = parseFloat(dBIN.bid || 0);
-            if (askBIN > 0 && bidBIN > 0) usdPAR = round((askBIN + bidBIN) / 2);
-            else usdPAR = askBIN || bidBIN;
-        } catch(e) {}
-
-        let eurBs = 0;
+            const rB=await fetch('https://criptoya.com/api/binancep2p/usdt/ves/1',{signal:ctrl.signal});
+            const dB=await rB.json();
+            const a=parseFloat(dB.ask||0), b=parseFloat(dB.bid||0);
+            if(a>0&&b>0) usdPAR=round((a+b)/2); else usdPAR=a||b;
+        } catch(e){}
+        let eurBs=0;
         try {
-            const r2 = await fetch('https://open.er-api.com/v6/latest/USD');
-            const d2 = await r2.json();
-            const eurUsd = d2.rates?.EUR || 0;
-            if (eurUsd > 0 && usdBCV > 0) eurBs = round(usdBCV / eurUsd);
-        } catch(e) {}
-
-        if (usdBCV > 0) state.rates.USD = usdBCV;
-        if (usdPAR > 0) state.rates.BIN = usdPAR;
-        if (eurBs  > 0) state.rates.EUR = eurBs;
-
-        state.lastFetch = new Date();
-        localStorage.setItem('luan_rates', JSON.stringify(state.rates));
-        localStorage.setItem('luan_fetch', state.lastFetch.toISOString());
-
+            const r2=await fetch('https://open.er-api.com/v6/latest/USD');
+            const d2=await r2.json();
+            const eu=d2.rates?.EUR||0;
+            if(eu>0&&usdBCV>0) eurBs=round(usdBCV/eu);
+        } catch(e){}
+        if(usdBCV>0) state.rates.USD=usdBCV;
+        if(usdPAR>0) state.rates.BIN=usdPAR;
+        if(eurBs>0)  state.rates.EUR=eurBs;
+        state.lastFetch=new Date();
+        localStorage.setItem('luan_rates',JSON.stringify(state.rates));
+        localStorage.setItem('luan_fetch',state.lastFetch.toISOString());
         renderTasas();
-        updateTrend('USD');
-        updateTrend('EUR');
-        updateTrend('BIN');
+        updateTrend('USD'); updateTrend('EUR'); updateTrend('BIN');
         actualizarTimestamp();
         els.offlineBadge.classList.remove('visible');
-
-        if (!state.tasaManual && state.current.code !== 'CON' && state.rates[state.current.code] > 0) {
-            els.tasa.value = state.rates[state.current.code].toFixed(2);
+        if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0) {
+            els.tasa.value=state.rates[state.current.code].toFixed(2);
             els.tasa.classList.remove('manual');
         }
         calc();
-        toast('✅ Tasas actualizadas', 'success', 2000);
+        toast('✅ Tasas actualizadas','success',2000);
     } catch(e) {
-        const msg = !navigator.onLine
-            ? '📴 Sin internet — usando tasa guardada'
-            : '⚠️ Error de servidor — usando tasa guardada';
-        toast(msg, 'error', 4000);
-        const saved = localStorage.getItem('luan_rates');
-        if (saved) { Object.assign(state.rates, JSON.parse(saved)); renderTasas(); }
-        const t = localStorage.getItem('luan_fetch');
-        if (t) state.lastFetch = new Date(t);
+        toast(!navigator.onLine?'📴 Sin internet — usando tasa guardada':'⚠️ Error de servidor — usando tasa guardada','error',4000);
+        const saved=localStorage.getItem('luan_rates');
+        if(saved){Object.assign(state.rates,JSON.parse(saved));renderTasas();}
+        const t=localStorage.getItem('luan_fetch');
+        if(t) state.lastFetch=new Date(t);
         actualizarTimestamp();
         els.offlineBadge.classList.add('visible');
-    } finally {
-        els.refreshBtn.classList.remove('loading');
-    }
+    } finally { els.refreshBtn.classList.remove('loading'); }
 }
 
 function renderTasas() {
-    document.getElementById('vUSD').textContent = state.rates.USD > 0 ? fmt(state.rates.USD) : '--';
-    document.getElementById('vEUR').textContent = state.rates.EUR > 0 ? fmt(state.rates.EUR) : '--';
-    document.getElementById('vBIN').textContent = state.rates.BIN > 0 ? fmt(state.rates.BIN) : '--';
+    document.getElementById('vUSD').textContent=state.rates.USD>0?fmt(state.rates.USD):'--';
+    document.getElementById('vEUR').textContent=state.rates.EUR>0?fmt(state.rates.EUR):'--';
+    document.getElementById('vBIN').textContent=state.rates.BIN>0?fmt(state.rates.BIN):'--';
 }
-
 function actualizarTimestamp() {
-    if (!state.lastFetch) return;
-    const mins = (Date.now() - state.lastFetch) / 60000;
-    const hhmm = state.lastFetch.toLocaleTimeString('es-VE', { hour:'2-digit', minute:'2-digit' });
-    const ago  = mins < 1 ? 'ahora mismo' : mins < 60 ? `hace ${Math.floor(mins)}min` : `hace ${Math.floor(mins/60)}h`;
-    els.lastUpdate.textContent = `Actualizado: ${hhmm} (${ago})`;
-    els.lastUpdate.className   = mins < 5 ? 'reciente' : 'viejo';
+    if(!state.lastFetch) return;
+    const mins=(Date.now()-state.lastFetch)/60000;
+    const hhmm=state.lastFetch.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+    const ago=mins<1?'ahora mismo':mins<60?`hace ${Math.floor(mins)}min`:`hace ${Math.floor(mins/60)}h`;
+    els.lastUpdate.textContent=`Actualizado: ${hhmm} (${ago})`;
+    els.lastUpdate.className=mins<5?'reciente':'viejo';
 }
 
 // ══════════════════════════════════════════════
-// 🎯 SELECCIONAR MONEDA
+// 🎯 MONEDA / DIRECCIÓN / SWAP
 // ══════════════════════════════════════════════
-function selectCurrency(code, name) {
-    state.current = { code, name };
-    document.querySelectorAll('.rate-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById('card-' + code).classList.add('selected');
-
-    if (state.tasaManual && state.tasaManualCode !== code) {
-        state.tasaManual = false;
-        state.tasaManualCode = null;
-        els.tasa.classList.remove('manual');
-    }
-    if (!state.tasaManual) {
-        els.tasa.value = (code !== 'CON' && state.rates[code] > 0) ? state.rates[code].toFixed(2) : '';
-        els.tasa.classList.remove('manual');
-    }
-    els.btnUsarOf.style.display = code === 'CON' ? 'inline-block' : 'none';
-
-    limpiarAcumulador(true);
-    actualizarBotonesYAcumulador();
-    updateLabels();
-    calc();
-    saveSession();
+function selectCurrency(code,name) {
+    state.current={code,name};
+    document.querySelectorAll('.rate-card').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('card-'+code).classList.add('selected');
+    if(state.tasaManual&&state.tasaManualCode!==code){state.tasaManual=false;state.tasaManualCode=null;els.tasa.classList.remove('manual');}
+    if(!state.tasaManual){els.tasa.value=(code!=='CON'&&state.rates[code]>0)?state.rates[code].toFixed(2):'';els.tasa.classList.remove('manual');}
+    els.btnUsarOf.style.display=code==='CON'?'inline-block':'none';
+    limpiarAcumulador(true); actualizarBotonesYAcumulador(); updateLabels(); calc(); saveSession();
 }
-
-// ══════════════════════════════════════════════
-// 🔄 DIRECCIÓN
-// ══════════════════════════════════════════════
 function setDirection(dir) {
-    state.direction = dir;
-    document.getElementById('btnDivisaABs').classList.toggle('active', dir === 'DivisaABs');
-    document.getElementById('btnBsADivisa').classList.toggle('active', dir === 'BsADivisa');
-    document.getElementById('btnDivisaABs').setAttribute('aria-selected', dir === 'DivisaABs');
-    document.getElementById('btnBsADivisa').setAttribute('aria-selected', dir === 'BsADivisa');
-
-    if (!state.tasaManual && state.current.code !== 'CON' && state.rates[state.current.code] > 0) {
-        els.tasa.value = state.rates[state.current.code].toFixed(2);
-    }
-    limpiarAcumulador(true);
-    actualizarBotonesYAcumulador();
-    updateLabels();
-    calc();
-    saveSession();
+    state.direction=dir;
+    document.getElementById('btnDivisaABs').classList.toggle('active',dir==='DivisaABs');
+    document.getElementById('btnBsADivisa').classList.toggle('active',dir==='BsADivisa');
+    if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0)
+        els.tasa.value=state.rates[state.current.code].toFixed(2);
+    limpiarAcumulador(true); actualizarBotonesYAcumulador(); updateLabels(); calc(); saveSession();
 }
-
-// ══════════════════════════════════════════════
-// 🔄 INTERCAMBIAR
-// ══════════════════════════════════════════════
 function intercambiarValores() {
-    const raw = els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');
-    const val = parseFloat(raw) || 0;
-    if (val <= 0) { toast('⚠️ Calcula primero un resultado', 'error'); return; }
-    els.monto.value = val.toFixed(2);
-    setDirection(state.direction === 'DivisaABs' ? 'BsADivisa' : 'DivisaABs');
-    toast('⇄ Valores invertidos', 'info', 1200);
-    navigator.vibrate && navigator.vibrate(10);
+    const raw=els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');
+    const val=parseFloat(raw)||0;
+    if(val<=0){toast('⚠️ Calcula primero un resultado','error');return;}
+    els.monto.value=val.toFixed(2);
+    setDirection(state.direction==='DivisaABs'?'BsADivisa':'DivisaABs');
+    toast('⇄ Valores invertidos','info',1200);
+    navigator.vibrate&&navigator.vibrate(10);
 }
 
 // ══════════════════════════════════════════════
-// 💰 BOTONES DINÁMICOS Y ACUMULADOR
+// 💰 ACUMULADOR
 // ══════════════════════════════════════════════
 function actualizarBotonesYAcumulador() {
-    const esModoBs = (state.direction === 'BsADivisa');
-    let valores = [], unidad = '';
-    if (esModoBs) {
-        valores = [0.05,0.1,0.2,0.50,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000];
-        unidad = 'Bs';
-    } else {
-        valores = [1,2,5,10,20,50,100,200,500,1000,2000,5000];
-        unidad  = (state.current.code === 'EUR') ? '€' : '$';
-    }
-    const container = els.montosRap;
-    container.innerHTML = '';
-    if (state.current.code === 'CON') { container.style.display='none'; return; }
-    container.style.display = 'flex';
-    valores.forEach(v => {
-        const btn = document.createElement('button');
-        btn.className = 'monto-btn';
-        btn.textContent = `${v}${unidad}`;
-        btn.addEventListener('click', e => { e.stopPropagation(); sumarAlAcumulador(v); });
-        container.appendChild(btn);
+    const esModoBs=(state.direction==='BsADivisa');
+    let valores=[],unidad='';
+    if(esModoBs){valores=[0.05,0.1,0.2,0.50,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000];unidad='Bs';}
+    else{valores=[1,2,5,10,20,50,100,200,500,1000,2000,5000];unidad=(state.current.code==='EUR')?'€':'$';}
+    const c=els.montosRap; c.innerHTML='';
+    if(state.current.code==='CON'){c.style.display='none';return;}
+    c.style.display='flex';
+    valores.forEach(v=>{
+        const btn=document.createElement('button');
+        btn.className='monto-btn'; btn.textContent=`${v}${unidad}`;
+        btn.addEventListener('click',e=>{e.stopPropagation();sumarAlAcumulador(v);});
+        c.appendChild(btn);
     });
     actualizarDisplayAcumulador();
 }
-
-function sumarAlAcumulador(valor) {
-    if (acumulador + valor > 1_000_000) { toast('⚠️ Límite máximo alcanzado','error',2000); return; }
-    acumulador += valor;
-    actualizarDisplayAcumulador();
-    navigator.vibrate && navigator.vibrate(8);
+function sumarAlAcumulador(v) {
+    if(acumulador+v>1_000_000){toast('⚠️ Límite máximo alcanzado','error',2000);return;}
+    acumulador+=v; actualizarDisplayAcumulador(); navigator.vibrate&&navigator.vibrate(8);
 }
-
 function limpiarAcumulador(silencioso=false) {
-    acumulador = 0;
-    actualizarDisplayAcumulador();
-    if (!silencioso) toast('🧹 Acumulador reiniciado','info',3000);
+    acumulador=0; actualizarDisplayAcumulador();
+    if(!silencioso) toast('🧹 Acumulador reiniciado','info',3000);
 }
-
 function aplicarAcumulador() {
-    if (acumulador <= 0) { toast('⚠️ No hay suma acumulada','error'); return; }
-    els.monto.value = acumulador;
-    calc();
-    toast(`✅ Monto fijado: ${acumulador.toLocaleString('es-VE')}`, 'success', 1500);
+    if(acumulador<=0){toast('⚠️ No hay suma acumulada','error');return;}
+    els.monto.value=acumulador; calc();
+    toast(`✅ Monto fijado: ${acumulador.toLocaleString('es-VE')}`,'success',1500);
     limpiarAcumulador(true);
 }
-
 function actualizarDisplayAcumulador() {
-    const unidad = (state.direction === 'BsADivisa') ? 'Bs' : (state.current.code === 'EUR' ? '€' : '$');
-    els.sumaActual.textContent = `➕ Suma: ${acumulador.toLocaleString('es-VE')} ${unidad}`;
+    const u=(state.direction==='BsADivisa')?'Bs':(state.current.code==='EUR'?'€':'$');
+    els.sumaActual.textContent=`➕ Suma: ${acumulador.toLocaleString('es-VE')} ${u}`;
 }
 
 // ══════════════════════════════════════════════
-// 🗂️ TIPO DE OPERACIÓN (MOTIVO WA)
+// 🗂️ TIPO DE OPERACIÓN
 // ══════════════════════════════════════════════
 const OP_CONFIG = {
-    venta:  { clase:'sel-venta',  hint:'¿Qué estás vendiendo?',  placeholder:'Ej: 1/2 kg de maní' },
-    compra: { clase:'sel-compra', hint:'¿Qué estás comprando?',  placeholder:'Ej: unos zapatos deportivos' },
-    pago:   { clase:'sel-pago',   hint:'¿Qué estás pagando?',    placeholder:'Ej: cartón de huevos' },
-    cambio: { clase:'sel-cambio', hint:'¿Qué estás cambiando?',  placeholder:'Ej: dólares a bolívares' }
+    venta:  { clase:'sel-venta',  hintQue:'¿Qué estás vendiendo?',   placeholder:'Ej: 1/2 kg de maní, un novio...' },
+    compra: { clase:'sel-compra', hintQue:'¿Qué estás comprando?',   placeholder:'Ej: unos zapatos, cartón de huevos...' },
+    pago:   { clase:'sel-pago',   hintQue:'¿Qué estás pagando?',     placeholder:'Ej: servicio de agua, deuda...' },
+    cambio: { clase:'sel-cambio', hintQue:'¿Qué estás cambiando?',   placeholder:'Ej: dólares a bolívares...' }
 };
-
 function seleccionarTipoOp(tipo) {
-    // Si ya estaba seleccionado, deseleccionar (toggle)
-    if (state.tipoOp === tipo) {
-        state.tipoOp = null;
-        document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
-        els.motivoWrap.classList.remove('visible');
-        saveSession();
-        return;
+    if(state.tipoOp===tipo){
+        state.tipoOp=null;
+        document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');
+        els.opDetalles.classList.remove('visible');
+        els.pill.classList.remove('visible');
+        saveSession(); return;
     }
-    state.tipoOp = tipo;
-    // Limpiar selección anterior
-    document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
-    // Aplicar clase al seleccionado
-    document.getElementById('op' + tipo.charAt(0).toUpperCase() + tipo.slice(1)).className = `op-type-btn ${OP_CONFIG[tipo].clase}`;
-    // Mostrar campo de motivo
-    els.motivoWrap.classList.add('visible');
-    els.motivoHint.textContent        = OP_CONFIG[tipo].hint;
-    els.motivoInput.placeholder       = OP_CONFIG[tipo].placeholder;
+    state.tipoOp=tipo;
+    document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');
+    const idMap={venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio'};
+    document.getElementById(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;
+    document.getElementById('hintQue').textContent=OP_CONFIG[tipo].hintQue;
+    els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;
+    els.opDetalles.classList.add('visible');
     els.motivoInput.focus();
+    actualizarPill();
     saveSession();
 }
 
@@ -694,88 +699,72 @@ function seleccionarTipoOp(tipo) {
 // 🏷️ LABELS
 // ══════════════════════════════════════════════
 function updateLabels() {
-    const { code, name } = state.current;
-    const dir = state.direction;
-    document.getElementById('txtDivisaABs').textContent = code === 'CON' ? '$ en Acuerdo, a Bs' : `De ${name} a Bs`;
-    document.getElementById('txtBsADivisa').textContent = code === 'CON' ? 'Bs en Acuerdo, a $' : `De Bs a ${name}`;
-    const t = { USD:'TASA DÓLAR $ (BCV)', EUR:'TASA EURO € (Real)', BIN:'TASA BINANCE P2P',
-                CON: dir==='DivisaABs' ? '💬 TU TASA (Bs por $)' : '💬 TU TASA ($ por Bs)' };
-    if (dir === 'DivisaABs') {
-        els.labelMonto.textContent = code==='CON' ? 'MONTO EN $' : `MONTO EN ${name.toUpperCase()}`;
-        els.labelTasa.textContent  = t[code];
-        els.resLabel.textContent   = '💰 TOTAL A RECIBIR (Bs):';
+    const {code,name}=state.current, dir=state.direction;
+    document.getElementById('txtDivisaABs').textContent=code==='CON'?'$ en Acuerdo, a Bs':`De ${name} a Bs`;
+    document.getElementById('txtBsADivisa').textContent=code==='CON'?'Bs en Acuerdo, a $':`De Bs a ${name}`;
+    const t={USD:'TASA DÓLAR $ (BCV)',EUR:'TASA EURO € (Real)',BIN:'TASA BINANCE P2P',
+             CON:dir==='DivisaABs'?'💬 TU TASA (Bs por $)':'💬 TU TASA ($ por Bs)'};
+    if(dir==='DivisaABs'){
+        els.labelMonto.textContent=code==='CON'?'MONTO EN $':`MONTO EN ${name.toUpperCase()}`;
+        els.labelTasa.textContent=t[code];
+        els.resLabel.textContent='💰 TOTAL A RECIBIR (Bs):';
     } else {
-        els.labelMonto.textContent = 'MONTO EN BOLÍVARES (Bs)';
-        els.labelTasa.textContent  = t[code];
-        els.resLabel.textContent   = code==='CON' ? '💎 $ A RECIBIR:' : `${name.toUpperCase()} A RECIBIR:`;
+        els.labelMonto.textContent='MONTO EN BOLÍVARES (Bs)';
+        els.labelTasa.textContent=t[code];
+        els.resLabel.textContent=code==='CON'?'💎 $ A RECIBIR:':`${name.toUpperCase()} A RECIBIR:`;
     }
 }
 
 // ══════════════════════════════════════════════
 // 🧮 CALCULAR
 // ══════════════════════════════════════════════
-function calcular(m, t, dir) {
-    if (m <= 0 || t <= 0) return null;
-    return dir === 'DivisaABs' ? round(m * t) : round(m / t);
+function calcular(m,t,dir) {
+    if(m<=0||t<=0) return null;
+    return dir==='DivisaABs'?round(m*t):round(m/t);
 }
-
 function renderResultado(total) {
-    if (total === null) { els.resBox.style.display='none'; return; }
-    els.resBox.style.display = 'block';
-    const { code } = state.current;
-    const dir = state.direction;
-    if (dir === 'DivisaABs') {
-        els.resTotal.textContent = 'Bs ' + fmt(total);
-        if (code !== 'BIN' && state.rates.BIN > 0) {
-            const m   = parseFloat(els.monto.value) || 0;
-            const par = round(m * state.rates.BIN);
-            const df  = round(total - par);
-            if (Math.abs(df) < 0.01) {
-                els.resComp.textContent = '≈ Igual que Binance P2P';
-                els.resComp.className   = 'res-comp igual';
-            } else if (df > 0) {
-                els.resComp.textContent = `✅ Bs ${fmt(df)} más que Binance P2P`;
-                els.resComp.className   = 'res-comp mejor';
-            } else {
-                els.resComp.textContent = `⚠️ Bs ${fmt(Math.abs(df))} menos que Binance P2P`;
-                els.resComp.className   = 'res-comp peor';
-            }
-        } else { els.resComp.className = 'res-comp'; }
+    if(total===null){els.resBox.style.display='none';return;}
+    els.resBox.style.display='block';
+    const {code}=state.current, dir=state.direction;
+    if(dir==='DivisaABs'){
+        els.resTotal.textContent='Bs '+fmt(total);
+        if(code!=='BIN'&&state.rates.BIN>0){
+            const m=parseFloat(els.monto.value)||0, par=round(m*state.rates.BIN), df=round(total-par);
+            if(Math.abs(df)<0.01){els.resComp.textContent='≈ Igual que Binance P2P';els.resComp.className='res-comp igual';}
+            else if(df>0){els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance P2P`;els.resComp.className='res-comp mejor';}
+            else{els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance P2P`;els.resComp.className='res-comp peor';}
+        } else {els.resComp.className='res-comp';}
     } else {
-        const sim = code === 'EUR' ? '€' : '$';
-        els.resTotal.textContent = fmt(total) + ' ' + sim;
-        els.resComp.className = 'res-comp';
+        els.resTotal.textContent=fmt(total)+(code==='EUR'?' €':' $');
+        els.resComp.className='res-comp';
     }
 }
-
 function calc() {
-    const m = parseFloat(els.monto.value) || 0;
-    const t = parseFloat(els.tasa.value)  || 0;
-    if (m > 1_000_000) { toast('⚠️ Monto muy alto','error'); return; }
-    if (m < 0 || t < 0) return;
-    renderResultado(calcular(m, t, state.direction));
-    renderMulti(m);
-    saveSession();
+    const m=parseFloat(els.monto.value)||0, t=parseFloat(els.tasa.value)||0;
+    if(m>1_000_000){toast('⚠️ Monto muy alto','error');return;}
+    if(m<0||t<0) return;
+    renderResultado(calcular(m,t,state.direction));
+    renderMulti(m); saveSession();
 }
 
 // ══════════════════════════════════════════════
 // ⚡ MULTI RESULTADO
 // ══════════════════════════════════════════════
 function renderMulti(m) {
-    if (m <= 0) { els.multiRes.classList.remove('visible'); return; }
+    if(m<=0){els.multiRes.classList.remove('visible');return;}
     els.multiRes.classList.add('visible');
-    const dir = state.direction;
-    if (dir === 'DivisaABs') {
-        els.mUSD.textContent = state.rates.USD > 0 ? 'Bs ' + fmt(round(m * state.rates.USD)) : '--';
-        els.mBIN.textContent = state.rates.BIN > 0 ? 'Bs ' + fmt(round(m * state.rates.BIN)) : '--';
-        els.mEUR.textContent = state.rates.EUR > 0 ? 'Bs ' + fmt(round(m * state.rates.EUR)) : '--';
-        els.rowBS.style.display = 'none';
+    const dir=state.direction;
+    if(dir==='DivisaABs'){
+        els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';
+        els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';
+        els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';
+        els.rowBS.style.display='none';
     } else {
-        els.rowBS.style.display = 'flex';
-        els.mUSD.textContent = state.rates.USD > 0 ? fmt(round(m / state.rates.USD)) + ' $' : '--';
-        els.mBIN.textContent = state.rates.BIN > 0 ? fmt(round(m / state.rates.BIN)) + ' $' : '--';
-        els.mEUR.textContent = state.rates.EUR > 0 ? fmt(round(m / state.rates.EUR)) + ' €' : '--';
-        els.mBS.textContent  = fmt(m) + ' Bs';
+        els.rowBS.style.display='flex';
+        els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';
+        els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';
+        els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';
+        els.mBS.textContent=fmt(m)+' Bs';
     }
 }
 
@@ -783,110 +772,126 @@ function renderMulti(m) {
 // 📋 COPIAR
 // ══════════════════════════════════════════════
 function copiarResultado() {
-    const txt = els.resTotal.textContent.trim();
-    if (!txt) return;
-    navigator.clipboard.writeText(txt).then(() => {
-        toast('📋 Copiado: ' + txt, 'success', 2000);
-        navigator.vibrate && navigator.vibrate(15);
-    });
+    const txt=els.resTotal.textContent.trim();
+    if(!txt) return;
+    navigator.clipboard.writeText(txt).then(()=>{toast('📋 Copiado: '+txt,'success',2000);navigator.vibrate&&navigator.vibrate(15);});
 }
 
 // ══════════════════════════════════════════════
 // 🔁 USAR TASA OFICIAL
 // ══════════════════════════════════════════════
 function usarTasaOficial() {
-    if (state.rates.USD > 0) {
-        els.tasa.value = state.rates.USD.toFixed(2);
-        state.tasaManual = false;
-        els.tasa.classList.remove('manual');
-        toast('📌 Tasa BCV cargada','success',2000);
-        calc();
-    } else toast('⚠️ Primero actualiza las tasas','error',2000);
+    if(state.rates.USD>0){els.tasa.value=state.rates.USD.toFixed(2);state.tasaManual=false;els.tasa.classList.remove('manual');toast('📌 Tasa BCV cargada','success',2000);calc();}
+    else toast('⚠️ Primero actualiza las tasas','error',2000);
 }
 
 // ══════════════════════════════════════════════
-// 📲 WHATSAPP — con motivo inteligente
+// 📲 WHATSAPP — lógica completa por tipo de operación
 // ══════════════════════════════════════════════
 function sendWA() {
-    const m = els.monto.value.trim();
-    const t = els.tasa.value.trim();
-    if (!m || !t) { toast('⚠️ Ingresa monto y tasa primero','error'); return; }
-    const hayResultado = els.resTotal.textContent.trim() && els.resTotal.textContent.trim() !== '0.00';
-    if (!hayResultado) { toast('⚠️ Primero calcula un resultado','error'); return; }
+    const m=els.monto.value.trim(), t=els.tasa.value.trim();
+    if(!m||!t){toast('⚠️ Ingresa monto y tasa primero','error');return;}
+    const hayRes=els.resTotal.textContent.trim()&&els.resTotal.textContent.trim()!=='0.00';
+    if(!hayRes){toast('⚠️ Primero calcula un resultado','error');return;}
 
-    const total       = els.resTotal.textContent.trim();
-    const { code, name } = state.current;
-    const monto       = parseFloat(m);
-    const mF          = monto.toLocaleString('es-VE', { minimumFractionDigits:2 });
-    const tF          = parseFloat(t).toLocaleString('es-VE', { minimumFractionDigits:2 });
-    const sim         = code === 'EUR' ? '€' : '$';
-    const nomMoneda   = code === 'CON' ? '$' : name;
-    const dir         = state.direction;
+    const total=els.resTotal.textContent.trim();
+    const {code,name}=state.current;
+    const mF=parseFloat(m).toLocaleString('es-VE',{minimumFractionDigits:2});
+    const tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});
+    const sim=code==='EUR'?'€':'$';
+    const dir=state.direction;
+    const tipo=state.tipoOp;
+    const motivo=els.motivoInput.value.trim();
+    const otro=els.contraparte.value.trim();
+    const yo=getMiNombre();
 
-    // Etiquetas de tasa y fuente
-    const labTasa = { USD:'Tasa BCV', EUR:'Tasa Euro', BIN:'Tasa Binance P2P', CON:'Tasa Acordada' };
-    const src     = { USD:'Banco Central de Venezuela (BCV)', EUR:'Tasa Euro Oficial',
-                      BIN:'Binance P2P · CriptoYa (USDT/VES)', CON:'Tasa Personalizada / Acuerdo' };
-    const emo     = { USD:'🏦', EUR:'🇪🇺', BIN:'💹', CON:'🤝' };
+    const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};
+    const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa (USDT/VES)',CON:'Tasa Personalizada / Acuerdo'};
+    const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};
 
-    // ── Construir línea de operación ──
-    const motivo  = els.motivoInput.value.trim();
-    const tipo    = state.tipoOp;
-    let lineaOp   = '';
-    let lineaMonto= '';
-    let lineaTotal= '';
-
-    if (tipo && motivo) {
-        // Con tipo de operación y descripción
-        const emojiTipo = { venta:'💰', compra:'🛒', pago:'💳', cambio:'🔄' };
-        const verboOp   = {
-            venta:  `Venta de ${motivo}`,
-            compra: `Compra de ${motivo}`,
-            pago:   `Pago de ${motivo}`,
-            cambio: `Cambio — ${motivo}`
-        };
-        lineaOp = `${emojiTipo[tipo]} *Operación:* ${verboOp[tipo]}`;
-
-        if (tipo === 'venta' || tipo === 'cambio') {
-            if (dir === 'DivisaABs') {
-                lineaMonto = `💵 *Recibes:* ${mF} ${sim} → Bs`;
-                lineaTotal = `💰 *Total a recibir en Bs:* ${total}`;
-            } else {
-                lineaMonto = `💸 *Entregas:* ${mF} Bs`;
-                lineaTotal = `💎 *Total a recibir en ${sim}:* ${total}`;
-            }
+    // Línea de participantes (solo si hay contraparte)
+    let lineaParticipantes='';
+    if(otro){
+        if(tipo==='venta'||tipo==='cambio'||tipo==='pago'){
+            lineaParticipantes=`👤 *${yo||'Yo'} → ${otro}*`;
+        } else if(tipo==='compra'){
+            lineaParticipantes=`👤 *${otro} → ${yo||'Yo'}*`;
         } else {
-            // compra o pago
-            if (dir === 'DivisaABs') {
-                lineaMonto = `💵 *Monto:* ${mF} ${sim}`;
-                lineaTotal = `💳 *Total a pagar en Bs:* ${total}`;
-            } else {
-                lineaMonto = `💸 *Pagas:* ${mF} Bs`;
-                lineaTotal = `💎 *Recibes en ${sim}:* ${total}`;
-            }
+            lineaParticipantes=`👤 *${yo||'Yo'} ⇄ ${otro}*`;
         }
-    } else if (tipo && !motivo) {
-        // Tipo seleccionado pero sin descripción
-        const verboGen = { venta:'Venta', compra:'Compra', pago:'Pago', cambio:'Cambio de divisas' };
-        lineaOp   = `🤝 *Operación:* ${verboGen[tipo]}`;
-        lineaMonto = dir === 'DivisaABs' ? `💵 *Cantidad:* ${mF} ${sim}` : `💸 *Monto enviado:* ${mF} Bs`;
-        lineaTotal = dir === 'DivisaABs' ? `💰 *Total a recibir en Bs:* ${total}` : `💎 *Total en ${sim}:* ${total}`;
-    } else {
-        // Sin tipo ni motivo — comportamiento original
-        lineaOp   = dir === 'DivisaABs'
-            ? `🤝 *Operación:* Venta de ${nomMoneda}`
-            : `🤝 *Operación:* Compra de ${nomMoneda} con Bs`;
-        lineaMonto = dir === 'DivisaABs'
-            ? `💵 *Cantidad:* ${mF} ${sim}`
-            : `💸 *Monto enviado:* ${mF} Bs`;
-        lineaTotal = dir === 'DivisaABs'
-            ? `💰 *Total a recibir en Bs:* ${total}`
-            : `💎 *Total en ${nomMoneda}:* ${total}`;
     }
 
-    const msg = `⚡ *Epic Converter LUAN*\n\n${lineaOp}\n${lineaMonto}\n📊 *${labTasa[code]}:* ${tF} Bs\n${lineaTotal}\n\n${emo[code]} _Ref: ${src[code]}_\n_LUANSystem™ Professional · Ing. LuisLa_`;
+    let lineaOp='', lineaEntrega='', lineaRecibe='';
 
-    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    if(tipo==='venta') {
+        // Yo vendo: entrego producto/divisa, recibo Bs o $
+        lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){
+            lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;
+            lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;
+            if(otro) lineaEntrega+=`\n💳 *${otro} paga:* ${total}`;
+        } else {
+            lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;
+            lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total}`;
+            if(otro) lineaEntrega+=`\n💳 *${otro} paga:* ${mF} Bs`;
+        }
+    } else if(tipo==='compra') {
+        // Yo compro: entrego Bs o $, recibo producto
+        lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){
+            lineaEntrega=`💵 *${yo||'Yo'} paga:* ${mF} ${sim}`;
+            lineaRecibe=`💰 *Total en Bs:* ${total}`;
+        } else {
+            lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;
+            lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;
+            if(otro) lineaRecibe+=`\n💵 *${otro} recibe:* ${mF} Bs`;
+        }
+    } else if(tipo==='pago') {
+        // Yo pago: entrego Bs o $
+        lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){
+            lineaEntrega=`💵 *Monto:* ${mF} ${sim}`;
+            lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;
+        } else {
+            lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;
+            lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;
+        }
+    } else if(tipo==='cambio') {
+        // Cambio de divisas
+        lineaOp=`🔄 *Operación:* Cambio${motivo?' — '+motivo:''}`;
+        if(dir==='DivisaABs'){
+            lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;
+            lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;
+            if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;
+        } else {
+            lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;
+            lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total}`;
+            if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;
+        }
+    } else {
+        // Sin tipo seleccionado — mensaje genérico
+        lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;
+        lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;
+        lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;
+    }
+
+    const partes=[
+        '⚡ *Epic Converter LUAN*',
+        '',
+        lineaOp,
+        lineaParticipantes,
+        lineaEntrega,
+        `📊 *${labTasa[code]}:* ${tF} Bs`,
+        lineaRecibe,
+        '',
+        `${emo[code]} _Ref: ${src[code]}_`,
+        '_LUANSystem™ Professional · Ing. LuisLa_'
+    ].filter(l=>l!==undefined&&!(l===''&&false));
+
+    // Limpiar líneas vacías dobles
+    const msg=partes.filter((l,i)=>!(l===''&&partes[i-1]=='')).join('\n');
+
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
     toast('📤 Abriendo WhatsApp...','success',2000);
 }
 
@@ -894,82 +899,64 @@ function sendWA() {
 // 💾 SESIÓN
 // ══════════════════════════════════════════════
 function saveSession() {
-    localStorage.setItem('luan_session', JSON.stringify({
-        monto:          els.monto.value,
-        tasa:           els.tasa.value,
-        code:           state.current.code,
-        name:           state.current.name,
-        direction:      state.direction,
-        tasaManual:     state.tasaManual,
-        tasaManualCode: state.tasaManualCode,
-        acumulador:     acumulador,
-        tipoOp:         state.tipoOp,
-        motivo:         els.motivoInput.value
+    localStorage.setItem('luan_session',JSON.stringify({
+        monto:els.monto.value, tasa:els.tasa.value,
+        code:state.current.code, name:state.current.name,
+        direction:state.direction, tasaManual:state.tasaManual,
+        tasaManualCode:state.tasaManualCode, acumulador,
+        tipoOp:state.tipoOp, motivo:els.motivoInput.value,
+        contraparte:els.contraparte.value
     }));
 }
-
 function restoreSession() {
     try {
-        const s = JSON.parse(localStorage.getItem('luan_session') || 'null');
-        if (!s) return;
-        if (s.monto) els.monto.value = s.monto;
-        if (s.tasa)  els.tasa.value  = s.tasa;
-        if (s.tasaManual) {
-            state.tasaManual     = true;
-            state.tasaManualCode = s.tasaManualCode || null;
-            els.tasa.classList.add('manual');
-        }
-        if (s.code)      selectCurrency(s.code, s.name || s.code);
-        if (s.direction) setTimeout(() => setDirection(s.direction), 60);
-        if (s.acumulador > 0) { acumulador = s.acumulador; actualizarDisplayAcumulador(); }
-        if (s.tipoOp)    setTimeout(() => seleccionarTipoOp(s.tipoOp), 80);
-        if (s.motivo)    setTimeout(() => { els.motivoInput.value = s.motivo; }, 90);
-    } catch(e) {}
+        const s=JSON.parse(localStorage.getItem('luan_session')||'null');
+        if(!s) return;
+        if(s.monto) els.monto.value=s.monto;
+        if(s.tasa)  els.tasa.value=s.tasa;
+        if(s.tasaManual){state.tasaManual=true;state.tasaManualCode=s.tasaManualCode||null;els.tasa.classList.add('manual');}
+        if(s.code) selectCurrency(s.code,s.name||s.code);
+        if(s.direction) setTimeout(()=>setDirection(s.direction),60);
+        if(s.acumulador>0){acumulador=s.acumulador;actualizarDisplayAcumulador();}
+        if(s.tipoOp) setTimeout(()=>seleccionarTipoOp(s.tipoOp),80);
+        if(s.motivo) setTimeout(()=>{els.motivoInput.value=s.motivo;},90);
+        if(s.contraparte) setTimeout(()=>{els.contraparte.value=s.contraparte;actualizarPill();},95);
+    } catch(e){}
 }
 
 // ══════════════════════════════════════════════
-// ⌨️ HANDLERS
+// ⌨️ HANDLERS / INIT
 // ══════════════════════════════════════════════
-function onMontoInput() { calc(); }
-function onTasaInput()  {
-    state.tasaManual     = true;
-    state.tasaManualCode = state.current.code;
-    els.tasa.classList.add('manual');
-    calc();
-}
+function onMontoInput(){calc();}
+function onTasaInput(){state.tasaManual=true;state.tasaManualCode=state.current.code;els.tasa.classList.add('manual');calc();}
 
-// ══════════════════════════════════════════════
-// 🚀 INIT
-// ══════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded',()=>{
+    // Si no tiene nombre guardado, abrir ajustes automáticamente
+    if(!getMiNombre()) setTimeout(()=>abrirAjustes(),800);
     restoreSession();
     loadData();
-    setTimeout(() => els.monto.focus(), 500);
-
-    document.getElementById('btnLimpiarAcum').addEventListener('click', () => limpiarAcumulador());
-    document.getElementById('btnEnterAcum').addEventListener('click',   () => aplicarAcumulador());
-
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && document.activeElement !== els.monto && document.activeElement !== els.tasa && document.activeElement !== els.motivoInput) {
+    setTimeout(()=>els.monto.focus(),500);
+    document.getElementById('btnLimpiarAcum').addEventListener('click',()=>limpiarAcumulador());
+    document.getElementById('btnEnterAcum').addEventListener('click',()=>aplicarAcumulador());
+    document.addEventListener('keydown',e=>{
+        if(e.key==='Enter'&&![els.monto,els.tasa,els.motivoInput,els.contraparte].includes(document.activeElement))
             aplicarAcumulador();
-        }
     });
-
-    setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine) loadData(); }, 5 * 60 * 1000);
-    setInterval(actualizarTimestamp, 60 * 1000);
+    setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine)loadData();},5*60*1000);
+    setInterval(actualizarTimestamp,60*1000);
 });
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const reg = await navigator.serviceWorker.register('./service-worker.js');
-            reg.addEventListener('updatefound', () => {
-                reg.installing?.addEventListener('statechange', function() {
-                    if (this.state === 'installed' && navigator.serviceWorker.controller)
+if('serviceWorker' in navigator){
+    window.addEventListener('load',async()=>{
+        try{
+            const reg=await navigator.serviceWorker.register('./service-worker.js');
+            reg.addEventListener('updatefound',()=>{
+                reg.installing?.addEventListener('statechange',function(){
+                    if(this.state==='installed'&&navigator.serviceWorker.controller)
                         toast('🔄 Nueva versión disponible. Recarga para actualizar.','info',5000);
                 });
             });
-        } catch(e) {}
+        }catch(e){}
     });
 }
 </script>
