@@ -824,52 +824,63 @@ function sendWA() {
     let lineaOp='', lineaEntrega='', lineaRecibe='';
 
     if(tipo==='venta') {
-        // Yo vendo: entrego producto/divisa, recibo Bs o $
+        // Yo vendo un producto/servicio y recibo dinero
         lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
         if(dir==='DivisaABs'){
-            lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;
-            lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;
-            if(otro) lineaEntrega+=`\n💳 *${otro} paga:* ${total}`;
+            // Precio en $ o €, cobra en Bs
+            lineaEntrega=motivo
+                ? `📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`
+                : `💵 *Precio pactado:* ${mF} ${sim}`;
+            lineaRecibe=`💰 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total}`;
         } else {
-            lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;
-            lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total}`;
-            if(otro) lineaEntrega+=`\n💳 *${otro} paga:* ${mF} Bs`;
+            // Precio en Bs, cobra en $ o €
+            lineaEntrega=motivo
+                ? `📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Precio pactado:* ${mF} Bs`
+                : `💸 *Precio pactado:* ${mF} Bs`;
+            lineaRecibe=`💎 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total} ${sim}`;
         }
     } else if(tipo==='compra') {
-        // Yo compro: entrego Bs o $, recibo producto
+        // Yo compro un producto/servicio y pago dinero
         lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
         if(dir==='DivisaABs'){
-            lineaEntrega=`💵 *${yo||'Yo'} paga:* ${mF} ${sim}`;
-            lineaRecibe=`💰 *Total en Bs:* ${total}`;
+            // Precio en $ o €, pago en Bs
+            lineaEntrega=motivo
+                ? `📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`
+                : `💵 *Precio pactado:* ${mF} ${sim}`;
+            lineaRecibe=`💰 *${yo||'Yo'} paga:* ${total}`;
         } else {
-            lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;
+            // Pago en Bs, recibo $ o €
+            lineaEntrega=motivo
+                ? `📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💸 *${yo||'Yo'} paga:* ${mF} Bs`
+                : `💸 *${yo||'Yo'} paga:* ${mF} Bs`;
             lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;
-            if(otro) lineaRecibe+=`\n💵 *${otro} recibe:* ${mF} Bs`;
         }
     } else if(tipo==='pago') {
-        // Yo pago: entrego Bs o $
+        // Yo pago un servicio/deuda
         lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
         if(dir==='DivisaABs'){
-            lineaEntrega=`💵 *Monto:* ${mF} ${sim}`;
+            lineaEntrega=`💵 *Monto en ${sim}:* ${mF} ${sim}`;
             lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;
         } else {
             lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;
             lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;
         }
     } else if(tipo==='cambio') {
-        // Cambio de divisas
-        lineaOp=`🔄 *Operación:* Cambio${motivo?' — '+motivo:''}`;
+        // Cambio de divisas — yo entrego una divisa, recibo otra
+        lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
         if(dir==='DivisaABs'){
+            // Entrego $, recibo Bs
             lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;
             lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;
             if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;
         } else {
+            // Entrego Bs, recibo $
             lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;
-            lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total}`;
+            lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;
             if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;
         }
     } else {
-        // Sin tipo seleccionado — mensaje genérico
+        // Sin tipo — mensaje genérico
         lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;
         lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;
         lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;
