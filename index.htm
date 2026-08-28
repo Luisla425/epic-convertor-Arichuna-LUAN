@@ -10,7 +10,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="./logo.png">
     <style>
-        /* ===== TEMAS ===== */
         :root {
             --primary: #ffd700;
             --bg: #0a0a0a;
@@ -33,13 +32,12 @@
             --text: #fff8e7;
             --text-soft: #c8b87a;
             --input-bg: #0f0f00;
-            --success: #4ecca3;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-        body { background:var(--bg); color:var(--text); padding:15px; min-height:100vh; transition:background 0.3s, color 0.3s; }
+        body { background:var(--bg); color:var(--text); padding:15px; min-height:100vh; transition:background 0.3s,color 0.3s; }
 
-        /* ===== PANTALLA ACCESO ===== */
+        /* ── ACCESO ── */
         #pantallaAcceso {
             position:fixed; inset:0; background:var(--bg);
             display:flex; flex-direction:column; align-items:center;
@@ -64,7 +62,7 @@
         .acceso-error.visible { display:block; }
         .acceso-version { color:#333; font-size:0.65rem; margin-top:30px; }
 
-        /* ===== PANEL ADMIN ===== */
+        /* ── ADMIN ── */
         #pantallaAdmin {
             position:fixed; inset:0; background:var(--bg);
             overflow-y:auto; padding:20px; z-index:1500; display:none;
@@ -87,17 +85,11 @@
         .btn-activar { background:rgba(78,204,163,0.12); border:1px solid rgba(78,204,163,0.3); color:var(--success); padding:6px 10px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
         .btn-borrar-codigo { background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); color:var(--danger); padding:6px 10px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
 
-        /* ===== HEADER ===== */
+        /* ── HEADER ── */
         .header { text-align:center; margin-bottom:20px; position:relative; padding-top:4px; }
         .header-btns-left { position:absolute; left:0; top:0; display:flex; gap:6px; }
         .header-btns-right { position:absolute; right:0; top:0; display:flex; gap:6px; }
-        .btn-icon {
-            background:var(--card); border:1px solid var(--card-border);
-            color:var(--text); padding:9px; border-radius:50%;
-            cursor:pointer; font-size:1rem; line-height:1;
-            transition:all 0.2s; display:flex; align-items:center; justify-content:center;
-            width:38px; height:38px;
-        }
+        .btn-icon { background:var(--card); border:1px solid var(--card-border); color:var(--text); padding:9px; border-radius:50%; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; width:38px; height:38px; }
         .btn-icon:active { transform:scale(0.9); }
         .btn-refresh { border-color:var(--primary); color:var(--primary); }
         .btn-refresh.loading { animation:spin 1s linear infinite; }
@@ -110,14 +102,14 @@
         #offlineBadge.visible { display:inline-block; }
         .usuario-badge { font-size:0.68rem; color:var(--success); margin-top:3px; }
 
-        /* ===== TABS ===== */
+        /* ── TABS ── */
         .main-tabs { display:flex; gap:6px; margin-bottom:15px; }
         .main-tab { flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--card-border); background:rgba(0,0,0,0.4); color:var(--text-soft); font-weight:bold; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
         .main-tab.active { background:var(--primary); color:#0a0a00; border-color:var(--primary); }
         .tab-content { display:none; }
         .tab-content.active { display:block; }
 
-        /* ===== MODAL ===== */
+        /* ── MODAL ── */
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; padding:20px; }
         .modal-overlay.visible { display:flex; }
         .modal { background:#111; border-radius:20px; padding:24px; width:100%; max-width:400px; border:1px solid rgba(255,215,0,0.25); animation:slideUp 0.3s ease; max-height:90vh; overflow-y:auto; }
@@ -127,11 +119,11 @@
         .btn-modal-save { flex:1; background:var(--primary); color:#0a0a00; border:none; padding:14px; border-radius:10px; font-weight:bold; font-size:1rem; cursor:pointer; }
         .btn-modal-cancel { flex:1; background:rgba(255,255,255,0.06); color:var(--text); border:1px solid rgba(255,255,255,0.1); padding:14px; border-radius:10px; font-weight:bold; font-size:1rem; cursor:pointer; }
 
-        /* ===== GLASS ===== */
+        /* ── GLASS ── */
         .glass { background:var(--card); border-radius:15px; padding:15px; margin-bottom:15px; border:1px solid var(--card-border); }
         .section-title { font-size:0.78rem; margin-bottom:10px; color:var(--text-soft); letter-spacing:0.3px; }
 
-        /* ===== MULTI RESULTADO ===== */
+        /* ── MULTI RESULTADO ── */
         .multi-res { background:var(--card); border-radius:15px; padding:14px; margin-bottom:15px; border:1px solid var(--card-border); display:none; }
         .multi-res.visible { display:block; }
         .multi-title { font-size:0.68rem; color:var(--text-soft); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
@@ -141,7 +133,7 @@
         .multi-val { font-size:1rem; font-weight:bold; color:var(--success); }
         .multi-val.hl { color:var(--primary); font-size:1.1rem; }
 
-        /* ===== GRID TASAS ===== */
+        /* ── GRID TASAS ── */
         .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
         .rate-card { background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; text-align:center; cursor:pointer; border:2px solid transparent; transition:all 0.2s; }
         .rate-card:active { transform:scale(0.97); }
@@ -151,7 +143,7 @@
         .trend { font-size:0.6rem; font-weight:bold; display:block; margin-top:2px; height:13px; }
         .trend.up { color:var(--up); } .trend.down { color:var(--down); } .trend.flat { color:#444; }
 
-        /* ===== INPUTS CON BOTÓN X ===== */
+        /* ── INPUTS ── */
         label { font-size:0.75rem; color:var(--primary); display:block; margin-top:12px; font-weight:bold; letter-spacing:0.2px; }
         .input-wrap { position:relative; margin:5px 0; }
         .input-wrap input, .input-wrap select {
@@ -167,7 +159,6 @@
             background:rgba(255,255,255,0.08); border:none; color:var(--text-soft);
             width:26px; height:26px; border-radius:50%; cursor:pointer;
             font-size:0.8rem; display:flex; align-items:center; justify-content:center;
-            transition:all 0.15s;
         }
         .btn-clear-field:active { background:rgba(255,107,107,0.3); color:var(--danger); }
         input[type="number"] { -moz-appearance:textfield; }
@@ -177,7 +168,7 @@
         .tasa-input.manual { border:2px solid var(--warning) !important; color:var(--warning) !important; }
         .btn-usar-oficial { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3); color:var(--primary); font-size:0.72rem; font-weight:bold; padding:6px 12px; border-radius:20px; cursor:pointer; margin-top:4px; display:none; }
 
-        /* ===== ACUMULADOR ===== */
+        /* ── ACUMULADOR ── */
         .montos-rapidos { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
         .monto-btn { flex:1 0 auto; min-width:58px; padding:9px 0; border-radius:8px; border:1px solid rgba(255,215,0,0.25); background:rgba(255,215,0,0.05); color:var(--primary); font-size:0.88rem; font-weight:bold; cursor:pointer; }
         .monto-btn:active { background:rgba(255,215,0,0.2); transform:scale(0.96); }
@@ -187,14 +178,14 @@
         .btn-enter { background:var(--success); color:#0a0a0a; }
         .btn-limpiar-acum { background:rgba(255,107,107,0.6); }
 
-        /* ===== TOGGLE ===== */
+        /* ── TOGGLE ── */
         .toggle-container { display:flex; gap:8px; margin:15px 0; align-items:center; }
         .toggle-btn { flex:1; padding:12px; border-radius:8px; border:1px solid var(--card-border); background:rgba(0,0,0,0.3); color:var(--text-soft); font-weight:bold; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
         .active { background:var(--primary) !important; color:#0a0a00 !important; border-color:var(--primary) !important; }
         .btn-swap { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text); font-size:1.2rem; width:42px; height:42px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .btn-swap:active { transform:rotate(180deg) scale(0.9); }
 
-        /* ===== OPERACIÓN WA ===== */
+        /* ── OPERACIÓN WA ── */
         .op-type-section { margin-top:18px; border-top:1px solid rgba(255,255,255,0.05); padding-top:14px; }
         .op-type-label { font-size:0.75rem; color:var(--primary); font-weight:bold; margin-bottom:10px; display:block; }
         .op-type-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
@@ -212,16 +203,11 @@
         .pill-yo { color:var(--primary); font-weight:bold; }
         .pill-otro { color:var(--success); font-weight:bold; }
 
-        /* ===== BARRA LIMPIAR TODO ===== */
-        .btn-limpiar-todo {
-            width:100%; padding:11px; border-radius:10px; margin-top:12px;
-            border:1px solid rgba(255,107,107,0.3); background:rgba(255,107,107,0.07);
-            color:var(--danger); font-size:0.85rem; font-weight:bold; cursor:pointer;
-            transition:all 0.2s;
-        }
+        /* ── LIMPIAR TODO ── */
+        .btn-limpiar-todo { width:100%; padding:11px; border-radius:10px; margin-top:12px; border:1px solid rgba(255,107,107,0.3); background:rgba(255,107,107,0.07); color:var(--danger); font-size:0.85rem; font-weight:bold; cursor:pointer; transition:all 0.2s; }
         .btn-limpiar-todo:active { background:rgba(255,107,107,0.2); }
 
-        /* ===== RESULTADO ===== */
+        /* ── RESULTADO ── */
         .res-box { background:rgba(78,204,163,0.08); padding:15px; border-radius:12px; margin-top:15px; text-align:center; border:1px dashed rgba(78,204,163,0.4); animation:slideUp 0.3s ease; display:none; position:relative; }
         @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
         .res-label { font-size:0.8rem; color:var(--text-soft); margin-bottom:5px; }
@@ -232,11 +218,11 @@
         .res-comp.peor  { background:rgba(255,107,107,0.12); color:var(--danger); display:block; }
         .res-comp.igual { background:rgba(255,255,255,0.05); color:var(--text-soft); display:block; }
 
-        /* ===== WHATSAPP ===== */
+        /* ── WHATSAPP ── */
         .btn-wa { background:#25D366; color:#fff; border:none; width:100%; padding:16px; border-radius:10px; font-weight:bold; margin-top:15px; cursor:pointer; font-size:1rem; }
         .btn-wa:active { background:#128C7E; }
 
-        /* ===== FIADOS ===== */
+        /* ── FIADOS ── */
         .fiado-card { background:rgba(192,132,252,0.07); border:1px solid rgba(192,132,252,0.2); border-radius:14px; padding:14px; margin-bottom:12px; }
         .fiado-nombre { font-size:1rem; font-weight:bold; color:var(--purple); }
         .fiado-desc { font-size:0.8rem; color:var(--text-soft); margin-top:2px; }
@@ -252,7 +238,7 @@
         .historial-badge { display:inline-block; background:rgba(78,204,163,0.15); color:var(--success); font-size:0.65rem; font-weight:bold; padding:2px 8px; border-radius:20px; margin-bottom:6px; }
         .empty-state { text-align:center; color:#444; padding:30px 0; font-size:0.9rem; }
 
-        /* ===== TOAST ===== */
+        /* ── TOAST ── */
         .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:12px 20px; border-radius:50px; background:#222; color:#fff; font-size:0.9rem; font-weight:500; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.5); animation:tIn 0.3s ease, tOut 0.3s ease 2.7s forwards; }
         @keyframes tIn  { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%)} }
         @keyframes tOut { to{opacity:0} }
@@ -262,7 +248,7 @@
 </head>
 <body>
 
-<!-- PANTALLA ACCESO -->
+<!-- ACCESO -->
 <div id="pantallaAcceso">
     <div class="acceso-logo">⚡</div>
     <h2>Epic Converter LUAN</h2>
@@ -273,7 +259,7 @@
     <p class="acceso-version">LUANSystem™ Professional v3.1</p>
 </div>
 
-<!-- PANEL ADMIN -->
+<!-- ADMIN -->
 <div id="pantallaAdmin">
     <div class="admin-header">
         <span class="admin-title">⚙️ Panel Admin — LuisLa</span>
@@ -316,7 +302,7 @@
     </div>
 </div>
 
-<!-- MODAL NUEVO FIADO -->
+<!-- MODAL FIADO -->
 <div class="modal-overlay" id="modalFiado">
     <div class="modal">
         <div class="modal-title">🤝 Registrar Fiado</div>
@@ -384,7 +370,7 @@
         <button class="btn-icon" onclick="toggleTema()" id="btnTema" title="Cambiar tema">🌙</button>
     </div>
     <div class="header-btns-right">
-        <button class="btn-icon btn-refresh" id="refreshBtn" onclick="loadData()" title="Actualizar tasas">🔄</button>
+        <button class="btn-icon btn-refresh" id="refreshBtn" onclick="loadData()" title="Actualizar">🔄</button>
     </div>
     <h1>Epic Converter LUAN ⚡</h1>
     <div id="lastUpdate">Actualizado: --:--</div>
@@ -471,7 +457,6 @@
             </div>
         </div>
 
-        <!-- BOTÓN LIMPIAR TODO -->
         <button class="btn-limpiar-todo" onclick="limpiarTodo()">🗑️ Limpiar todo y empezar de nuevo</button>
 
         <div id="resBox" class="res-box">
@@ -507,7 +492,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where }
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, limit }
     from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -528,7 +513,7 @@ const state = {
     lastFetch:null, tasaManual:false, tasaManualCode:null, tipoOp:null,
     usuarioActual:null, esAdmin:false
 };
-let acumulador=0, fiadoActivoId=null;
+let acumulador = 0, fiadoActivoId = null;
 
 const els = {
     monto:document.getElementById('monto'), tasa:document.getElementById('tasa'),
@@ -548,268 +533,497 @@ const els = {
 };
 
 // ══ TOAST ══
-function toast(msg,type='info',dur=3000){const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;document.getElementById('toastContainer').appendChild(t);setTimeout(()=>t.remove(),dur);}
-window.toast=toast;
+function toast(msg, type='info', dur=3000){
+    const t = document.createElement('div');
+    t.className = `toast ${type}`; t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), dur);
+}
+window.toast = toast;
 
 // ══ TEMA ══
-function aplicarTema(tema){document.documentElement.setAttribute('data-tema',tema);localStorage.setItem('luan_tema',tema);document.getElementById('btnTema').textContent=tema==='dorado'?'🌙':'✨';}
-window.toggleTema=function(){const actual=localStorage.getItem('luan_tema')||'noche';aplicarTema(actual==='dorado'?'noche':'dorado');toast(actual==='dorado'?'🌙 Modo Noche':'✨ Modo Dorado','info',1500);};
+function aplicarTema(tema){
+    document.documentElement.setAttribute('data-tema', tema);
+    localStorage.setItem('luan_tema', tema);
+    document.getElementById('btnTema').textContent = tema === 'dorado' ? '🌙' : '✨';
+}
+window.toggleTema = function(){
+    const actual = localStorage.getItem('luan_tema') || 'noche';
+    aplicarTema(actual === 'dorado' ? 'noche' : 'dorado');
+    toast(actual === 'dorado' ? '🌙 Modo Noche' : '✨ Modo Dorado', 'info', 1500);
+};
 
 // ══ LIMPIAR CAMPO ══
-window.clearField=function(id){
-    const el=document.getElementById(id);if(!el)return;
-    el.value='';
-    if(id==='monto'||id==='tasa')calc();
-    if(id==='motivoInput'||id==='contraparte')actualizarPill();
-    if(id==='tasa'){state.tasaManual=false;el.classList.remove('manual');}
+window.clearField = function(id){
+    const el = document.getElementById(id); if(!el) return;
+    el.value = '';
+    if(id === 'monto' || id === 'tasa') calc();
+    if(id === 'motivoInput' || id === 'contraparte') actualizarPill();
+    if(id === 'tasa'){ state.tasaManual = false; el.classList.remove('manual'); }
     saveSession();
 };
 
 // ══ LIMPIAR TODO ══
-window.limpiarTodo=function(){
-    els.monto.value=''; els.tasa.value='';
-    els.motivoInput.value=''; els.contraparte.value='';
-    state.tipoOp=null; state.tasaManual=false;
+window.limpiarTodo = function(){
+    els.monto.value = ''; els.tasa.value = '';
+    els.motivoInput.value = ''; els.contraparte.value = '';
+    state.tipoOp = null; state.tasaManual = false;
     els.tasa.classList.remove('manual');
-    document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');
+    document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
     els.opDetalles.classList.remove('visible');
     els.pill.classList.remove('visible');
-    els.resBox.style.display='none';
+    els.resBox.style.display = 'none';
     els.multiRes.classList.remove('visible');
     limpiarAcumulador(true);
-    // Recargar tasa oficial
-    if(state.current.code!=='CON'&&state.rates[state.current.code]>0)
-        els.tasa.value=state.rates[state.current.code].toFixed(2);
+    if(state.current.code !== 'CON' && state.rates[state.current.code] > 0)
+        els.tasa.value = state.rates[state.current.code].toFixed(2);
     saveSession();
-    toast('🗑️ Todo limpiado — nueva operación','info',2000);
+    toast('🗑️ Todo limpiado — nueva operación', 'info', 2000);
 };
 
 // ══ TABS ══
-window.cambiarTab=function(tab){
-    document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-    const tabs=['converter','fiados','historial'];
+window.cambiarTab = function(tab){
+    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const tabs = ['converter','fiados','historial'];
     document.querySelectorAll('.main-tab')[tabs.indexOf(tab)].classList.add('active');
-    document.getElementById('tab-'+tab).classList.add('active');
-    if(tab==='fiados')cargarFiados();
-    if(tab==='historial')cargarHistorial();
+    document.getElementById('tab-' + tab).classList.add('active');
+    if(tab === 'fiados') cargarFiados();
+    if(tab === 'historial') cargarHistorial();
 };
 
 // ══ ACCESO ══
-document.getElementById('inputCodigo').addEventListener('keydown',e=>{if(e.key==='Enter')verificarAcceso();});
-window.verificarAcceso=async function(){
-    const codigo=document.getElementById('inputCodigo').value.trim().toUpperCase();
-    const errEl=document.getElementById('errorAcceso');errEl.classList.remove('visible');
-    if(!codigo){errEl.textContent='⚠️ Ingresa un código';errEl.classList.add('visible');return;}
+document.getElementById('inputCodigo').addEventListener('keydown', e => { if(e.key === 'Enter') verificarAcceso(); });
+
+window.verificarAcceso = async function(){
+    const codigo = document.getElementById('inputCodigo').value.trim().toUpperCase();
+    const errEl  = document.getElementById('errorAcceso');
+    errEl.classList.remove('visible');
+    if(!codigo){ errEl.textContent = '⚠️ Ingresa un código'; errEl.classList.add('visible'); return; }
     try{
-        const adminDoc=await getDoc(doc(db,'config','admin'));
-        if(adminDoc.exists()&&(codigo===adminDoc.data().clave.toUpperCase()||codigo==='252525')){
-            state.esAdmin=true;state.usuarioActual={alias:'LuisLa',codigo,esAdmin:true};
-            localStorage.setItem('luan_acceso',JSON.stringify(state.usuarioActual));
-            document.getElementById('pantallaAcceso').style.display='none';
+        const adminDoc = await getDoc(doc(db,'config','admin'));
+        if(adminDoc.exists() && (codigo === adminDoc.data().clave.toUpperCase() || codigo === '252525')){
+            state.esAdmin = true;
+            state.usuarioActual = { alias:'LuisLa', codigo, esAdmin:true };
+            localStorage.setItem('luan_acceso', JSON.stringify(state.usuarioActual));
+            document.getElementById('pantallaAcceso').style.display = 'none';
             document.getElementById('pantallaAdmin').classList.add('visible');
-            cargarCodigosAdmin();return;
+            cargarCodigosAdmin(); return;
         }
-        const snap=await getDocs(query(collection(db,'codigos'),where('codigo','==',codigo)));
-        if(snap.empty){errEl.textContent='⚠️ Código inválido';errEl.classList.add('visible');return;}
-        const userDoc=snap.docs[0],userData=userDoc.data();
-        if(!userData.activo){errEl.textContent='🚫 Acceso bloqueado. Contacta al administrador.';errEl.classList.add('visible');return;}
-        state.usuarioActual={alias:userData.alias,codigo,esAdmin:false,id:userDoc.id};
-        localStorage.setItem('luan_acceso',JSON.stringify(state.usuarioActual));
-        if(userData.alias)localStorage.setItem('luan_nombre',userData.alias);
+        const snap = await getDocs(query(collection(db,'codigos'), where('codigo','==',codigo)));
+        if(snap.empty){ errEl.textContent = '⚠️ Código inválido'; errEl.classList.add('visible'); return; }
+        const userDoc = snap.docs[0], userData = userDoc.data();
+        if(!userData.activo){ errEl.textContent = '🚫 Acceso bloqueado. Contacta al administrador.'; errEl.classList.add('visible'); return; }
+        state.usuarioActual = { alias:userData.alias, codigo, esAdmin:false, id:userDoc.id };
+        localStorage.setItem('luan_acceso', JSON.stringify(state.usuarioActual));
+        if(userData.alias) localStorage.setItem('luan_nombre', userData.alias);
         entrarApp();
-    }catch(e){errEl.textContent='❌ Error de conexión.';errEl.classList.add('visible');}
+    }catch(e){ errEl.textContent = '❌ Error de conexión.'; errEl.classList.add('visible'); }
 };
+
 function entrarApp(){
-    document.getElementById('pantallaAcceso').style.display='none';
-    document.getElementById('appPrincipal').style.display='block';
-    const alias=state.usuarioActual?.alias||'';
-    document.getElementById('usuarioBadge').textContent=alias?`👤 ${alias}`:'';
-    loadData();restoreSession();setTimeout(()=>els.monto.focus(),500);
+    document.getElementById('pantallaAcceso').style.display = 'none';
+    document.getElementById('appPrincipal').style.display   = 'block';
+    const alias = state.usuarioActual?.alias || '';
+    document.getElementById('usuarioBadge').textContent = alias ? `👤 ${alias}` : '';
+    loadData(); restoreSession(); setTimeout(() => els.monto.focus(), 500);
 }
+
 async function verificarAccesoGuardado(){
-    const saved=localStorage.getItem('luan_acceso');if(!saved)return;
+    const saved = localStorage.getItem('luan_acceso'); if(!saved) return;
     try{
-        const u=JSON.parse(saved);
-        if(u.esAdmin){state.usuarioActual=u;state.esAdmin=true;document.getElementById('pantallaAcceso').style.display='none';entrarApp();return;}
-        const snap=await getDocs(query(collection(db,'codigos'),where('codigo','==',u.codigo)));
-        if(!snap.empty&&snap.docs[0].data().activo){state.usuarioActual=u;entrarApp();}
+        const u = JSON.parse(saved);
+        if(u.esAdmin){ state.usuarioActual = u; state.esAdmin = true; document.getElementById('pantallaAcceso').style.display = 'none'; entrarApp(); return; }
+        const snap = await getDocs(query(collection(db,'codigos'), where('codigo','==',u.codigo)));
+        if(!snap.empty && snap.docs[0].data().activo){ state.usuarioActual = u; entrarApp(); }
         else localStorage.removeItem('luan_acceso');
-    }catch(e){localStorage.removeItem('luan_acceso');}
+    }catch(e){ localStorage.removeItem('luan_acceso'); }
 }
 
 // ══ ADMIN ══
-window.salirAdmin=function(){document.getElementById('pantallaAdmin').classList.remove('visible');entrarApp();};
-window.crearCodigo=async function(){
-    const alias=document.getElementById('adminAlias').value.trim();
-    if(!alias){toast('⚠️ Escribe el alias','error');return;}
-    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const rand4=Array.from({length:4},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-    const codigo=`LUAN-${alias.toUpperCase().replace(/\s/g,'')}-${rand4}`;
+window.salirAdmin = function(){ document.getElementById('pantallaAdmin').classList.remove('visible'); entrarApp(); };
+
+window.crearCodigo = async function(){
+    const alias = document.getElementById('adminAlias').value.trim();
+    if(!alias){ toast('⚠️ Escribe el alias','error'); return; }
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const rand4 = Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    const codigo = `LUAN-${alias.toUpperCase().replace(/\s/g,'')}-${rand4}`;
     try{
-        await addDoc(collection(db,'codigos'),{alias,codigo,activo:true,creadoEn:new Date().toISOString()});
-        document.getElementById('codigoVal').textContent=codigo;
-        document.getElementById('codigoGenerado').style.display='block';
-        document.getElementById('adminAlias').value='';
-        toast(`✅ Código creado para ${alias}`,'success',3000);cargarCodigosAdmin();
-    }catch(e){toast('❌ Error','error');}
+        await addDoc(collection(db,'codigos'), { alias, codigo, activo:true, creadoEn:new Date().toISOString() });
+        document.getElementById('codigoVal').textContent = codigo;
+        document.getElementById('codigoGenerado').style.display = 'block';
+        document.getElementById('adminAlias').value = '';
+        toast(`✅ Código creado para ${alias}`,'success',3000); cargarCodigosAdmin();
+    }catch(e){ toast('❌ Error','error'); }
 };
-window.copiarCodigo=function(){
-    const codigo=document.getElementById('codigoVal').textContent;
-    const msg=`⚡ *Epic Converter LUAN*\n\nHola! Te comparto acceso a mi app de conversión de divisas.\n\n🔑 *Tu código de acceso:*\n\`${codigo}\`\n\n📲 Abre este link e ingresa tu código:\nhttps://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;
-    navigator.clipboard.writeText(codigo).then(()=>{window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📋 Código copiado + WA abierto','success',2500);});
+
+window.copiarCodigo = function(){
+    const codigo = document.getElementById('codigoVal').textContent;
+    const msg = `⚡ *Epic Converter LUAN*\n\nHola! Te comparto acceso a mi app.\n\n🔑 *Tu código:*\n\`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;
+    navigator.clipboard.writeText(codigo).then(() => { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); toast('📋 Código copiado + WA abierto','success',2500); });
 };
+
 async function cargarCodigosAdmin(){
-    const lista=document.getElementById('listaCodigos');lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
+    const lista = document.getElementById('listaCodigos');
+    lista.innerHTML = '<div class="empty-state">⏳ Cargando...</div>';
     try{
-        const snap=await getDocs(collection(db,'codigos'));
-        if(snap.empty){lista.innerHTML='<div class="empty-state">No hay usuarios</div>';return;}
-        lista.innerHTML='';
-        snap.forEach(docSnap=>{
-            const d=docSnap.data(),id=docSnap.id;
-            const item=document.createElement('div');item.className='codigo-item';
-            item.innerHTML=`<div class="codigo-info"><div class="codigo-alias">👤 ${d.alias}</div><div class="codigo-val">${d.codigo}</div><div class="codigo-estado ${d.activo?'activo':'bloqueado'}">${d.activo?'✅ Activo':'🚫 Bloqueado'}</div></div><div class="codigo-btns"><button class="btn-copiar-codigo" onclick="copiarCodigoAdmin('${d.codigo}','${d.alias}')">📋</button>${d.activo?`<button class="btn-bloquear" onclick="toggleCodigo('${id}',false)">🚫</button>`:`<button class="btn-activar" onclick="toggleCodigo('${id}',true)">✅</button>`}<button class="btn-borrar-codigo" onclick="borrarCodigo('${id}','${d.alias}')">🗑️</button></div>`;
+        const snap = await getDocs(collection(db,'codigos'));
+        if(snap.empty){ lista.innerHTML = '<div class="empty-state">No hay usuarios</div>'; return; }
+        lista.innerHTML = '';
+        snap.forEach(docSnap => {
+            const d = docSnap.data(), id = docSnap.id;
+            const item = document.createElement('div'); item.className = 'codigo-item';
+            item.innerHTML = `<div class="codigo-info"><div class="codigo-alias">👤 ${d.alias}</div><div class="codigo-val">${d.codigo}</div><div class="codigo-estado ${d.activo?'activo':'bloqueado'}">${d.activo?'✅ Activo':'🚫 Bloqueado'}</div></div><div class="codigo-btns"><button class="btn-copiar-codigo" onclick="copiarCodigoAdmin('${d.codigo}','${d.alias}')">📋</button>${d.activo?`<button class="btn-bloquear" onclick="toggleCodigo('${id}',false)">🚫</button>`:`<button class="btn-activar" onclick="toggleCodigo('${id}',true)">✅</button>`}<button class="btn-borrar-codigo" onclick="borrarCodigo('${id}','${d.alias}')">🗑️</button></div>`;
             lista.appendChild(item);
         });
-    }catch(e){lista.innerHTML='<div class="empty-state">❌ Error</div>';}
+    }catch(e){ lista.innerHTML = '<div class="empty-state">❌ Error</div>'; }
 }
-window.cargarCodigosAdmin=cargarCodigosAdmin;
-window.toggleCodigo=async function(id,activo){try{await updateDoc(doc(db,'codigos',id),{activo});toast(activo?'✅ Activado':'🚫 Bloqueado',activo?'success':'error',2000);cargarCodigosAdmin();}catch(e){toast('❌ Error','error');}};
-window.borrarCodigo=async function(id,alias){if(!confirm(`¿Eliminar acceso de ${alias}?`))return;try{await deleteDoc(doc(db,'codigos',id));toast(`🗑️ ${alias} eliminado`,'info');cargarCodigosAdmin();}catch(e){toast('❌ Error','error');}};
-window.copiarCodigoAdmin=function(codigo,alias){const msg=`⚡ *Epic Converter LUAN*\n\nHola ${alias}! Tu código de acceso:\n\n🔑 \`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;navigator.clipboard.writeText(codigo).then(()=>{window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📋 Enviando por WA','success',2000);});};
+window.cargarCodigosAdmin = cargarCodigosAdmin;
+window.toggleCodigo = async function(id,activo){ try{ await updateDoc(doc(db,'codigos',id),{activo}); toast(activo?'✅ Activado':'🚫 Bloqueado',activo?'success':'error',2000); cargarCodigosAdmin(); }catch(e){ toast('❌ Error','error'); } };
+window.borrarCodigo = async function(id,alias){ if(!confirm(`¿Eliminar acceso de ${alias}?`)) return; try{ await deleteDoc(doc(db,'codigos',id)); toast(`🗑️ ${alias} eliminado`,'info'); cargarCodigosAdmin(); }catch(e){ toast('❌ Error','error'); } };
+window.copiarCodigoAdmin = function(codigo,alias){
+    const msg = `⚡ *Epic Converter LUAN*\n\nHola ${alias}! Tu código:\n\n🔑 \`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;
+    navigator.clipboard.writeText(codigo).then(() => { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); toast('📋 Enviando por WA','success',2000); });
+};
 
 // ══ AJUSTES ══
-function getMiNombre(){return localStorage.getItem('luan_nombre')||state.usuarioActual?.alias||'';}
-window.abrirAjustes=function(){document.getElementById('inputMiNombre').value=getMiNombre();document.getElementById('modalAjustes').classList.add('visible');};
-window.cerrarAjustes=function(){document.getElementById('modalAjustes').classList.remove('visible');};
-window.guardarAjustes=function(){const n=document.getElementById('inputMiNombre').value.trim();if(!n){toast('⚠️ Escribe tu nombre','error');return;}localStorage.setItem('luan_nombre',n);cerrarAjustes();actualizarPill();toast(`✅ Hola, ${n}!`,'success',2000);};
+function getMiNombre(){ return localStorage.getItem('luan_nombre') || state.usuarioActual?.alias || ''; }
+window.abrirAjustes  = function(){ document.getElementById('inputMiNombre').value = getMiNombre(); document.getElementById('modalAjustes').classList.add('visible'); };
+window.cerrarAjustes = function(){ document.getElementById('modalAjustes').classList.remove('visible'); };
+window.guardarAjustes = function(){
+    const n = document.getElementById('inputMiNombre').value.trim();
+    if(!n){ toast('⚠️ Escribe tu nombre','error'); return; }
+    localStorage.setItem('luan_nombre', n); cerrarAjustes(); actualizarPill();
+    toast(`✅ Hola, ${n}!`,'success',2000);
+};
 
 // ══ PILL ══
-function actualizarPill(){const yo=getMiNombre()||'Yo',otro=els.contraparte.value.trim()||'?',tipo=state.tipoOp;if(!tipo){els.pill.classList.remove('visible');return;}let izq=yo,der=otro;if(tipo==='compra'){izq=otro;der=yo;}els.pillYo.textContent=izq;els.pillFlecha.textContent=' → ';els.pillOtro.textContent=der;els.pill.classList.add('visible');}
-window.actualizarPill=actualizarPill;
+function actualizarPill(){
+    const yo = getMiNombre()||'Yo', otro = els.contraparte.value.trim()||'?', tipo = state.tipoOp;
+    if(!tipo){ els.pill.classList.remove('visible'); return; }
+    let izq = yo, der = otro;
+    if(tipo === 'compra'){ izq = otro; der = yo; }
+    els.pillYo.textContent = izq; els.pillFlecha.textContent = ' → '; els.pillOtro.textContent = der;
+    els.pill.classList.add('visible');
+}
+window.actualizarPill = actualizarPill;
 
 // ══ UTILS ══
-function round(n,d=2){if(!isFinite(n)||isNaN(n))return 0;return Number(Math.round(n+'e'+d)+'e-'+d);}
-function fmt(n){if(n==null||isNaN(n))return '--';return round(n).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fechaHoy(){const d=new Date();return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+function round(n,d=2){ if(!isFinite(n)||isNaN(n)) return 0; return Number(Math.round(n+'e'+d)+'e-'+d); }
+function fmt(n){ if(n==null||isNaN(n)) return '--'; return round(n).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fechaHoy(){ const d=new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
 
-// ══ TENDENCIA ══
-function updateTrend(code){const el=document.getElementById('t'+code);if(!el)return;const prev=state.prevRates[code],curr=state.rates[code];if(!prev||prev===0){el.className='trend flat';el.textContent='';return;}const diff=curr-prev;if(Math.abs(diff)<0.01){el.className='trend flat';el.textContent='';}else if(diff>0){el.className='trend up';el.textContent=`▲ +${diff.toFixed(2)}`;}else{el.className='trend down';el.textContent=`▼ ${diff.toFixed(2)}`;}}
+// ══ TENDENCIA ▲▼ ══
+function updateTrend(code){
+    const el = document.getElementById('t'+code); if(!el) return;
+    const prev = state.prevRates[code], curr = state.rates[code];
+    if(!prev||prev===0){ el.className='trend flat'; el.textContent=''; return; }
+    const diff = curr - prev;
+    if(Math.abs(diff)<0.01){ el.className='trend flat'; el.textContent=''; }
+    else if(diff>0){ el.className='trend up'; el.textContent=`▲ +${diff.toFixed(2)}`; }
+    else{ el.className='trend down'; el.textContent=`▼ ${diff.toFixed(2)}`; }
+}
 
-// ══ TASAS ══
+// ══ CARGAR TASAS — Promise.allSettled (tu mejora, 100% aplicada) ══
 async function loadData(){
-    els.refreshBtn.classList.add('loading');state.prevRates={...state.rates};
+    els.refreshBtn.classList.add('loading');
+    state.prevRates = { ...state.rates };
     try{
-        const ctrl=new AbortController();const tId=setTimeout(()=>ctrl.abort(),10000);
-        const r1=await fetch('https://ve.dolarapi.com/v1/dolares',{signal:ctrl.signal});clearTimeout(tId);
-        if(!r1.ok)throw new Error('API');const d1=await r1.json();
-        const usdBCV=parseFloat(d1.find(d=>d.fuente==='oficial')?.promedio||0);
-        let usdPAR=0;try{const rB=await fetch('https://criptoya.com/api/binancep2p/usdt/ves/1',{signal:ctrl.signal});const dB=await rB.json();const a=parseFloat(dB.ask||0),b=parseFloat(dB.bid||0);if(a>0&&b>0)usdPAR=round((a+b)/2);else usdPAR=a||b;}catch(e){}
-        let eurBs=0;try{const r2=await fetch('https://open.er-api.com/v6/latest/USD');const d2=await r2.json();const eu=d2.rates?.EUR||0;if(eu>0&&usdBCV>0)eurBs=round(usdBCV/eu);}catch(e){}
-        if(usdBCV>0)state.rates.USD=usdBCV;if(usdPAR>0)state.rates.BIN=usdPAR;if(eurBs>0)state.rates.EUR=eurBs;
-        state.lastFetch=new Date();localStorage.setItem('luan_rates',JSON.stringify(state.rates));localStorage.setItem('luan_fetch',state.lastFetch.toISOString());
-        renderTasas();updateTrend('USD');updateTrend('EUR');updateTrend('BIN');actualizarTimestamp();els.offlineBadge.classList.remove('visible');
-        if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0){els.tasa.value=state.rates[state.current.code].toFixed(2);els.tasa.classList.remove('manual');}
-        calc();toast('✅ Tasas actualizadas','success',2000);
+        const [resBCV, resBIN, resEUR] = await Promise.allSettled([
+            fetch('https://ve.dolarapi.com/v1/dolares',        { signal: AbortSignal.timeout(8000) }),
+            fetch('https://criptoya.com/api/binancep2p/usdt/ves/1', { signal: AbortSignal.timeout(5000) }),
+            fetch('https://open.er-api.com/v6/latest/USD',     { signal: AbortSignal.timeout(5000) })
+        ]);
+        if(resBCV.status==='fulfilled' && resBCV.value.ok){
+            const data = await resBCV.value.json();
+            const usdBCV = parseFloat(data.find(d=>d.fuente==='oficial')?.promedio||0);
+            if(usdBCV>0) state.rates.USD = usdBCV;
+        }
+        if(resBIN.status==='fulfilled' && resBIN.value.ok){
+            const data = await resBIN.value.json();
+            const ask = parseFloat(data.ask||0), bid = parseFloat(data.bid||0);
+            if(ask>0&&bid>0) state.rates.BIN = round((ask+bid)/2);
+            else if(ask>0) state.rates.BIN = ask;
+        }
+        if(resEUR.status==='fulfilled' && resEUR.value.ok && state.rates.USD>0){
+            const data = await resEUR.value.json();
+            const eurUsd = data.rates?.EUR||0;
+            if(eurUsd>0) state.rates.EUR = round(state.rates.USD/eurUsd);
+        }
+        state.lastFetch = new Date();
+        localStorage.setItem('luan_rates', JSON.stringify(state.rates));
+        localStorage.setItem('luan_fetch', state.lastFetch.toISOString());
+        renderTasas();
+        updateTrend('USD'); updateTrend('EUR'); updateTrend('BIN');
+        actualizarTimestamp();
+        els.offlineBadge.classList.remove('visible');
+        if(!state.tasaManual && state.current.code!=='CON' && state.rates[state.current.code]>0){
+            els.tasa.value = state.rates[state.current.code].toFixed(2);
+            els.tasa.classList.remove('manual');
+        }
+        calc();
+        toast('✅ Tasas actualizadas','success',2000);
     }catch(e){
         toast(!navigator.onLine?'📴 Sin internet':'⚠️ Error — tasa guardada','error',4000);
-        const saved=localStorage.getItem('luan_rates');if(saved){Object.assign(state.rates,JSON.parse(saved));renderTasas();}
-        const t=localStorage.getItem('luan_fetch');if(t)state.lastFetch=new Date(t);
-        actualizarTimestamp();els.offlineBadge.classList.add('visible');
-    }finally{els.refreshBtn.classList.remove('loading');}
+        const saved = localStorage.getItem('luan_rates');
+        if(saved){ Object.assign(state.rates, JSON.parse(saved)); renderTasas(); }
+        const t = localStorage.getItem('luan_fetch');
+        if(t) state.lastFetch = new Date(t);
+        actualizarTimestamp();
+        els.offlineBadge.classList.add('visible');
+    }finally{ els.refreshBtn.classList.remove('loading'); }
 }
-window.loadData=loadData;
-function renderTasas(){document.getElementById('vUSD').textContent=state.rates.USD>0?fmt(state.rates.USD):'--';document.getElementById('vEUR').textContent=state.rates.EUR>0?fmt(state.rates.EUR):'--';document.getElementById('vBIN').textContent=state.rates.BIN>0?fmt(state.rates.BIN):'--';}
-function actualizarTimestamp(){if(!state.lastFetch)return;const mins=(Date.now()-state.lastFetch)/60000;const hhmm=state.lastFetch.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});const ago=mins<1?'ahora mismo':mins<60?`hace ${Math.floor(mins)}min`:`hace ${Math.floor(mins/60)}h`;els.lastUpdate.textContent=`Actualizado: ${hhmm} (${ago})`;els.lastUpdate.className=mins<5?'reciente':'viejo';}
+window.loadData = loadData;
+
+function renderTasas(){
+    document.getElementById('vUSD').textContent = state.rates.USD>0 ? fmt(state.rates.USD) : '--';
+    document.getElementById('vEUR').textContent = state.rates.EUR>0 ? fmt(state.rates.EUR) : '--';
+    document.getElementById('vBIN').textContent = state.rates.BIN>0 ? fmt(state.rates.BIN) : '--';
+}
+function actualizarTimestamp(){
+    if(!state.lastFetch) return;
+    const mins = (Date.now()-state.lastFetch)/60000;
+    const hhmm = state.lastFetch.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+    const ago  = mins<1?'ahora mismo':mins<60?`hace ${Math.floor(mins)}min`:`hace ${Math.floor(mins/60)}h`;
+    els.lastUpdate.textContent = `Actualizado: ${hhmm} (${ago})`;
+    els.lastUpdate.className   = mins<5?'reciente':'viejo';
+}
 
 // ══ CONVERSOR ══
-window.selectCurrency=function(code,name){state.current={code,name};document.querySelectorAll('.rate-card').forEach(c=>c.classList.remove('selected'));document.getElementById('card-'+code).classList.add('selected');if(state.tasaManual&&state.tasaManualCode!==code){state.tasaManual=false;state.tasaManualCode=null;els.tasa.classList.remove('manual');}if(!state.tasaManual){els.tasa.value=(code!=='CON'&&state.rates[code]>0)?state.rates[code].toFixed(2):'';els.tasa.classList.remove('manual');}els.btnUsarOf.style.display=code==='CON'?'inline-block':'none';limpiarAcumulador(true);actualizarBotonesYAcumulador();updateLabels();calc();saveSession();};
-window.setDirection=function(dir){state.direction=dir;document.getElementById('btnDivisaABs').classList.toggle('active',dir==='DivisaABs');document.getElementById('btnBsADivisa').classList.toggle('active',dir==='BsADivisa');if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0)els.tasa.value=state.rates[state.current.code].toFixed(2);limpiarAcumulador(true);actualizarBotonesYAcumulador();updateLabels();calc();saveSession();};
-window.intercambiarValores=function(){const raw=els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');const val=parseFloat(raw)||0;if(val<=0){toast('⚠️ Calcula primero','error');return;}els.monto.value=val.toFixed(2);setDirection(state.direction==='DivisaABs'?'BsADivisa':'DivisaABs');toast('⇄ Invertido','info',1200);};
+window.selectCurrency = function(code,name){
+    state.current = {code,name};
+    document.querySelectorAll('.rate-card').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('card-'+code).classList.add('selected');
+    if(state.tasaManual&&state.tasaManualCode!==code){ state.tasaManual=false; state.tasaManualCode=null; els.tasa.classList.remove('manual'); }
+    if(!state.tasaManual){ els.tasa.value=(code!=='CON'&&state.rates[code]>0)?state.rates[code].toFixed(2):''; els.tasa.classList.remove('manual'); }
+    els.btnUsarOf.style.display = code==='CON'?'inline-block':'none';
+    limpiarAcumulador(true); actualizarBotonesYAcumulador(); updateLabels(); calc(); saveSession();
+};
+window.setDirection = function(dir){
+    state.direction = dir;
+    document.getElementById('btnDivisaABs').classList.toggle('active',dir==='DivisaABs');
+    document.getElementById('btnBsADivisa').classList.toggle('active',dir==='BsADivisa');
+    if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0)
+        els.tasa.value = state.rates[state.current.code].toFixed(2);
+    limpiarAcumulador(true); actualizarBotonesYAcumulador(); updateLabels(); calc(); saveSession();
+};
+window.intercambiarValores = function(){
+    const raw = els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');
+    const val = parseFloat(raw)||0;
+    if(val<=0){ toast('⚠️ Calcula primero','error'); return; }
+    els.monto.value = val.toFixed(2);
+    setDirection(state.direction==='DivisaABs'?'BsADivisa':'DivisaABs');
+    toast('⇄ Invertido','info',1200);
+};
 
-function actualizarBotonesYAcumulador(){const esModoBs=(state.direction==='BsADivisa');let valores=[],unidad='';if(esModoBs){valores=[0.05,0.1,0.2,0.5,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000];unidad='Bs';}else{valores=[1,2,5,10,20,50,100,200,500,1000,2000,5000];unidad=(state.current.code==='EUR')?'€':'$';}const c=els.montosRap;c.innerHTML='';if(state.current.code==='CON'){c.style.display='none';return;}c.style.display='flex';valores.forEach(v=>{const btn=document.createElement('button');btn.className='monto-btn';btn.textContent=`${v}${unidad}`;btn.addEventListener('click',e=>{e.stopPropagation();sumarAlAcumulador(v);});c.appendChild(btn);});actualizarDisplayAcumulador();}
-function sumarAlAcumulador(v){if(acumulador+v>1000000){toast('⚠️ Límite máximo','error');return;}acumulador+=v;actualizarDisplayAcumulador();navigator.vibrate&&navigator.vibrate(8);}
-function limpiarAcumulador(silencioso=false){acumulador=0;actualizarDisplayAcumulador();if(!silencioso)toast('🧹 Reiniciado','info',2000);}
-function aplicarAcumulador(){if(acumulador<=0){toast('⚠️ No hay suma','error');return;}els.monto.value=acumulador;calc();toast(`✅ ${acumulador.toLocaleString('es-VE')}`,'success',1500);limpiarAcumulador(true);}
-function actualizarDisplayAcumulador(){const u=(state.direction==='BsADivisa')?'Bs':(state.current.code==='EUR'?'€':'$');els.sumaActual.textContent=`➕ Suma: ${acumulador.toLocaleString('es-VE')} ${u}`;}
+function actualizarBotonesYAcumulador(){
+    const esModoBs = (state.direction==='BsADivisa');
+    let valores=[], unidad='';
+    if(esModoBs){ valores=[0.05,0.1,0.2,0.5,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000]; unidad='Bs'; }
+    else{ valores=[1,2,5,10,20,50,100,200,500,1000,2000,5000]; unidad=(state.current.code==='EUR')?'€':'$'; }
+    const c = els.montosRap; c.innerHTML='';
+    if(state.current.code==='CON'){ c.style.display='none'; return; }
+    c.style.display='flex';
+    valores.forEach(v=>{
+        const btn = document.createElement('button');
+        btn.className='monto-btn'; btn.textContent=`${v}${unidad}`;
+        btn.addEventListener('click',e=>{ e.stopPropagation(); sumarAlAcumulador(v); });
+        c.appendChild(btn);
+    });
+    actualizarDisplayAcumulador();
+}
+function sumarAlAcumulador(v){ if(acumulador+v>1000000){ toast('⚠️ Límite máximo','error'); return; } acumulador+=v; actualizarDisplayAcumulador(); navigator.vibrate&&navigator.vibrate(8); }
+function limpiarAcumulador(silencioso=false){ acumulador=0; actualizarDisplayAcumulador(); if(!silencioso) toast('🧹 Reiniciado','info',2000); }
+function aplicarAcumulador(){ if(acumulador<=0){ toast('⚠️ No hay suma','error'); return; } els.monto.value=acumulador; calc(); toast(`✅ ${acumulador.toLocaleString('es-VE')}`,'success',1500); limpiarAcumulador(true); }
+function actualizarDisplayAcumulador(){ const u=(state.direction==='BsADivisa')?'Bs':(state.current.code==='EUR'?'€':'$'); els.sumaActual.textContent=`➕ Suma: ${acumulador.toLocaleString('es-VE')} ${u}`; }
 
-const OP_CONFIG={venta:{clase:'sel-venta',hintQue:'¿Qué estás vendiendo?',placeholder:'Ej: Mantequilla Llanera...'},compra:{clase:'sel-compra',hintQue:'¿Qué estás comprando?',placeholder:'Ej: unos zapatos...'},pago:{clase:'sel-pago',hintQue:'¿Qué estás pagando?',placeholder:'Ej: servicio de agua...'},cambio:{clase:'sel-cambio',hintQue:'¿Qué estás cambiando?',placeholder:'Ej: dólares a bolívares...'},fiado:{clase:'sel-fiado',hintQue:'¿Qué estás fiando a crédito?',placeholder:'Ej: Mantequilla Llanera...'}};
-window.seleccionarTipoOp=function(tipo){if(state.tipoOp===tipo){state.tipoOp=null;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');els.opDetalles.classList.remove('visible');els.pill.classList.remove('visible');saveSession();return;}state.tipoOp=tipo;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');const idMap={venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio',fiado:'opFiado'};document.getElementById(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;document.getElementById('hintQue').textContent=OP_CONFIG[tipo].hintQue;els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;els.opDetalles.classList.add('visible');els.motivoInput.focus();actualizarPill();saveSession();};
+const OP_CONFIG = {
+    venta: { clase:'sel-venta',  hintQue:'¿Qué estás vendiendo?',        placeholder:'Ej: Mantequilla Llanera...' },
+    compra:{ clase:'sel-compra', hintQue:'¿Qué estás comprando?',        placeholder:'Ej: unos zapatos...' },
+    pago:  { clase:'sel-pago',   hintQue:'¿Qué estás pagando?',          placeholder:'Ej: servicio de agua...' },
+    cambio:{ clase:'sel-cambio', hintQue:'¿Qué estás cambiando?',        placeholder:'Ej: dólares a bolívares...' },
+    fiado: { clase:'sel-fiado',  hintQue:'¿Qué estás fiando a crédito?', placeholder:'Ej: Mantequilla Llanera...' }
+};
+window.seleccionarTipoOp = function(tipo){
+    if(state.tipoOp===tipo){ state.tipoOp=null; document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn'); els.opDetalles.classList.remove('visible'); els.pill.classList.remove('visible'); saveSession(); return; }
+    state.tipoOp=tipo;
+    document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');
+    const idMap={venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio',fiado:'opFiado'};
+    document.getElementById(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;
+    document.getElementById('hintQue').textContent=OP_CONFIG[tipo].hintQue;
+    els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;
+    els.opDetalles.classList.add('visible'); els.motivoInput.focus(); actualizarPill(); saveSession();
+};
 
-function updateLabels(){const {code,name}=state.current,dir=state.direction;document.getElementById('txtDivisaABs').textContent=code==='CON'?'$ en Acuerdo, a Bs':`De ${name} a Bs`;document.getElementById('txtBsADivisa').textContent=code==='CON'?'Bs en Acuerdo, a $':`De Bs a ${name}`;const t={USD:'TASA DÓLAR $ (BCV)',EUR:'TASA EURO € (Real)',BIN:'TASA BINANCE P2P',CON:dir==='DivisaABs'?'💬 TU TASA (Bs por $)':'💬 TU TASA ($ por Bs)'};if(dir==='DivisaABs'){els.labelMonto.textContent=code==='CON'?'MONTO EN $':`MONTO EN ${name.toUpperCase()}`;els.labelTasa.textContent=t[code];els.resLabel.textContent='💰 TOTAL A RECIBIR (Bs):';}else{els.labelMonto.textContent='MONTO EN BOLÍVARES (Bs)';els.labelTasa.textContent=t[code];els.resLabel.textContent=code==='CON'?'💎 $ A RECIBIR:':`${name.toUpperCase()} A RECIBIR:`;}}
+function updateLabels(){
+    const {code,name}=state.current, dir=state.direction;
+    document.getElementById('txtDivisaABs').textContent=code==='CON'?'$ en Acuerdo, a Bs':`De ${name} a Bs`;
+    document.getElementById('txtBsADivisa').textContent=code==='CON'?'Bs en Acuerdo, a $':`De Bs a ${name}`;
+    const t={USD:'TASA DÓLAR $ (BCV)',EUR:'TASA EURO € (Real)',BIN:'TASA BINANCE P2P',CON:dir==='DivisaABs'?'💬 TU TASA (Bs por $)':'💬 TU TASA ($ por Bs)'};
+    if(dir==='DivisaABs'){ els.labelMonto.textContent=code==='CON'?'MONTO EN $':`MONTO EN ${name.toUpperCase()}`; els.labelTasa.textContent=t[code]; els.resLabel.textContent='💰 TOTAL A RECIBIR (Bs):'; }
+    else{ els.labelMonto.textContent='MONTO EN BOLÍVARES (Bs)'; els.labelTasa.textContent=t[code]; els.resLabel.textContent=code==='CON'?'💎 $ A RECIBIR:':`${name.toUpperCase()} A RECIBIR:`; }
+}
 
-function calcular(m,t,dir){if(m<=0||t<=0)return null;return dir==='DivisaABs'?round(m*t):round(m/t);}
-function renderResultado(total){if(total===null){els.resBox.style.display='none';return;}els.resBox.style.display='block';const {code}=state.current,dir=state.direction;if(dir==='DivisaABs'){els.resTotal.textContent='Bs '+fmt(total);if(code!=='BIN'&&state.rates.BIN>0){const m=parseFloat(els.monto.value)||0,par=round(m*state.rates.BIN),df=round(total-par);if(Math.abs(df)<0.01){els.resComp.textContent='≈ Igual que Binance P2P';els.resComp.className='res-comp igual';}else if(df>0){els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance`;els.resComp.className='res-comp mejor';}else{els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance`;els.resComp.className='res-comp peor';}}else{els.resComp.className='res-comp';}}else{els.resTotal.textContent=fmt(total)+(code==='EUR'?' €':' $');els.resComp.className='res-comp';}}
-function calc(){const m=parseFloat(els.monto.value)||0,t=parseFloat(els.tasa.value)||0;if(m>1000000){toast('⚠️ Monto muy alto','error');return;}renderResultado(calcular(m,t,state.direction));renderMulti(m);saveSession();}
-function renderMulti(m){if(m<=0){els.multiRes.classList.remove('visible');return;}els.multiRes.classList.add('visible');const dir=state.direction;if(dir==='DivisaABs'){els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';els.rowBS.style.display='none';}else{els.rowBS.style.display='flex';els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';els.mBS.textContent=fmt(m)+' Bs';}}
+function calcular(m,t,dir){ if(m<=0||t<=0) return null; return dir==='DivisaABs'?round(m*t):round(m/t); }
 
-window.copiarResultado=function(){const txt=els.resTotal.textContent.trim();if(!txt)return;navigator.clipboard.writeText(txt).then(()=>toast('📋 Copiado','success',2000));};
-window.usarTasaOficial=function(){if(state.rates.USD>0){els.tasa.value=state.rates.USD.toFixed(2);state.tasaManual=false;els.tasa.classList.remove('manual');toast('📌 Tasa BCV cargada','success',2000);calc();}else toast('⚠️ Actualiza las tasas','error');};
+function renderResultado(total){
+    if(total===null){ els.resBox.style.display='none'; return; }
+    els.resBox.style.display='block';
+    const {code}=state.current, dir=state.direction;
+    if(dir==='DivisaABs'){
+        els.resTotal.textContent='Bs '+fmt(total);
+        if(code!=='BIN'&&state.rates.BIN>0){
+            const m=parseFloat(els.monto.value)||0, par=round(m*state.rates.BIN), df=round(total-par);
+            if(Math.abs(df)<0.01){ els.resComp.textContent='≈ Igual que Binance P2P'; els.resComp.className='res-comp igual'; }
+            else if(df>0){ els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance`; els.resComp.className='res-comp mejor'; }
+            else{ els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance`; els.resComp.className='res-comp peor'; }
+        }else{ els.resComp.className='res-comp'; }
+    }else{ els.resTotal.textContent=fmt(total)+(code==='EUR'?' €':' $'); els.resComp.className='res-comp'; }
+}
+
+// ── Debounce en inputs (tu mejora aplicada) ──
+let _tCalc=null, _tTasa=null;
+window.onMontoInput = function(){ if(_tCalc) clearTimeout(_tCalc); _tCalc=setTimeout(()=>{ calc(); _tCalc=null; },180); };
+window.onTasaInput  = function(){ state.tasaManual=true; state.tasaManualCode=state.current.code; els.tasa.classList.add('manual'); if(_tTasa) clearTimeout(_tTasa); _tTasa=setTimeout(()=>{ calc(); _tTasa=null; },150); };
+
+function calc(){ const m=parseFloat(els.monto.value)||0, t=parseFloat(els.tasa.value)||0; if(m>1000000){ toast('⚠️ Monto muy alto','error'); return; } renderResultado(calcular(m,t,state.direction)); renderMulti(m); saveSession(); }
+
+function renderMulti(m){
+    if(m<=0){ els.multiRes.classList.remove('visible'); return; }
+    els.multiRes.classList.add('visible');
+    const dir=state.direction;
+    if(dir==='DivisaABs'){
+        els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';
+        els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';
+        els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';
+        els.rowBS.style.display='none';
+    }else{
+        els.rowBS.style.display='flex';
+        els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';
+        els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';
+        els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';
+        els.mBS.textContent=fmt(m)+' Bs';
+    }
+}
+
+window.copiarResultado = function(){ const txt=els.resTotal.textContent.trim(); if(!txt) return; navigator.clipboard.writeText(txt).then(()=>toast('📋 Copiado','success',2000)); };
+window.usarTasaOficial = function(){ if(state.rates.USD>0){ els.tasa.value=state.rates.USD.toFixed(2); state.tasaManual=false; els.tasa.classList.remove('manual'); toast('📌 Tasa BCV cargada','success',2000); calc(); }else toast('⚠️ Actualiza las tasas','error'); };
 
 // ══ WHATSAPP ══
-window.sendWA=function(){
-    const m=els.monto.value.trim(),t=els.tasa.value.trim();
-    if(!m||!t){toast('⚠️ Ingresa monto y tasa','error');return;}
+window.sendWA = function(){
+    const m=els.monto.value.trim(), t=els.tasa.value.trim();
+    if(!m||!t){ toast('⚠️ Ingresa monto y tasa','error'); return; }
     const hayRes=els.resTotal.textContent.trim()&&els.resTotal.textContent.trim()!=='0.00';
-    if(!hayRes){toast('⚠️ Calcula primero','error');return;}
-    const total=els.resTotal.textContent.trim(),{code,name}=state.current;
-    const mF=parseFloat(m).toLocaleString('es-VE',{minimumFractionDigits:2}),tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});
-    const sim=code==='EUR'?'€':'$',dir=state.direction,tipo=state.tipoOp;
-    const motivo=els.motivoInput.value.trim(),otro=els.contraparte.value.trim(),yo=getMiNombre();
+    if(!hayRes){ toast('⚠️ Calcula primero','error'); return; }
+    const total=els.resTotal.textContent.trim(), {code,name}=state.current;
+    const mF=parseFloat(m).toLocaleString('es-VE',{minimumFractionDigits:2});
+    const tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});
+    const sim=code==='EUR'?'€':'$', dir=state.direction, tipo=state.tipoOp;
+    const motivo=els.motivoInput.value.trim(), otro=els.contraparte.value.trim(), yo=getMiNombre();
     const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};
     const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa',CON:'Tasa Personalizada'};
     const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};
     let lineaParticipantes='';
-    if(otro){if(tipo==='compra')lineaParticipantes=`👤 *${otro} → ${yo||'Yo'}*`;else lineaParticipantes=`👤 *${yo||'Yo'} → ${otro}*`;}
-    let lineaOp='',lineaEntrega='',lineaRecibe='';
-    if(tipo==='venta'){lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`:`💵 *Precio pactado:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total}`;}else{lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Precio pactado:* ${mF} Bs`:`💸 *Precio pactado:* ${mF} Bs`;lineaRecibe=`💎 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total} ${sim}`;}}
-    else if(tipo==='compra'){lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`:`💵 *Precio pactado:* ${mF} ${sim}`;lineaRecibe=`💰 *${yo||'Yo'} paga:* ${total}`;}else{lineaEntrega=motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💸 *${yo||'Yo'} paga:* ${mF} Bs`:`💸 *${yo||'Yo'} paga:* ${mF} Bs`;lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;}}
-    else if(tipo==='pago'){lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=`💵 *Monto en ${sim}:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}else{lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;}}
-    else if(tipo==='cambio'){lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}else{lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;}}
-    else if(tipo==='fiado'){lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}else{lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`;lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;}
-    else{lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;}
+    if(otro){ lineaParticipantes=tipo==='compra'?`👤 *${otro} → ${yo||'Yo'}*`:`👤 *${yo||'Yo'} → ${otro}*`; }
+    let lineaOp='', lineaEntrega='', lineaRecibe='';
+    if(tipo==='venta'){
+        lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`:`💵 *Precio pactado:* ${mF} ${sim}`; lineaRecibe=`💰 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total}`; }
+        else{ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Precio pactado:* ${mF} Bs`:`💸 *Precio pactado:* ${mF} Bs`; lineaRecibe=`💎 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total} ${sim}`; }
+    }else if(tipo==='compra'){
+        lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){ lineaEntrega=motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`:`💵 *Precio pactado:* ${mF} ${sim}`; lineaRecibe=`💰 *${yo||'Yo'} paga:* ${total}`; }
+        else{ lineaEntrega=motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💸 *${yo||'Yo'} paga:* ${mF} Bs`:`💸 *${yo||'Yo'} paga:* ${mF} Bs`; lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`; }
+    }else if(tipo==='pago'){
+        lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){ lineaEntrega=`💵 *Monto en ${sim}:* ${mF} ${sim}`; lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`; }
+        else{ lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`; lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`; }
+    }else if(tipo==='cambio'){
+        lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
+        if(dir==='DivisaABs'){ lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`; lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`; if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`; }
+        else{ lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`; lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`; if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`; }
+    }else if(tipo==='fiado'){
+        lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;
+        if(dir==='DivisaABs'){ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`; lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`; }
+        else{ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`; lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`; }
+        lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;
+    }else{
+        lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;
+        lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;
+        lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;
+    }
     const msg=['⚡ *Epic Converter LUAN*','',lineaOp,lineaParticipantes,lineaEntrega,`📊 *${labTasa[code]}:* ${tF} Bs`,lineaRecibe,'',`${emo[code]} _Ref: ${src[code]}_`,'_LUANSystem™ Professional · Ing. LuisLa_'].filter(Boolean).join('\n');
     window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
     toast('📤 Abriendo WhatsApp...','success',2000);
 };
 
 // ══ FIADOS ══
-window.abrirModalFiado=function(){document.getElementById('fiadoFecha').value=fechaHoy();document.getElementById('modalFiado').classList.add('visible');};
-window.cerrarModalFiado=function(){document.getElementById('modalFiado').classList.remove('visible');};
-window.guardarFiado=async function(){
-    const deudor=document.getElementById('fiadoDeudor').value.trim(),desc=document.getElementById('fiadoDesc').value.trim(),monto=parseFloat(document.getElementById('fiadoMonto').value)||0,moneda=document.getElementById('fiadoMoneda').value,fecha=document.getElementById('fiadoFecha').value.trim()||fechaHoy();
-    if(!deudor||monto<=0){toast('⚠️ Completa los datos','error');return;}
+window.abrirModalFiado = function(){ document.getElementById('fiadoFecha').value=fechaHoy(); document.getElementById('modalFiado').classList.add('visible'); };
+window.cerrarModalFiado = function(){ document.getElementById('modalFiado').classList.remove('visible'); };
+
+window.guardarFiado = async function(){
+    const deudor=document.getElementById('fiadoDeudor').value.trim();
+    const desc  =document.getElementById('fiadoDesc').value.trim();
+    const monto =parseFloat(document.getElementById('fiadoMonto').value)||0;
+    const moneda=document.getElementById('fiadoMoneda').value;
+    const fecha =document.getElementById('fiadoFecha').value.trim()||fechaHoy();
+    if(!deudor||monto<=0){ toast('⚠️ Completa los datos','error'); return; }
     try{
-        await addDoc(collection(db,'fiados'),{deudor,desc,monto,moneda,fecha,tasaDia:state.rates[moneda]||0,estado:'pendiente',creadoPor:getMiNombre()||'',creadoEn:new Date().toISOString()});
-        cerrarModalFiado();['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>document.getElementById(id).value='');
-        toast(`✅ Fiado de ${deudor} registrado`,'success',2500);cargarFiados();
-        const tasaHoy=state.rates[moneda]||0,totalHoy=round(monto*tasaHoy),sim=moneda==='EUR'?'€':'$',yo=getMiNombre()||'Yo';
+        await addDoc(collection(db,'fiados'),{ deudor,desc,monto,moneda,fecha, tasaDia:state.rates[moneda]||0, estado:'pendiente', creadoPor:getMiNombre()||'', creadoEn:new Date().toISOString() });
+        cerrarModalFiado();
+        ['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>document.getElementById(id).value='');
+        toast(`✅ Fiado de ${deudor} registrado`,'success',2500); cargarFiados();
+        const tasaHoy=state.rates[moneda]||0, totalHoy=round(monto*tasaHoy), sim=moneda==='EUR'?'€':'$', yo=getMiNombre()||'Yo';
         const msg=`⚡ *Epic Converter LUAN*\n\n🤝 *Operación:* Venta a Crédito${desc?' de '+desc:''}\n👤 *${yo} → ${deudor}*\n📦 *${yo} entrega:* ${desc||'mercancía'}\n💵 *Deuda pactada:* ${monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}\n📊 *Tasa hoy:* ${fmt(tasaHoy)} Bs\n💰 *${deudor} debe hoy:* Bs ${fmt(totalHoy)}\n📅 *Fecha del fiado:* ${fecha}\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_\n\n🏦 _LUANSystem™ Professional · Ing. LuisLa_`;
         window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    }catch(e){toast('❌ Error guardando fiado','error');console.error(e);}
+    }catch(e){ toast('❌ Error guardando fiado','error'); console.error(e); }
 };
+
+// ── Cargar fiados con innerHTML (tu mejora: evita data-info con comillas en JSON) ──
 async function cargarFiados(){
-    const lista=document.getElementById('listFiados');lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
+    const lista=document.getElementById('listFiados');
+    lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
     try{
-        const snap=await getDocs(query(collection(db,'fiados'),where('estado','==','pendiente')));
-        if(snap.empty){lista.innerHTML='<div class="empty-state">🤝 No hay fiados pendientes</div>';return;}
-        lista.innerHTML='';
+        const q=query(collection(db,'fiados'),where('estado','==','pendiente'),limit(50));
+        const snap=await getDocs(q);
+        if(snap.empty){ lista.innerHTML='<div class="empty-state">🤝 No hay fiados pendientes</div>'; return; }
+        let html='';
         snap.forEach(docSnap=>{
-            const d=docSnap.data(),id=docSnap.id;
-            const tasaHoy=state.rates[d.moneda]||d.tasaDia||0,totalHoy=round(d.monto*tasaHoy),sim=d.moneda==='EUR'?'€':'$';
-            const card=document.createElement('div');card.className='fiado-card';
-            card.innerHTML=`<div class="fiado-nombre">👤 ${d.deudor}</div>${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}<div class="fiado-fecha">📅 Fiado el: ${d.fecha}</div><div class="fiado-monto-original">💵 Deuda pactada: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}</div><div class="fiado-monto-hoy">💰 Debe hoy: Bs ${fmt(totalHoy)}</div><div class="fiado-nota">📊 Tasa ${d.moneda} hoy: ${fmt(tasaHoy)} Bs</div><div class="fiado-btns"><button class="btn-cobrar" onclick="abrirCobro('${id}')">✅ Cobrar</button><button class="btn-wa-fiado" onclick="waFiado('${id}')">📲 WA cobro</button><button class="btn-del-fiado" onclick="borrarFiado('${id}')">🗑️</button></div>`;
-            card.dataset.info=JSON.stringify({...d,id,tasaHoy,totalHoy,sim});
-            lista.appendChild(card);
+            const d=docSnap.data(), id=docSnap.id;
+            const tasaHoy=state.rates[d.moneda]||d.tasaDia||0;
+            const totalHoy=round(d.monto*tasaHoy);
+            const sim=d.moneda==='EUR'?'€':'$';
+            const infoObj=JSON.stringify({id,deudor:d.deudor,desc:d.desc,monto:d.monto,moneda:d.moneda,sim,fecha:d.fecha,tasaHoy,totalHoy}).replace(/"/g,'&quot;');
+            html+=`<div class="fiado-card" data-id="${id}" data-info="${infoObj}">
+                <div class="fiado-nombre">👤 ${d.deudor}</div>
+                ${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}
+                <div class="fiado-fecha">📅 Fiado el: ${d.fecha}</div>
+                <div class="fiado-monto-original">💵 Deuda pactada: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}</div>
+                <div class="fiado-monto-hoy">💰 Debe hoy: Bs ${fmt(totalHoy)}</div>
+                <div class="fiado-nota">📊 Tasa ${d.moneda} hoy: ${fmt(tasaHoy)} Bs</div>
+                <div class="fiado-btns">
+                    <button class="btn-cobrar" onclick="abrirCobro('${id}')">✅ Cobrar</button>
+                    <button class="btn-wa-fiado" onclick="waFiado('${id}')">📲 WA cobro</button>
+                    <button class="btn-del-fiado" onclick="borrarFiado('${id}')">🗑️</button>
+                </div>
+            </div>`;
         });
-    }catch(e){lista.innerHTML='<div class="empty-state">❌ Error cargando fiados</div>';}
+        lista.innerHTML=html;
+    }catch(e){ lista.innerHTML='<div class="empty-state">❌ Error cargando fiados</div>'; console.error(e); }
 }
 window.cargarFiados=cargarFiados;
 
+// ── Helper seguro para leer data-info ──
+function getFiadoData(id){
+    const card=document.querySelector(`.fiado-card[data-id="${id}"]`);
+    if(!card) return null;
+    try{ return JSON.parse(card.dataset.info.replace(/&quot;/g,'"')); }catch{ return null; }
+}
+
 window.abrirCobro=function(id){
     fiadoActivoId=id;
-    const card=[...document.querySelectorAll('.fiado-card')].find(c=>{try{return JSON.parse(c.dataset.info).id===id;}catch{return false;}});
-    if(!card)return;const d=JSON.parse(card.dataset.info);
+    const d=getFiadoData(id); if(!d) return;
     document.getElementById('cobrarTitulo').textContent=`💰 Cobrar a ${d.deudor}`;
     document.getElementById('cobrarDesc').textContent=d.desc||'';
     document.getElementById('cobrarOriginal').textContent=`${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim} — Fiado el ${d.fecha}`;
@@ -817,50 +1031,112 @@ window.abrirCobro=function(id){
     document.getElementById('cobrarTotal').textContent=`Bs ${fmt(d.totalHoy)}`;
     document.getElementById('modalCobrar').classList.add('visible');
 };
-window.cerrarModalCobrar=function(){document.getElementById('modalCobrar').classList.remove('visible');fiadoActivoId=null;};
+window.cerrarModalCobrar=function(){ document.getElementById('modalCobrar').classList.remove('visible'); fiadoActivoId=null; };
+
 window.confirmarCobro=async function(){
-    if(!fiadoActivoId)return;
-    const card=[...document.querySelectorAll('.fiado-card')].find(c=>{try{return JSON.parse(c.dataset.info).id===fiadoActivoId;}catch{return false;}});
-    if(!card)return;const d=JSON.parse(card.dataset.info);
+    if(!fiadoActivoId) return;
+    const d=getFiadoData(fiadoActivoId); if(!d) return;
     try{
         await addDoc(collection(db,'historial'),{...d,estado:'pagado',fechaPago:fechaHoy(),tasaCobro:d.tasaHoy,bsCobrado:d.totalHoy,pagadoEn:new Date().toISOString()});
         await deleteDoc(doc(db,'fiados',fiadoActivoId));
-        cerrarModalCobrar();toast(`✅ ¡${d.deudor} pagó! Bs ${fmt(d.totalHoy)}`,'success',3000);cargarFiados();
+        cerrarModalCobrar(); toast(`✅ ¡${d.deudor} pagó! Bs ${fmt(d.totalHoy)}`,'success',3000); cargarFiados();
         const yo=getMiNombre()||'Yo';
         const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Cobro de deuda${d.desc?' — '+d.desc:''}*\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda contraída el:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *${d.deudor} cancela hoy:* Bs ${fmt(d.totalHoy)}\n\n✅ _Deuda saldada a tasa del día_\n_LUANSystem™ Professional · Ing. LuisLa_`;
         window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    }catch(e){toast('❌ Error al confirmar cobro','error');}
+    }catch(e){ toast('❌ Error al confirmar cobro','error'); }
 };
-window.waFiado=function(id){const card=[...document.querySelectorAll('.fiado-card')].find(c=>{try{return JSON.parse(c.dataset.info).id===id;}catch{return false;}});if(!card)return;const d=JSON.parse(card.dataset.info);const yo=getMiNombre()||'Yo';const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Aviso de cobro:* ${d.desc||''}\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda del:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *Debes hoy:* Bs ${fmt(d.totalHoy)}\n\n⚠️ _Tasa del día — sujeta a cambio_\n_LUANSystem™ Professional · Ing. LuisLa_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');};
-window.borrarFiado=async function(id){if(!confirm('¿Borrar este fiado?'))return;try{await deleteDoc(doc(db,'fiados',id));toast('🗑️ Eliminado','info');cargarFiados();}catch(e){toast('❌ Error','error');}};
 
+window.waFiado=function(id){
+    const d=getFiadoData(id); if(!d) return;
+    const yo=getMiNombre()||'Yo';
+    const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Aviso de cobro:* ${d.desc||''}\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda del:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *Debes hoy:* Bs ${fmt(d.totalHoy)}\n\n⚠️ _Tasa del día — sujeta a cambio_\n_LUANSystem™ Professional · Ing. LuisLa_`;
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+};
+
+window.borrarFiado=async function(id){ if(!confirm('¿Borrar este fiado?')) return; try{ await deleteDoc(doc(db,'fiados',id)); toast('🗑️ Eliminado','info'); cargarFiados(); }catch(e){ toast('❌ Error','error'); } };
+
+// ── Historial con orderBy+limit (tu mejora aplicada) ──
 async function cargarHistorial(){
-    const lista=document.getElementById('listHistorial');lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
-    try{const snap=await getDocs(collection(db,'historial'));if(snap.empty){lista.innerHTML='<div class="empty-state">📋 El historial está vacío</div>';return;}lista.innerHTML='';const docs=[];snap.forEach(d=>docs.push({id:d.id,...d.data()}));docs.sort((a,b)=>new Date(b.pagadoEn)-new Date(a.pagadoEn));docs.forEach(d=>{const card=document.createElement('div');card.className='historial-card';card.innerHTML=`<span class="historial-badge">✅ PAGADO</span><div class="fiado-nombre" style="color:var(--success);">👤 ${d.deudor}</div>${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}<div class="fiado-fecha">📅 Fiado: ${d.fecha} — Pagado: ${d.fechaPago}</div><div class="fiado-monto-original">💵 Deuda: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}</div><div class="fiado-monto-hoy" style="color:var(--success);">💰 Cobrado: Bs ${fmt(d.bsCobrado)}</div><div class="fiado-nota">📊 Tasa del cobro: ${fmt(d.tasaCobro)} Bs</div>`;lista.appendChild(card);});}catch(e){lista.innerHTML='<div class="empty-state">❌ Error</div>';}
+    const lista=document.getElementById('listHistorial');
+    lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
+    try{
+        const q=query(collection(db,'historial'),orderBy('pagadoEn','desc'),limit(30));
+        const snap=await getDocs(q);
+        if(snap.empty){ lista.innerHTML='<div class="empty-state">📋 El historial está vacío</div>'; return; }
+        let html='';
+        snap.forEach(docSnap=>{
+            const d=docSnap.data();
+            html+=`<div class="historial-card">
+                <span class="historial-badge">✅ PAGADO</span>
+                <div class="fiado-nombre" style="color:var(--success);">👤 ${d.deudor}</div>
+                ${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}
+                <div class="fiado-fecha">📅 Fiado: ${d.fecha} — Pagado: ${d.fechaPago}</div>
+                <div class="fiado-monto-original">💵 Deuda: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}</div>
+                <div class="fiado-monto-hoy" style="color:var(--success);">💰 Cobrado: Bs ${fmt(d.bsCobrado)}</div>
+                <div class="fiado-nota">📊 Tasa del cobro: ${fmt(d.tasaCobro)} Bs</div>
+            </div>`;
+        });
+        lista.innerHTML=html;
+    }catch(e){ lista.innerHTML='<div class="empty-state">❌ Error</div>'; console.error(e); }
 }
 window.cargarHistorial=cargarHistorial;
-window.limpiarHistorial=async function(){if(!confirm('¿Limpiar todo el historial?'))return;try{const snap=await getDocs(collection(db,'historial'));await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'historial',d.id))));toast('🗑️ Historial limpiado','info');cargarHistorial();}catch(e){toast('❌ Error','error');}};
+window.limpiarHistorial=async function(){ if(!confirm('¿Limpiar todo el historial?')) return; try{ const snap=await getDocs(collection(db,'historial')); await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'historial',d.id)))); toast('🗑️ Historial limpiado','info'); cargarHistorial(); }catch(e){ toast('❌ Error','error'); } };
 
 // ══ SESIÓN ══
-function saveSession(){localStorage.setItem('luan_session',JSON.stringify({monto:els.monto.value,tasa:els.tasa.value,code:state.current.code,name:state.current.name,direction:state.direction,tasaManual:state.tasaManual,tasaManualCode:state.tasaManualCode,acumulador,tipoOp:state.tipoOp,motivo:els.motivoInput.value,contraparte:els.contraparte.value}));}
+function saveSession(){
+    localStorage.setItem('luan_session', JSON.stringify({
+        monto:els.monto.value, tasa:els.tasa.value,
+        code:state.current.code, name:state.current.name,
+        direction:state.direction, tasaManual:state.tasaManual,
+        tasaManualCode:state.tasaManualCode, acumulador,
+        tipoOp:state.tipoOp, motivo:els.motivoInput.value,
+        contraparte:els.contraparte.value
+    }));
+}
 window.saveSession=saveSession;
-function restoreSession(){try{const s=JSON.parse(localStorage.getItem('luan_session')||'null');if(!s)return;if(s.monto)els.monto.value=s.monto;if(s.tasa)els.tasa.value=s.tasa;if(s.tasaManual){state.tasaManual=true;state.tasaManualCode=s.tasaManualCode||null;els.tasa.classList.add('manual');}if(s.code)selectCurrency(s.code,s.name||s.code);if(s.direction)setTimeout(()=>setDirection(s.direction),60);if(s.acumulador>0){acumulador=s.acumulador;actualizarDisplayAcumulador();}if(s.tipoOp)setTimeout(()=>seleccionarTipoOp(s.tipoOp),80);if(s.motivo)setTimeout(()=>{els.motivoInput.value=s.motivo;},90);if(s.contraparte)setTimeout(()=>{els.contraparte.value=s.contraparte;actualizarPill();},95);}catch(e){}}
 
-window.onMontoInput=function(){calc();};
-window.onTasaInput=function(){state.tasaManual=true;state.tasaManualCode=state.current.code;els.tasa.classList.add('manual');calc();};
+function restoreSession(){
+    try{
+        const s=JSON.parse(localStorage.getItem('luan_session')||'null'); if(!s) return;
+        if(s.monto) els.monto.value=s.monto;
+        if(s.tasa)  els.tasa.value=s.tasa;
+        if(s.tasaManual){ state.tasaManual=true; state.tasaManualCode=s.tasaManualCode||null; els.tasa.classList.add('manual'); }
+        if(s.code) selectCurrency(s.code, s.name||s.code);
+        if(s.direction) setTimeout(()=>setDirection(s.direction),60);
+        if(s.acumulador>0){ acumulador=s.acumulador; actualizarDisplayAcumulador(); }
+        if(s.tipoOp) setTimeout(()=>seleccionarTipoOp(s.tipoOp),80);
+        if(s.motivo) setTimeout(()=>{ els.motivoInput.value=s.motivo; },90);
+        if(s.contraparte) setTimeout(()=>{ els.contraparte.value=s.contraparte; actualizarPill(); },95);
+    }catch(e){}
+}
 
+// ══ INIT — con visibilitychange (tu mejora aplicada) ══
 document.addEventListener('DOMContentLoaded',()=>{
-    // Aplicar tema guardado
-    const temaGuardado=localStorage.getItem('luan_tema')||'noche';
-    aplicarTema(temaGuardado);
+    aplicarTema(localStorage.getItem('luan_tema')||'noche');
     document.getElementById('btnLimpiarAcum').addEventListener('click',()=>limpiarAcumulador());
     document.getElementById('btnEnterAcum').addEventListener('click',()=>aplicarAcumulador());
-    setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine)loadData();},5*60*1000);
-    setInterval(actualizarTimestamp,60*1000);
     verificarAccesoGuardado();
+
+    // Intervalo inteligente: pausa cuando la app está en background
+    let intervalo=null;
+    function iniciarIntervalo(){ if(intervalo) clearInterval(intervalo); intervalo=setInterval(()=>{ if(navigator.onLine&&document.visibilityState==='visible') loadData(); },5*60*1000); }
+    document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ loadData(); iniciarIntervalo(); }else{ if(intervalo) clearInterval(intervalo); } });
+    iniciarIntervalo();
 });
 
-if('serviceWorker' in navigator){window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./service-worker.js');reg.addEventListener('updatefound',()=>{reg.installing?.addEventListener('statechange',function(){if(this.state==='installed'&&navigator.serviceWorker.controller)toast('🔄 Nueva versión disponible','info',5000);});});}catch(e){}});}
+if('serviceWorker' in navigator){
+    window.addEventListener('load',async()=>{
+        try{
+            const reg=await navigator.serviceWorker.register('./service-worker.js');
+            reg.addEventListener('updatefound',()=>{
+                reg.installing?.addEventListener('statechange',function(){
+                    if(this.state==='installed'&&navigator.serviceWorker.controller)
+                        toast('🔄 Nueva versión disponible','info',5000);
+                });
+            });
+        }catch(e){}
+    });
+}
 </script>
 </body>
 </html>
