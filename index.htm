@@ -115,8 +115,8 @@
         .main-tabs { display:flex; gap:6px; margin-bottom:15px; }
         .main-tab { flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--card-border); background:rgba(0,0,0,0.3); color:var(--text-soft); font-weight:bold; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
         .main-tab.active { background:var(--primary); color:#0a0a00; border-color:var(--primary); }
-        .tab-content { display:none; }
-        .tab-content.active { display:block; }
+        .tab-content { display:none; background: var(--bg); border-radius: 15px; }
+        .tab-content.active { display:block; background: var(--bg); }
 
         /* ── MODAL ── */
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; padding:20px; }
