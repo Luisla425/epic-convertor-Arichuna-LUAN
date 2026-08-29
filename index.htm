@@ -340,7 +340,12 @@
             <input type="text" id="fiadoDesc" placeholder="Ej: Mantequilla Llanera..." maxlength="60">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoDesc').value=''">✕</button>
         </div>
-        <label>MONTO PACTADO</label>
+        <label>CANTIDAD</label>
+        <div class="input-wrap">
+            <input type="number" id="fiadoCantidad" placeholder="Ej: 10" value="1">
+            <button class="btn-clear-field" onclick="document.getElementById('fiadoCantidad').value='1'">✕</button>
+        </div>
+        <label>PRECIO UNITARIO ($)</label>
         <div class="input-wrap">
             <input type="number" id="fiadoMonto" placeholder="0.00" inputmode="decimal">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoMonto').value=''">✕</button>
@@ -1012,17 +1017,35 @@ window.cerrarModalFiado = function(){ document.getElementById('modalFiado').clas
 window.guardarFiado = async function(){
     const deudor=document.getElementById('fiadoDeudor').value.trim();
     const desc  =document.getElementById('fiadoDesc').value.trim();
-    const monto =parseFloat(document.getElementById('fiadoMonto').value)||0;
+    const cantidad = parseFloat(document.getElementById('fiadoCantidad').value)||1;
+    const precioUnit = parseFloat(document.getElementById('fiadoMonto').value)||0;
+    const monto = cantidad * precioUnit;
     const moneda=document.getElementById('fiadoMoneda').value;
     const fecha =document.getElementById('fiadoFecha').value.trim()||fechaHoy();
     if(!deudor||monto<=0){ toast('⚠️ Completa los datos','error'); return; }
     try{
-        await addDoc(collection(db,'fiados'),{ deudor,desc,monto,moneda,fecha, tasaDia:state.rates[moneda]||0, estado:'pendiente', creadoPor:getMiNombre()||'', creadoEn:new Date().toISOString() });
+        await addDoc(collection(db,'fiados'),{deudor,desc,monto,cantidad,precioUnit,moneda,fecha,tasaDia:state.rates[moneda]||0,estado:'pendiente',creadoPor:getMiNombre()||'',creadoEn:new Date().toISOString()});
+        ['fiadoDeudor','fiadoDesc','fiadoMonto','fiadoCantidad'].forEach(id=>document.getElementById(id).value=''); document.getElementById('fiadoCantidad').value='1';
         cerrarModalFiado();
-        ['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>document.getElementById(id).value='');
         toast(`✅ Fiado de ${deudor} registrado`,'success',2500); cargarFiados();
         const tasaHoy=state.rates[moneda]||0, totalHoy=round(monto*tasaHoy), sim=moneda==='EUR'?'€':'$', yo=getMiNombre()||'Yo';
-        const msg=`⚡ *Epic Converter LUAN*\n\n🤝 *Operación:* Venta a Crédito${desc?' de '+desc:''}\n👤 *${yo} → ${deudor}*\n📦 *${yo} entrega:* ${desc||'mercancía'}\n💵 *Deuda pactada:* ${monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}\n📊 *Tasa hoy:* ${fmt(tasaHoy)} Bs\n💰 *${deudor} debe hoy:* Bs ${fmt(totalHoy)}\n📅 *Fecha del fiado:* ${fecha}\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_\n\n🏦 _LUANSystem™ Professional · Ing. LuisLa_`;
+        const cantidadStr = cantidad > 1 ? `🔢 *Cantidad:* ${cantidad} unidades
+💵 *Precio unitario:* ${precioUnit.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}
+` : `💵 *Precio pactado:* ${precioUnit.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}
+`;
+        const msg=`⚡ *Epic Converter LUAN*
+
+🤝 *Operación:* Venta a Crédito${desc?' de '+desc:''}
+👤 *${yo} → ${deudor}*
+📦 *${yo} entrega:* ${desc||'mercancía'}
+${cantidadStr}💰 *Total deuda:* ${monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}
+📊 *Tasa hoy:* ${fmt(tasaHoy)} Bs
+💰 *${deudor} debe hoy:* Bs ${fmt(totalHoy)}
+📅 *Fecha del fiado:* ${fecha}
+
+⚠️ _El monto en Bs variará según la tasa del día que se cancele_
+
+🏦 _LUANSystem™ Professional · Ing. LuisLa_`;
         window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
     }catch(e){ toast('❌ Error guardando fiado','error'); console.error(e); }
 };
