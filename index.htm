@@ -436,7 +436,7 @@
         <label id="labelMonto">MONTO EN DÓLARES</label>
         <div class="montos-rapidos" id="montosRapidos"></div>
         <div class="input-wrap">
-            <input type="number" id="cant" type="number" value="1" min="1" style="width:25%;text-align:center;font-weight:bold;" placeholder="Cant."><input id="monto" placeholder="0.00" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onMontoInput()">
+            <input type="number" id="monto" placeholder="0.00" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onMontoInput()">
             <button class="btn-clear-field" onclick="clearField('monto')">✕</button>
         </div>
         <div class="acumulador-panel">
@@ -921,7 +921,7 @@ function renderResultado(total){
     if(dir==='DivisaABs'){
         els.resTotal.textContent='Bs '+fmt(total);
         if(code!=='BIN'&&state.rates.BIN>0){
-            const cant=parseFloat(document.getElementById("cant")?.value)||1, m=(parseFloat(els.monto.value)||0)*cant, par=round(m*state.rates.BIN), df=round(total-par);
+            const m=parseFloat(els.monto.value)||0, par=round(m*state.rates.BIN), df=round(total-par);
             if(Math.abs(df)<0.01){ els.resComp.textContent='≈ Igual que Binance P2P'; els.resComp.className='res-comp igual'; }
             else if(df>0){ els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance`; els.resComp.className='res-comp mejor'; }
             else{ els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance`; els.resComp.className='res-comp peor'; }
@@ -934,7 +934,7 @@ let _tCalc=null, _tTasa=null;
 window.onMontoInput = function(){ if(_tCalc) clearTimeout(_tCalc); _tCalc=setTimeout(()=>{ calc(); _tCalc=null; },180); };
 window.onTasaInput  = function(){ state.tasaManual=true; state.tasaManualCode=state.current.code; els.tasa.classList.add('manual'); if(_tTasa) clearTimeout(_tTasa); _tTasa=setTimeout(()=>{ calc(); _tTasa=null; },150); };
 
-function calc(){ const cant=parseFloat(document.getElementById("cant")?.value)||1, m=(parseFloat(els.monto.value)||0)*cant, t=parseFloat(els.tasa.value)||0; if(m>1000000){ toast('⚠️ Monto muy alto','error'); return; } renderResultado(calcular(m,t,state.direction)); renderMulti(m); saveSession(); }
+function calc(){ const m=parseFloat(els.monto.value)||0, t=parseFloat(els.tasa.value)||0; if(m>1000000){ toast('⚠️ Monto muy alto','error'); return; } renderResultado(calcular(m,t,state.direction)); renderMulti(m); saveSession(); }
 
 function renderMulti(m){
     if(m<=0){ els.multiRes.classList.remove('visible'); return; }
@@ -1184,6 +1184,15 @@ if('serviceWorker' in navigator){
         }catch(e){}
     });
 }
+
+function calcFiadoTotal(){
+    const cant = parseFloat(document.getElementById(fiadoCant)?.value) || 1;
+    const pu = parseFloat(document.getElementById(fiadoMonto)?.value) || 0;
+    const tot = cant * pu;
+    const lbl = document.getElementById(fiadoTotalLbl);
+    if(lbl) lbl.textContent = "Total Deuda: $" + tot.toLocaleString(es-VE, {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
 </script>
 </body>
 </html>
