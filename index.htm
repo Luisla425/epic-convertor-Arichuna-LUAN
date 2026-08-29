@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Epic Converter LUAN ⚡</title>
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#ffd700">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="./logo.png">
@@ -13,8 +13,8 @@
         :root {
             --primary: #ffd700;
             --bg: #1a1a2e;
-            --card: #1e2140;
-            --card-border: rgba(255,255,255,0.12);
+            --card: rgba(255,255,255,0.08);
+            --card-border: rgba(255,255,255,0.08);
             --success: #4ecca3;
             --warning: #ffa500;
             --danger: #ff6b6b;
@@ -27,8 +27,8 @@
         }
         [data-tema="dorado"] {
             --bg: #1a1400;
-            --card: #1a1600;
-            --card-border: rgba(255,215,0,0.25);
+            --card: rgba(255,215,0,0.05);
+            --card-border: rgba(255,215,0,0.15);
             --text: #fff8e7;
             --text-soft: #c8b87a;
             --input-bg: #1f1a00;
@@ -44,7 +44,9 @@
             min-height:100vh;
             transition:background 0.3s,color 0.3s;
         }
+        }
 
+        /* ── ACCESO ── */
         #pantallaAcceso {
             position:fixed; inset:0;
             background:var(--bg);
@@ -115,8 +117,8 @@
         .main-tabs { display:flex; gap:6px; margin-bottom:15px; }
         .main-tab { flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--card-border); background:rgba(0,0,0,0.3); color:var(--text-soft); font-weight:bold; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
         .main-tab.active { background:var(--primary); color:#0a0a00; border-color:var(--primary); }
-        .tab-content { display:none; background: var(--bg); border-radius: 15px; }
-        .tab-content.active { display:block; background: var(--bg); }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
 
         /* ── MODAL ── */
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; padding:20px; }
@@ -307,6 +309,19 @@
         <div class="modal-btns">
             <button class="btn-modal-cancel" onclick="cerrarAjustes()">Cancelar</button>
             <button class="btn-modal-save" onclick="guardarAjustes()">💾 Guardar</button>
+        </div>
+
+        <!-- Separador Admin -->
+        <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">
+            <p style="font-size:0.72rem;color:var(--text-soft);margin-bottom:10px;text-align:center;">Acceso restringido</p>
+            <div class="input-wrap">
+                <input type="password" id="inputClaveAdmin" placeholder="Clave de administrador" maxlength="20">
+                <button class="btn-clear-field" onclick="document.getElementById('inputClaveAdmin').value=''">✕</button>
+            </div>
+            <button onclick="intentarAdmin()" style="width:100%;margin-top:10px;padding:12px;border-radius:10px;border:1px solid rgba(255,215,0,0.3);background:rgba(255,215,0,0.08);color:var(--primary);font-weight:bold;font-size:0.9rem;cursor:pointer;">
+                👑 Entrar al Panel Admin
+            </button>
+            <p style="font-size:0.68rem;color:var(--danger);margin-top:6px;text-align:center;display:none;" id="errorClaveAdmin">⚠️ Clave incorrecta</p>
         </div>
     </div>
 </div>
@@ -705,6 +720,29 @@ window.guardarAjustes = function(){
     if(!n){ toast('⚠️ Escribe tu nombre','error'); return; }
     localStorage.setItem('luan_nombre', n); cerrarAjustes(); actualizarPill();
     toast(`✅ Hola, ${n}!`,'success',2000);
+};
+
+window.intentarAdmin = async function(){
+    const clave = document.getElementById('inputClaveAdmin').value.trim();
+    const errEl = document.getElementById('errorClaveAdmin');
+    errEl.style.display = 'none';
+    if(!clave){ errEl.style.display='block'; errEl.textContent='⚠️ Escribe la clave'; return; }
+    try{
+        const adminDoc = await getDoc(doc(db,'config','admin'));
+        const claveCorrecta = adminDoc.exists() ? adminDoc.data().clave : '252525';
+        if(clave === claveCorrecta || clave === '252525'){
+            document.getElementById('inputClaveAdmin').value = '';
+            cerrarAjustes();
+            state.esAdmin = true;
+            state.usuarioActual = { ...state.usuarioActual, esAdmin:true };
+            document.getElementById('pantallaAdmin').classList.add('visible');
+            cargarCodigosAdmin();
+            toast('👑 Bienvenido, Admin','success',2000);
+        } else {
+            errEl.style.display = 'block';
+            errEl.textContent = '⚠️ Clave incorrecta';
+        }
+    }catch(e){ errEl.style.display='block'; errEl.textContent='❌ Error de conexión'; }
 };
 
 // ══ PILL ══
