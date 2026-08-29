@@ -283,12 +283,16 @@
             <input type="text" id="adminAlias" placeholder="Ej: Tito, Paito, Maita..." maxlength="20">
             <button class="btn-clear-field" onclick="document.getElementById('adminAlias').value=''">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <button class="btn-modal-save" style="margin-top:10px;width:100%;" onclick="crearCodigo()">🔑 Generar código</button>
         <div id="codigoGenerado" style="display:none;margin-top:12px;background:rgba(0,0,0,0.4);border-radius:10px;padding:14px;text-align:center;">
             <p style="font-size:0.75rem;color:var(--text-soft);">Código generado:</p>
             <p id="codigoVal" style="font-size:1.3rem;font-weight:bold;color:var(--primary);letter-spacing:2px;margin:6px 0;"></p>
             <button onclick="copiarCodigo()" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:var(--primary);padding:8px 16px;border-radius:20px;font-size:0.8rem;cursor:pointer;">📋 Copiar y enviar por WA</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
     </div>
     <div class="admin-card">
         <div class="admin-card-title">👥 Usuarios registrados</div>
@@ -305,11 +309,15 @@
             <input type="text" id="inputMiNombre" placeholder="Ej: Tito, Paito, Maita..." maxlength="30">
             <button class="btn-clear-field" onclick="document.getElementById('inputMiNombre').value=''">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <p class="modal-hint">Así aparecerás en el mensaje de WhatsApp</p>
         <div class="modal-btns">
             <button class="btn-modal-cancel" onclick="cerrarAjustes()">Cancelar</button>
             <button class="btn-modal-save" onclick="guardarAjustes()">💾 Guardar</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
 
         <!-- Separador Admin -->
         <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">
@@ -335,16 +343,22 @@
             <input type="text" id="fiadoDeudor" placeholder="Ej: Anunu, Paito..." maxlength="30">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoDeudor').value=''">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <label>¿QUÉ LE FÍAS?</label>
         <div class="input-wrap">
             <input type="text" id="fiadoDesc" placeholder="Ej: Mantequilla Llanera..." maxlength="60">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoDesc').value=''">✕</button>
         </div>
-        <label>MONTO PACTADO</label>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
+        <div style="display:flex; gap:10px;"><div style="width:35%;"><label>CANTIDAD</label><div class="input-wrap"><input type="number" id="fiadoCant" value="1" min="1"></div></div><div style="width:65%;"><label>PRECIO UNIT. ($)</label>
         <div class="input-wrap">
-            <input type="number" id="fiadoMonto" placeholder="0.00" inputmode="decimal">
+            <input type="number" id="fiadoMonto" oninput="calcFiadoTotal()" placeholder="0.00" inputmode="decimal">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoMonto').value=''">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <label>MONEDA</label>
         <div class="input-wrap">
             <select id="fiadoMoneda">
@@ -358,10 +372,14 @@
             <input type="text" id="fiadoFecha" placeholder="DD/MM/AAAA" maxlength="10">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoFecha').value=''">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <div class="modal-btns">
             <button class="btn-modal-cancel" onclick="cerrarModalFiado()">Cancelar</button>
             <button class="btn-modal-save" onclick="guardarFiado()">🤝 Registrar</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
     </div>
 </div>
 
@@ -382,6 +400,8 @@
             <button class="btn-modal-cancel" onclick="cerrarModalCobrar()">Cancelar</button>
             <button class="btn-modal-save" style="background:var(--success);color:#0a0a0a;" onclick="confirmarCobro()">✅ Confirmar</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
     </div>
 </div>
 
@@ -433,12 +453,16 @@
             <button class="btn-swap" onclick="intercambiarValores()">⇄</button>
             <button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')"><span id="txtBsADivisa">De Bs a $</span></button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <label id="labelMonto">MONTO EN DÓLARES</label>
         <div class="montos-rapidos" id="montosRapidos"></div>
         <div class="input-wrap">
             <input type="number" id="monto" placeholder="0.00" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onMontoInput()">
             <button class="btn-clear-field" onclick="clearField('monto')">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <div class="acumulador-panel">
             <span class="suma-actual" id="sumaActual">➕ Suma: 0</span>
             <div style="display:flex;gap:6px;">
@@ -451,6 +475,8 @@
             <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onTasaInput()">
             <button class="btn-clear-field" onclick="clearField('tasa')">✕</button>
         </div>
+        </div>
+        <div style="text-align:right; font-weight:bold; color:#ffd700; font-size:0.95rem; margin:5px 0 10px 0;" id="fiadoTotalLbl">Total Deuda: $0.00</div>
         <button class="btn-usar-oficial" id="btnUsarOficial" onclick="usarTasaOficial()">← Usar tasa BCV</button>
 
         <div class="op-type-section">
