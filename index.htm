@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Epic Converter LUAN ⚡</title>
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#ffd700">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="./logo.png">
@@ -13,7 +13,7 @@
         :root {
             --primary: #ffd700;
             --bg: #1a1a2e;
-            --card: #1e2140;
+            --card: rgba(255,255,255,0.08);
             --card-border: rgba(255,255,255,0.08);
             --success: #4ecca3;
             --warning: #ffa500;
@@ -27,8 +27,8 @@
         }
         [data-tema="dorado"] {
             --bg: #1a1400;
-            --card: #2a2205;
-            --card-border: rgba(255,215,0,0.25);
+            --card: rgba(255,215,0,0.05);
+            --card-border: rgba(255,215,0,0.15);
             --text: #fff8e7;
             --text-soft: #c8b87a;
             --input-bg: #1f1a00;
@@ -340,12 +340,7 @@
             <input type="text" id="fiadoDesc" placeholder="Ej: Mantequilla Llanera..." maxlength="60">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoDesc').value=''">✕</button>
         </div>
-        <label>CANTIDAD</label>
-        <div class="input-wrap">
-            <input type="number" id="fiadoCantidad" placeholder="Ej: 10" value="1">
-            <button class="btn-clear-field" onclick="document.getElementById('fiadoCantidad').value='1'">✕</button>
-        </div>
-        <label>PRECIO UNITARIO ($)</label>
+        <label>MONTO PACTADO</label>
         <div class="input-wrap">
             <input type="number" id="fiadoMonto" placeholder="0.00" inputmode="decimal">
             <button class="btn-clear-field" onclick="document.getElementById('fiadoMonto').value=''">✕</button>
@@ -473,6 +468,17 @@
                     <input type="text" id="motivoInput" placeholder="" maxlength="80" autocomplete="off" oninput="actualizarPill();saveSession();">
                     <button class="btn-clear-field" onclick="clearField('motivoInput')">✕</button>
                 </div>
+                <!-- Cantidad y unidad -->
+                <div id="cantidadWrap" style="display:none;gap:8px;margin-top:8px;">
+                    <div class="input-wrap" style="flex:1;">
+                        <input type="number" id="cantidadInput" placeholder="Cantidad" value="1" min="1" inputmode="decimal" oninput="saveSession();">
+                        <button class="btn-clear-field" onclick="document.getElementById('cantidadInput').value='1'">x</button>
+                    </div>
+                    <div class="input-wrap" style="flex:1;">
+                        <input type="text" id="unidadInput" placeholder="Ej: kg, meses..." maxlength="15" autocomplete="off" oninput="saveSession();">
+                        <button class="btn-clear-field" onclick="document.getElementById('unidadInput').value=''">x</button>
+                    </div>
+                </div>
                 <p class="op-hint">¿Con quién transas?</p>
                 <div class="input-wrap">
                     <input type="text" id="contraparte" placeholder="Ej: Tito, Anunu, Paito..." maxlength="30" autocomplete="off" oninput="actualizarPill();saveSession();">
@@ -599,7 +605,7 @@ window.limpiarTodo = function(){
     state.tipoOp = null; state.tasaManual = false;
     els.tasa.classList.remove('manual');
     document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
-    els.opDetalles.classList.remove('visible');
+    els.opDetalles.classList.remove("visible"); const _cw2=document.getElementById("cantidadWrap"); if(_cw2)_cw2.style.display="none";
     els.pill.classList.remove('visible');
     els.resBox.style.display = 'none';
     els.multiRes.classList.remove('visible');
@@ -898,14 +904,16 @@ const OP_CONFIG = {
     fiado: { clase:'sel-fiado',  hintQue:'¿Qué estás fiando a crédito?', placeholder:'Ej: Mantequilla Llanera...' }
 };
 window.seleccionarTipoOp = function(tipo){
-    if(state.tipoOp===tipo){ state.tipoOp=null; document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn'); els.opDetalles.classList.remove('visible'); els.pill.classList.remove('visible'); saveSession(); return; }
+    if(state.tipoOp===tipo){ state.tipoOp=null; document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn'); els.opDetalles.classList.remove("visible"); const _cw=document.getElementById("cantidadWrap"); if(_cw)_cw.style.display="none"; els.pill.classList.remove('visible'); saveSession(); return; }
     state.tipoOp=tipo;
     document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');
     const idMap={venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio',fiado:'opFiado'};
     document.getElementById(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;
     document.getElementById('hintQue').textContent=OP_CONFIG[tipo].hintQue;
     els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;
-    els.opDetalles.classList.add('visible'); els.motivoInput.focus(); actualizarPill(); saveSession();
+    els.opDetalles.classList.add("visible"); els.motivoInput.focus(); actualizarPill(); saveSession();
+    const cw=document.getElementById("cantidadWrap");
+    if(cw){ if(tipo==="venta"||tipo==="compra"||tipo==="pago"){ cw.style.cssText="display:flex;gap:8px;margin-top:8px;"; }else{ cw.style.display="none"; } }
 };
 
 function updateLabels(){
@@ -973,6 +981,13 @@ window.sendWA = function(){
     const tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});
     const sim=code==='EUR'?'€':'$', dir=state.direction, tipo=state.tipoOp;
     const motivo=els.motivoInput.value.trim(), otro=els.contraparte.value.trim(), yo=getMiNombre();
+    const cantidad = parseFloat(document.getElementById("cantidadInput")?.value)||1;
+    const unidad = document.getElementById("unidadInput")?.value.trim()||"";
+    const unidStr = unidad ? " "+unidad : " unidades";
+    const precioUnit = parseFloat(els.monto.value)||0;
+    const montoTotal = cantidad > 1 ? round(precioUnit*cantidad) : precioUnit;
+    const mFtotal = montoTotal.toLocaleString("es-VE",{minimumFractionDigits:2});
+    const cantStr = cantidad > 1 ? "🔢 *Cantidad:* "+cantidad+unidStr+"\n💵 *Precio unitario:* "+mF+" "+sim+"\n💰 *Total:* "+mFtotal+" "+sim : "";
     const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};
     const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa',CON:'Tasa Personalizada'};
     const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};
@@ -981,15 +996,15 @@ window.sendWA = function(){
     let lineaOp='', lineaEntrega='', lineaRecibe='';
     if(tipo==='venta'){
         lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
-        if(dir==='DivisaABs'){ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`:`💵 *Precio pactado:* ${mF} ${sim}`; lineaRecibe=`💰 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total}`; }
-        else{ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Precio pactado:* ${mF} Bs`:`💸 *Precio pactado:* ${mF} Bs`; lineaRecibe=`💎 *${otro?otro+' paga / ':''} ${yo||'Yo'} recibe:* ${total} ${sim}`; }
+        if(dir==="DivisaABs"){ lineaEntrega=(motivo?("📦 *"+(yo||"Yo")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💵 *Precio pactado:* "+mF+" "+sim))); lineaRecibe="💰 *"+(otro?otro+" paga / ":"")+(yo||"Yo")+" recibe:* "+total; }
+        else{ lineaEntrega=(motivo?("📦 *"+(yo||"Yo")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💸 *Precio pactado:* "+mF+" Bs"))); lineaRecibe="💎 *"+(otro?otro+" paga / ":"")+(yo||"Yo")+" recibe:* "+total+" "+sim; }
     }else if(tipo==='compra'){
         lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
-        if(dir==='DivisaABs'){ lineaEntrega=motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💵 *Precio pactado:* ${mF} ${sim}`:`💵 *Precio pactado:* ${mF} ${sim}`; lineaRecibe=`💰 *${yo||'Yo'} paga:* ${total}`; }
-        else{ lineaEntrega=motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n💸 *${yo||'Yo'} paga:* ${mF} Bs`:`💸 *${yo||'Yo'} paga:* ${mF} Bs`; lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`; }
+        if(dir==="DivisaABs"){ lineaEntrega=(motivo?("📦 *"+(otro||"Vendedor")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💵 *Precio pactado:* "+mF+" "+sim))); lineaRecibe="💰 *"+(yo||"Yo")+" paga:* "+total; }
+        else{ lineaEntrega=(motivo?("📦 *"+(otro||"Vendedor")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💸 *"+(yo||"Yo")+" paga:* "+mF+" Bs"))); lineaRecibe="💎 *"+(yo||"Yo")+" recibe:* "+total+" "+sim; }
     }else if(tipo==='pago'){
         lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
-        if(dir==='DivisaABs'){ lineaEntrega=`💵 *Monto en ${sim}:* ${mF} ${sim}`; lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`; }
+        if(dir==="DivisaABs"){ lineaEntrega=cantStr||(("💵 *Monto en "+sim+":* "+mF+" "+sim)); lineaRecibe="💰 *"+(otro||"Receptor")+" recibe:* "+total; }
         else{ lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`; lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`; }
     }else if(tipo==='cambio'){
         lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
@@ -1017,35 +1032,20 @@ window.cerrarModalFiado = function(){ document.getElementById('modalFiado').clas
 window.guardarFiado = async function(){
     const deudor=document.getElementById('fiadoDeudor').value.trim();
     const desc  =document.getElementById('fiadoDesc').value.trim();
-    const cantidad = parseFloat(document.getElementById('fiadoCantidad').value)||1;
-    const precioUnit = parseFloat(document.getElementById('fiadoMonto').value)||0;
-    const monto = cantidad * precioUnit;
+    const cantidadF = parseFloat(document.getElementById("fiadoCantidad")?.value)||1;
+    const precioUnitF = parseFloat(document.getElementById("fiadoMonto").value)||0;
+    const monto = round(cantidadF * precioUnitF);
     const moneda=document.getElementById('fiadoMoneda').value;
     const fecha =document.getElementById('fiadoFecha').value.trim()||fechaHoy();
     if(!deudor||monto<=0){ toast('⚠️ Completa los datos','error'); return; }
     try{
-        await addDoc(collection(db,'fiados'),{deudor,desc,monto,cantidad,precioUnit,moneda,fecha,tasaDia:state.rates[moneda]||0,estado:'pendiente',creadoPor:getMiNombre()||'',creadoEn:new Date().toISOString()});
-        ['fiadoDeudor','fiadoDesc','fiadoMonto','fiadoCantidad'].forEach(id=>document.getElementById(id).value=''); document.getElementById('fiadoCantidad').value='1';
+        await addDoc(collection(db,"fiados"),{ deudor,desc,monto,cantidad:cantidadF,precioUnit:precioUnitF,moneda,fecha, tasaDia:state.rates[moneda]||0, estado:"pendiente", creadoPor:getMiNombre()||"", creadoEn:new Date().toISOString() });
         cerrarModalFiado();
+        ['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>document.getElementById(id).value='');
         toast(`✅ Fiado de ${deudor} registrado`,'success',2500); cargarFiados();
         const tasaHoy=state.rates[moneda]||0, totalHoy=round(monto*tasaHoy), sim=moneda==='EUR'?'€':'$', yo=getMiNombre()||'Yo';
-        const cantidadStr = cantidad > 1 ? `🔢 *Cantidad:* ${cantidad} unidades
-💵 *Precio unitario:* ${precioUnit.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}
-` : `💵 *Precio pactado:* ${precioUnit.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}
-`;
-        const msg=`⚡ *Epic Converter LUAN*
-
-🤝 *Operación:* Venta a Crédito${desc?' de '+desc:''}
-👤 *${yo} → ${deudor}*
-📦 *${yo} entrega:* ${desc||'mercancía'}
-${cantidadStr}💰 *Total deuda:* ${monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}
-📊 *Tasa hoy:* ${fmt(tasaHoy)} Bs
-💰 *${deudor} debe hoy:* Bs ${fmt(totalHoy)}
-📅 *Fecha del fiado:* ${fecha}
-
-⚠️ _El monto en Bs variará según la tasa del día que se cancele_
-
-🏦 _LUANSystem™ Professional · Ing. LuisLa_`;
+        const cantFstr = cantidadF > 1 ? ("🔢 *Cantidad:* "+cantidadF+" unidades\n💵 *Precio unitario:* "+precioUnitF.toLocaleString("es-VE",{minimumFractionDigits:2})+" "+sim+"\n") : "";
+        const msg="⚡ *Epic Converter LUAN*\n\n🤝 *Operación:* Venta a Crédito"+(desc?" de "+desc:"")+"\n👤 *"+yo+" → "+deudor+"*\n📦 *"+yo+" entrega:* "+(desc||"mercancía")+"\n"+cantFstr+"💰 *Total deuda:* "+monto.toLocaleString("es-VE",{minimumFractionDigits:2})+" "+sim+"\n📊 *Tasa hoy:* "+fmt(tasaHoy)+" Bs\n💰 *"+deudor+" debe hoy:* Bs "+fmt(totalHoy)+"\n📅 *Fecha del fiado:* "+fecha+"\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_\n\n🏦 _LUANSystem™ Professional · Ing. LuisLa_";
         window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
     }catch(e){ toast('❌ Error guardando fiado','error'); console.error(e); }
 };
