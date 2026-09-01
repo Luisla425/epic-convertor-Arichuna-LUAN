@@ -406,6 +406,7 @@
     <button class="main-tab active" onclick="cambiarTab('converter')">⚡ Conversor</button>
     <button class="main-tab" onclick="cambiarTab('fiados')">🤝 Fiados</button>
     <button class="main-tab" onclick="cambiarTab('historial')">📋 Historial</button>
+    <button class="main-tab" onclick="cambiarTab('ahorro')">💹 Ahorro</button>
 </div>
 
 <!-- TAB CONVERSOR -->
@@ -522,6 +523,40 @@
     <div id="listHistorial"><div class="empty-state">📋 El historial está vacío</div></div>
 </div>
 
+
+<!-- TAB AHORRO -->
+<div class="tab-content" id="tab-ahorro">
+    <div class="glass">
+        <div class="section-title">💹 CALCULADORA DE AHORRO EN DIVISAS</div>
+        <label>PRECIO DEL PRODUCTO ($)</label>
+        <div class="input-wrap">
+            <input type="number" id="aPrecio" placeholder="100.00" value="100" step="0.01" inputmode="decimal" oninput="calcAhorro()">
+            <button class="btn-clear-field" onclick="document.getElementById('aPrecio').value='';calcAhorro()">x</button>
+        </div>
+        <label>TASA BCV (Bs/$)</label>
+        <div class="input-wrap">
+            <input type="number" id="aBCV" placeholder="794.99" step="0.01" inputmode="decimal" oninput="calcAhorro()">
+            <button class="btn-clear-field" onclick="document.getElementById('aBCV').value='';calcAhorro()">x</button>
+        </div>
+        <label>TASA PARALELA / CALLE (Bs/$)</label>
+        <div class="input-wrap">
+            <input type="number" id="aParalelo" placeholder="910.00" step="0.01" inputmode="decimal" oninput="calcAhorro()">
+            <button class="btn-clear-field" onclick="document.getElementById('aParalelo').value='';calcAhorro()">x</button>
+        </div>
+        <input type="range" id="aSlider" min="100" max="3000" step="1" value="910"
+            style="width:100%;margin:10px 0;accent-color:var(--primary);"
+            oninput="document.getElementById('aParalelo').value=this.value;calcAhorro()">
+        <div style="text-align:center;font-size:1.1rem;font-weight:bold;color:var(--primary);margin-bottom:10px;" id="aSliderVal">910 Bs/$</div>
+        <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:14px;margin-top:8px;">
+            <div class="multi-row"><span class="multi-lbl">💰 Valor en Bs</span><span class="multi-val" id="aValBs">--</span></div>
+            <div class="multi-row"><span class="multi-lbl">💵 Debes vender</span><span class="multi-val" id="aVender">--</span></div>
+            <div class="multi-row"><span class="multi-lbl">💲 Ahorras en $</span><span class="multi-val" id="aAhorro">--</span></div>
+            <div class="multi-row"><span class="multi-lbl">📈 Ahorro %</span><span class="multi-val" id="aPorcentaje">--</span></div>
+        </div>
+        <div id="aEstado" style="margin-top:14px;text-align:center;font-size:1rem;font-weight:bold;padding:12px;border-radius:10px;display:none;"></div>
+        <button class="btn-wa" onclick="sendWAAhorro()" style="margin-top:15px;">📩 Compartir por WhatsApp</button>
+    </div>
+</div>
 </div><!-- fin appPrincipal -->
 <div id="toastContainer"></div>
 
@@ -620,7 +655,7 @@ window.limpiarTodo = function(){
 window.cambiarTab = function(tab){
     document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    const tabs = ['converter','fiados','historial'];
+    const tabs = ['converter','fiados','historial','ahorro'];
     document.querySelectorAll('.main-tab')[tabs.indexOf(tab)].classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
     if(tab === 'fiados') cargarFiados();
@@ -1151,6 +1186,56 @@ async function cargarHistorial(){
 }
 window.cargarHistorial=cargarHistorial;
 window.limpiarHistorial=async function(){ if(!confirm('¿Limpiar todo el historial?')) return; try{ const snap=await getDocs(collection(db,'historial')); await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'historial',d.id)))); toast('🗑️ Historial limpiado','info'); cargarHistorial(); }catch(e){ toast('❌ Error','error'); } };
+
+// ══ CALCULADORA AHORRO ══
+window.calcAhorro = function(){
+    const p = parseFloat(document.getElementById("aPrecio").value)||0;
+    const bcv = parseFloat(document.getElementById("aBCV").value)||0;
+    const par = parseFloat(document.getElementById("aParalelo").value)||1;
+    document.getElementById("aSlider").value = par;
+    document.getElementById("aSliderVal").textContent = par.toFixed(2)+" Bs/$";
+    if(p<=0||bcv<=0){ return; }
+    const bs = p * bcv;
+    const vender = bs / par;
+    const ahorro = p - vender;
+    const pct = (ahorro/p)*100;
+    document.getElementById("aValBs").textContent = bs.toLocaleString("es-VE",{minimumFractionDigits:2})+" Bs";
+    document.getElementById("aVender").textContent = vender.toFixed(2)+" $";
+    document.getElementById("aAhorro").textContent = ahorro.toFixed(2)+" $";
+    document.getElementById("aPorcentaje").textContent = pct.toFixed(2)+" %";
+    const est = document.getElementById("aEstado");
+    est.style.display = "block";
+    if(ahorro > 1){ est.style.background="rgba(78,204,163,0.15)"; est.style.color="var(--success)"; est.textContent="🟢 Conviene vender dólares y pagar en Bs"; }
+    else if(ahorro > 0){ est.style.background="rgba(255,165,0,0.15)"; est.style.color="var(--warning)"; est.textContent="🟡 El ahorro es mínimo"; }
+    else{ est.style.background="rgba(255,107,107,0.15)"; est.style.color="var(--danger)"; est.textContent="🔴 No conviene — paga directo en $"; }
+};
+
+window.sendWAAhorro = function(){
+    const p = parseFloat(document.getElementById("aPrecio").value)||0;
+    const bcv = parseFloat(document.getElementById("aBCV").value)||0;
+    const par = parseFloat(document.getElementById("aParalelo").value)||1;
+    if(p<=0||bcv<=0||par<=0){ toast("⚠️ Completa los valores","error"); return; }
+    const bs = p*bcv;
+    const vender = bs/par;
+    const ahorro = p-vender;
+    const pct = (ahorro/p)*100;
+    const yo = getMiNombre()||"Yo";
+    const estado = ahorro>1?"🟢 Conviene vender $ y pagar en Bs":ahorro>0?"🟡 Ahorro mínimo":"🔴 No conviene";
+    const msg = "⚡ *Epic Converter LUAN*\n\n💹 *Calculadora de Ahorro en Divisas*\n\n💵 *Precio del producto:* "+p.toFixed(2)+" $\n📊 *Tasa BCV:* "+bcv.toFixed(2)+" Bs\n🏪 *Tasa paralela:* "+par.toFixed(2)+" Bs\n\n💰 *Valor en Bs:* "+bs.toLocaleString("es-VE",{minimumFractionDigits:2})+" Bs\n💵 *Debes vender:* "+vender.toFixed(2)+" $\n💲 *Ahorras:* "+ahorro.toFixed(2)+" $ ("+pct.toFixed(2)+"%)\n\n"+estado+"\n\n🏦 _Ref: BCV · LUANSystem™ Professional · "+yo+"_";
+    window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+    toast("📤 Abriendo WhatsApp...","success",2000);
+};
+
+// Auto-cargar tasas BCV y Binance al abrir tab ahorro
+const _origCambiarTab = window.cambiarTab;
+window.cambiarTab = function(tab){
+    _origCambiarTab(tab);
+    if(tab==="ahorro"){
+        if(state.rates.USD>0) document.getElementById("aBCV").value = state.rates.USD.toFixed(2);
+        if(state.rates.BIN>0) document.getElementById("aParalelo").value = state.rates.BIN.toFixed(2);
+        calcAhorro();
+    }
+};
 
 // ══ SESIÓN ══
 function saveSession(){
