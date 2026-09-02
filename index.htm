@@ -1,1297 +1,582 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Epic Converter LUAN ⚡</title>
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="./logo.png">
-    <style>
-        :root {
-            --primary: #ffd700;
-            --bg: #1a1a2e;
-            --card: #1e2140;
-            --card-border: rgba(255,255,255,0.08);
-            --success: #4ecca3;
-            --warning: #ffa500;
-            --danger: #ff6b6b;
-            --up: #4ecca3;
-            --down: #ff6b6b;
-            --purple: #c084fc;
-            --text: #ffffff;
-            --text-soft: #aaaaaa;
-            --input-bg: #252945;
-        }
-        [data-tema="dorado"] {
-            --bg: #0f0e00;
-            --card: #1a1600;
-            --card-border: rgba(255,215,0,0.15);
-            --text: #fff8e7;
-            --text-soft: #c8b87a;
-            --input-bg: #1f1a00;
-        }
-
-        /* Forzar esquema oscuro — evita que Chrome/Honor herede amarillo */
-        html { background:#1a1a2e; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-        body {
-            background:var(--bg);
-            color:var(--text);
-            padding:15px;
-            min-height:100vh;
-            transition:background 0.3s,color 0.3s;
-        }
-        }
-
-        /* ── ACCESO ── */
-        #pantallaAcceso {
-            position:fixed; inset:0;
-            background:var(--bg);
-            display:flex; flex-direction:column; align-items:center;
-            justify-content:center; padding:30px; z-index:2000;
-        }
-        .acceso-logo { font-size:3.5rem; margin-bottom:12px; }
-        #pantallaAcceso h2 { color:var(--primary); font-size:1.6rem; margin-bottom:6px; text-align:center; }
-        #pantallaAcceso p  { color:var(--text-soft); font-size:0.85rem; margin-bottom:28px; text-align:center; }
-        .acceso-input {
-            width:100%; max-width:320px; padding:16px; border-radius:12px;
-            border:2px solid rgba(255,215,0,0.4); background:var(--input-bg);
-            color:var(--text); font-size:1.1rem; outline:none; text-align:center;
-            letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;
-        }
-        .acceso-input:focus { border-color:var(--primary); }
-        .btn-acceso {
-            width:100%; max-width:320px; padding:16px; border-radius:12px;
-            border:none; background:var(--primary); color:#1a1a00;
-            font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:10px;
-        }
-        .acceso-error { color:var(--danger); font-size:0.82rem; margin-top:6px; display:none; }
-        .acceso-error.visible { display:block; }
-        .acceso-version { color:#333; font-size:0.65rem; margin-top:30px; }
-
-        /* ── ADMIN ── */
-        #pantallaAdmin {
-            position:fixed; inset:0;
-            background:var(--bg);
-            overflow-y:auto; padding:20px; z-index:1500; display:none;
-        }
-        #pantallaAdmin.visible { display:block; }
-        .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .admin-title { color:var(--primary); font-size:1.2rem; font-weight:bold; }
-        .btn-salir-admin { background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:var(--danger); padding:8px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer; }
-        .admin-card { background:var(--card); border-radius:14px; padding:16px; margin-bottom:14px; border:1px solid var(--card-border); }
-        .admin-card-title { color:var(--primary); font-size:0.85rem; font-weight:bold; margin-bottom:12px; }
-        .codigo-item { background:rgba(0,0,0,0.3); border-radius:10px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-        .codigo-info { flex:1; }
-        .codigo-alias { font-size:0.95rem; font-weight:bold; color:var(--text); }
-        .codigo-val { font-size:0.8rem; color:var(--primary); font-family:monospace; letter-spacing:1px; }
-        .codigo-estado.activo { color:var(--success); font-size:0.7rem; }
-        .codigo-estado.bloqueado { color:var(--danger); font-size:0.7rem; }
-        .codigo-btns { display:flex; gap:6px; flex-wrap:wrap; }
-        .btn-copiar-codigo { background:rgba(255,215,0,0.12); border:1px solid rgba(255,215,0,0.3); color:var(--primary); padding:6px 10px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
-        .btn-bloquear { background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.3); color:var(--danger); padding:6px 10px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
-        .btn-activar { background:rgba(78,204,163,0.12); border:1px solid rgba(78,204,163,0.3); color:var(--success); padding:6px 10px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
-        .btn-borrar-codigo { background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); color:var(--danger); padding:6px 10px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
-
-        /* ── HEADER ── */
-        .header { text-align:center; margin-bottom:20px; position:relative; padding-top:4px; }
-        .header-btns-left { position:absolute; left:0; top:0; display:flex; gap:6px; }
-        .header-btns-right { position:absolute; right:0; top:0; display:flex; gap:6px; }
-        .btn-icon { background:var(--card); border:1px solid var(--card-border); color:var(--text); padding:9px; border-radius:50%; cursor:pointer; font-size:1rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; width:38px; height:38px; }
-        .btn-icon:active { transform:scale(0.9); }
-        .btn-refresh { border-color:var(--primary); color:var(--primary); }
-        .btn-refresh.loading { animation:spin 1s linear infinite; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        h1 { color:var(--primary); font-size:1.4rem; text-shadow:0 0 10px rgba(255,215,0,0.25); line-height:1.3; padding:0 50px; }
-        #lastUpdate { font-size:0.68rem; color:var(--text-soft); margin-top:4px; transition:color 0.4s; }
-        #lastUpdate.reciente { color:var(--success); }
-        #lastUpdate.viejo    { color:var(--warning); }
-        #offlineBadge { display:none; background:var(--danger); color:#fff; font-size:0.68rem; font-weight:bold; padding:3px 12px; border-radius:20px; margin-top:4px; }
-        #offlineBadge.visible { display:inline-block; }
-        .usuario-badge { font-size:0.68rem; color:var(--success); margin-top:3px; }
-
-        /* ── TABS ── */
-        .main-tabs { display:flex; gap:6px; margin-bottom:15px; }
-        .main-tab { flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--card-border); background:rgba(0,0,0,0.3); color:var(--text-soft); font-weight:bold; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
-        .main-tab.active { background:var(--primary); color:#0a0a00; border-color:var(--primary); }
-        .tab-content { display:none; }
-        .tab-content.active { display:block; }
-
-        /* ── MODAL ── */
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; padding:20px; }
-        .modal-overlay.visible { display:flex; }
-        .modal { background:#1e2140; border-radius:20px; padding:24px; width:100%; max-width:400px; border:1px solid rgba(255,215,0,0.25); animation:slideUp 0.3s ease; max-height:90vh; overflow-y:auto; }
-        .modal-title { color:var(--primary); font-size:1.1rem; font-weight:bold; margin-bottom:18px; text-align:center; }
-        .modal-hint { font-size:0.7rem; color:var(--text-soft); margin-top:3px; }
-        .modal-btns { display:flex; gap:10px; margin-top:20px; }
-        .btn-modal-save { flex:1; background:var(--primary); color:#0a0a00; border:none; padding:14px; border-radius:10px; font-weight:bold; font-size:1rem; cursor:pointer; }
-        .btn-modal-cancel { flex:1; background:rgba(255,255,255,0.06); color:var(--text); border:1px solid rgba(255,255,255,0.1); padding:14px; border-radius:10px; font-weight:bold; font-size:1rem; cursor:pointer; }
-
-        /* ── GLASS ── */
-        .glass { background:var(--card); border-radius:15px; padding:15px; margin-bottom:15px; border:1px solid var(--card-border); }
-        .section-title { font-size:0.78rem; margin-bottom:10px; color:var(--text-soft); letter-spacing:0.3px; }
-
-        /* ── MULTI RESULTADO ── */
-        .multi-res { background:var(--card); border-radius:15px; padding:14px; margin-bottom:15px; border:1px solid var(--card-border); display:none; }
-        .multi-res.visible { display:block; }
-        .multi-title { font-size:0.68rem; color:var(--text-soft); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
-        .multi-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-        .multi-row:last-child { border-bottom:none; }
-        .multi-lbl { font-size:0.82rem; color:var(--text-soft); }
-        .multi-val { font-size:1rem; font-weight:bold; color:var(--success); }
-        .multi-val.hl { color:var(--primary); font-size:1.1rem; }
-
-        /* ── GRID TASAS ── */
-        .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
-        .rate-card { background:rgba(0,0,0,0.2); padding:12px; border-radius:12px; text-align:center; cursor:pointer; border:2px solid transparent; transition:all 0.2s; }
-        .rate-card:active { transform:scale(0.97); }
-        .rate-card.selected { border-color:var(--primary); background:rgba(255,215,0,0.1); box-shadow:0 0 14px rgba(255,215,0,0.15); }
-        .val { font-size:1.2rem; font-weight:bold; color:var(--success); display:block; }
-        .lbl { font-size:0.68rem; color:var(--text-soft); text-transform:uppercase; }
-        .trend { font-size:0.6rem; font-weight:bold; display:block; margin-top:2px; height:13px; }
-        .trend.up { color:var(--up); } .trend.down { color:var(--down); } .trend.flat { color:#444; }
-
-        /* ── INPUTS ── */
-        label { font-size:0.75rem; color:var(--primary); display:block; margin-top:12px; font-weight:bold; letter-spacing:0.2px; }
-        .input-wrap { position:relative; margin:5px 0; }
-        .input-wrap input, .input-wrap select {
-            width:100%; padding:14px 42px 14px 14px; border-radius:10px;
-            border:2px solid var(--card-border); background:var(--input-bg);
-            color:var(--text); font-size:1.1rem; outline:none; transition:border-color 0.2s;
-        }
-        .input-wrap input:focus, .input-wrap select:focus { border-color:var(--primary); }
-        .input-wrap input::placeholder { color:#444; }
-        .input-wrap select option { background:#111; }
-        .btn-clear-field {
-            position:absolute; right:10px; top:50%; transform:translateY(-50%);
-            background:rgba(255,255,255,0.08); border:none; color:var(--text-soft);
-            width:26px; height:26px; border-radius:50%; cursor:pointer;
-            font-size:0.8rem; display:flex; align-items:center; justify-content:center;
-        }
-        .btn-clear-field:active { background:rgba(255,107,107,0.3); color:var(--danger); }
-        input[type="number"] { -moz-appearance:textfield; }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; }
-        .tasa-input { border:2px solid var(--primary) !important; color:var(--primary) !important; font-weight:bold; }
-        .tasa-input.manual { border:2px solid var(--warning) !important; color:var(--warning) !important; }
-        .btn-usar-oficial { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3); color:var(--primary); font-size:0.72rem; font-weight:bold; padding:6px 12px; border-radius:20px; cursor:pointer; margin-top:4px; display:none; }
-
-        /* ── ACUMULADOR ── */
-        .montos-rapidos { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
-        .monto-btn { flex:1 0 auto; min-width:58px; padding:9px 0; border-radius:8px; border:1px solid rgba(255,215,0,0.25); background:rgba(255,215,0,0.05); color:var(--primary); font-size:0.88rem; font-weight:bold; cursor:pointer; }
-        .monto-btn:active { background:rgba(255,215,0,0.2); transform:scale(0.96); }
-        .acumulador-panel { background:rgba(0,0,0,0.3); border-radius:12px; padding:8px 12px; margin:5px 0 10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-        .suma-actual { font-size:0.95rem; font-weight:bold; color:var(--primary); background:rgba(0,0,0,0.5); padding:6px 12px; border-radius:20px; }
-        .btn-acum { background:rgba(255,255,255,0.08); border:none; color:var(--text); padding:6px 14px; border-radius:30px; font-size:0.8rem; font-weight:bold; cursor:pointer; }
-        .btn-enter { background:var(--success); color:#0a0a0a; }
-        .btn-limpiar-acum { background:rgba(255,107,107,0.6); }
-
-        /* ── TOGGLE ── */
-        .toggle-container { display:flex; gap:8px; margin:15px 0; align-items:center; }
-        .toggle-btn { flex:1; padding:12px; border-radius:8px; border:1px solid var(--card-border); background:rgba(0,0,0,0.2); color:var(--text-soft); font-weight:bold; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
-        .active { background:var(--primary) !important; color:#0a0a00 !important; border-color:var(--primary) !important; }
-        .btn-swap { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text); font-size:1.2rem; width:42px; height:42px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .btn-swap:active { transform:rotate(180deg) scale(0.9); }
-
-        /* ── OPERACIÓN WA ── */
-        .op-type-section { margin-top:18px; border-top:1px solid rgba(255,255,255,0.05); padding-top:14px; }
-        .op-type-label { font-size:0.75rem; color:var(--primary); font-weight:bold; margin-bottom:10px; display:block; }
-        .op-type-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
-        .op-type-btn { padding:11px 8px; border-radius:10px; border:2px solid var(--card-border); background:rgba(0,0,0,0.2); color:var(--text-soft); font-size:0.88rem; font-weight:bold; cursor:pointer; text-align:center; transition:all 0.2s; }
-        .op-type-btn.sel-venta  { border-color:var(--success); background:rgba(78,204,163,0.1); color:var(--success); }
-        .op-type-btn.sel-compra { border-color:#7eb8ff; background:rgba(126,184,255,0.1); color:#7eb8ff; }
-        .op-type-btn.sel-pago   { border-color:var(--warning); background:rgba(255,165,0,0.1); color:var(--warning); }
-        .op-type-btn.sel-cambio { border-color:var(--primary); background:rgba(255,215,0,0.08); color:var(--primary); }
-        .op-type-btn.sel-fiado  { border-color:var(--purple); background:rgba(192,132,252,0.1); color:var(--purple); }
-        .op-detalles { display:none; animation:slideUp 0.25s ease; }
-        .op-detalles.visible { display:block; }
-        .op-hint { font-size:0.72rem; color:var(--text-soft); margin-bottom:4px; margin-top:10px; }
-        .participantes-pill { display:none; background:rgba(0,0,0,0.4); border-radius:30px; padding:8px 14px; margin-top:10px; font-size:0.88rem; color:var(--text-soft); text-align:center; border:1px solid var(--card-border); }
-        .participantes-pill.visible { display:block; }
-        .pill-yo { color:var(--primary); font-weight:bold; }
-        .pill-otro { color:var(--success); font-weight:bold; }
-
-        /* ── LIMPIAR TODO ── */
-        .btn-limpiar-todo { width:100%; padding:11px; border-radius:10px; margin-top:12px; border:1px solid rgba(255,107,107,0.3); background:rgba(255,107,107,0.07); color:var(--danger); font-size:0.85rem; font-weight:bold; cursor:pointer; transition:all 0.2s; }
-        .btn-limpiar-todo:active { background:rgba(255,107,107,0.2); }
-
-        /* ── RESULTADO ── */
-        .res-box { background:rgba(78,204,163,0.1); padding:15px; border-radius:12px; margin-top:15px; text-align:center; border:1px dashed rgba(78,204,163,0.4); animation:slideUp 0.3s ease; display:none; position:relative; }
-        @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
-        .res-label { font-size:0.8rem; color:var(--text-soft); margin-bottom:5px; }
-        .res-total { color:var(--success); font-size:1.8rem; font-weight:bold; }
-        .btn-copy-res { position:absolute; top:10px; right:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--text-soft); font-size:0.85rem; padding:4px 9px; border-radius:8px; cursor:pointer; }
-        .res-comp { font-size:0.72rem; margin-top:7px; padding:5px 10px; border-radius:7px; display:none; }
-        .res-comp.mejor { background:rgba(78,204,163,0.12); color:var(--success); display:block; }
-        .res-comp.peor  { background:rgba(255,107,107,0.12); color:var(--danger); display:block; }
-        .res-comp.igual { background:rgba(255,255,255,0.05); color:var(--text-soft); display:block; }
-
-        /* ── WHATSAPP ── */
-        .btn-wa { background:#25D366; color:#fff; border:none; width:100%; padding:16px; border-radius:10px; font-weight:bold; margin-top:15px; cursor:pointer; font-size:1rem; }
-        .btn-wa:active { background:#128C7E; }
-
-        /* ── FIADOS ── */
-        .fiado-card { background:rgba(192,132,252,0.07); border:1px solid rgba(192,132,252,0.2); border-radius:14px; padding:14px; margin-bottom:12px; }
-        .fiado-nombre { font-size:1rem; font-weight:bold; color:var(--purple); }
-        .fiado-desc { font-size:0.8rem; color:var(--text-soft); margin-top:2px; }
-        .fiado-fecha { font-size:0.7rem; color:#555; margin-top:2px; }
-        .fiado-monto-original { font-size:0.85rem; color:var(--text); margin-top:6px; }
-        .fiado-monto-hoy { font-size:1.1rem; font-weight:bold; color:var(--primary); margin-top:4px; }
-        .fiado-nota { font-size:0.7rem; color:#666; margin-top:3px; font-style:italic; }
-        .fiado-btns { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-        .btn-cobrar { flex:1; background:var(--success); color:#0a0a0a; border:none; padding:10px; border-radius:8px; font-weight:bold; font-size:0.85rem; cursor:pointer; min-width:80px; }
-        .btn-wa-fiado { flex:1; background:#25D366; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:bold; font-size:0.85rem; cursor:pointer; min-width:80px; }
-        .btn-del-fiado { background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.25); color:var(--danger); padding:10px 14px; border-radius:8px; font-size:0.85rem; cursor:pointer; }
-        .historial-card { background:rgba(78,204,163,0.05); border:1px solid rgba(78,204,163,0.15); border-radius:14px; padding:12px; margin-bottom:10px; }
-        .historial-badge { display:inline-block; background:rgba(78,204,163,0.15); color:var(--success); font-size:0.65rem; font-weight:bold; padding:2px 8px; border-radius:20px; margin-bottom:6px; }
-        .empty-state { text-align:center; color:#444; padding:30px 0; font-size:0.9rem; }
-
-        /* ── TOAST ── */
-        .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:12px 20px; border-radius:50px; background:#222; color:#fff; font-size:0.9rem; font-weight:500; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.5); animation:tIn 0.3s ease, tOut 0.3s ease 2.7s forwards; }
-        @keyframes tIn  { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%)} }
-        @keyframes tOut { to{opacity:0} }
-        .toast.success { background:var(--success); color:#0a0a0a; }
-        .toast.error   { background:var(--warning); color:#0a0a0a; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Epic Converter LUAN ⚡</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./logo.png">
+<style>
+:root{--primary:#ffd700;--bg:#1a1a2e;--card:#1e2140;--card-border:rgba(255,255,255,0.1);--success:#4ecca3;--warning:#ffa500;--danger:#ff6b6b;--purple:#c084fc;--text:#ffffff;--text-soft:#aaaaaa;--input-bg:#252945;}
+[data-tema="dorado"]{--bg:#1a1400;--card:#1a1600;--card-border:rgba(255,215,0,0.2);--text:#fff8e7;--text-soft:#c8b87a;--input-bg:#1f1a00;}
+html{background:var(--bg);}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:var(--bg);color:var(--text);padding:15px;min-height:100vh;transition:background 0.3s,color 0.3s;}
+#pantallaAcceso{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;z-index:2000;}
+.acceso-logo{font-size:3.5rem;margin-bottom:12px;}
+#pantallaAcceso h2{color:var(--primary);font-size:1.6rem;margin-bottom:6px;text-align:center;}
+#pantallaAcceso p{color:var(--text-soft);font-size:0.85rem;margin-bottom:28px;text-align:center;}
+.acceso-input{width:100%;max-width:320px;padding:16px;border-radius:12px;border:2px solid rgba(255,215,0,0.4);background:var(--input-bg);color:var(--text);font-size:1.1rem;outline:none;text-align:center;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;}
+.acceso-input:focus{border-color:var(--primary);}
+.btn-acceso{width:100%;max-width:320px;padding:16px;border-radius:12px;border:none;background:var(--primary);color:#1a1a00;font-size:1rem;font-weight:bold;cursor:pointer;margin-bottom:10px;}
+.acceso-error{color:var(--danger);font-size:0.82rem;margin-top:6px;display:none;}
+.acceso-error.visible{display:block;}
+.acceso-version{color:#333;font-size:0.65rem;margin-top:30px;}
+#pantallaAdmin{position:fixed;inset:0;background:var(--bg);overflow-y:auto;padding:20px;z-index:1500;display:none;}
+#pantallaAdmin.visible{display:block;}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.admin-title{color:var(--primary);font-size:1.2rem;font-weight:bold;}
+.btn-salir-admin{background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.3);color:var(--danger);padding:8px 14px;border-radius:20px;font-size:0.8rem;cursor:pointer;}
+.admin-card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid var(--card-border);}
+.admin-card-title{color:var(--primary);font-size:0.85rem;font-weight:bold;margin-bottom:12px;}
+.codigo-item{background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.codigo-info{flex:1;}
+.codigo-alias{font-size:0.95rem;font-weight:bold;color:var(--text);}
+.codigo-val{font-size:0.8rem;color:var(--primary);font-family:monospace;letter-spacing:1px;}
+.codigo-estado.activo{color:var(--success);font-size:0.7rem;}
+.codigo-estado.bloqueado{color:var(--danger);font-size:0.7rem;}
+.codigo-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.btn-copiar-codigo{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:var(--primary);padding:6px 10px;border-radius:8px;font-size:0.75rem;cursor:pointer;}
+.btn-bloquear{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);color:var(--danger);padding:6px 10px;border-radius:8px;font-size:0.75rem;cursor:pointer;}
+.btn-activar{background:rgba(78,204,163,0.12);border:1px solid rgba(78,204,163,0.3);color:var(--success);padding:6px 10px;border-radius:8px;font-size:0.75rem;cursor:pointer;}
+.btn-borrar-codigo{background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);color:var(--danger);padding:6px 10px;border-radius:8px;font-size:0.75rem;cursor:pointer;}
+.header{text-align:center;margin-bottom:20px;position:relative;padding-top:4px;}
+.header-btns-left{position:absolute;left:0;top:0;display:flex;gap:6px;}
+.header-btns-right{position:absolute;right:0;top:0;display:flex;gap:6px;}
+.btn-icon{background:var(--card);border:1px solid var(--card-border);color:var(--text);padding:9px;border-radius:50%;cursor:pointer;font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;width:38px;height:38px;}
+.btn-icon:active{transform:scale(0.9);}
+.btn-refresh{border-color:var(--primary);color:var(--primary);}
+.btn-refresh.loading{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+h1{color:var(--primary);font-size:1.4rem;text-shadow:0 0 10px rgba(255,215,0,0.25);line-height:1.3;padding:0 50px;}
+#lastUpdate{font-size:0.68rem;color:var(--text-soft);margin-top:4px;transition:color 0.4s;}
+#lastUpdate.reciente{color:var(--success);}
+#lastUpdate.viejo{color:var(--warning);}
+#offlineBadge{display:none;background:var(--danger);color:#fff;font-size:0.68rem;font-weight:bold;padding:3px 12px;border-radius:20px;margin-top:4px;}
+#offlineBadge.visible{display:inline-block;}
+.usuario-badge{font-size:0.68rem;color:var(--success);margin-top:3px;}
+.main-tabs{display:flex;gap:5px;margin-bottom:15px;}
+.main-tab{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--card-border);background:rgba(0,0,0,0.3);color:var(--text-soft);font-weight:bold;font-size:0.72rem;cursor:pointer;transition:all 0.2s;text-align:center;}
+.main-tab.active{background:var(--primary);color:#0a0a00;border-color:var(--primary);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.visible{display:flex;}
+.modal{background:var(--card);border-radius:20px;padding:24px;width:100%;max-width:400px;border:1px solid rgba(255,215,0,0.25);animation:slideUp 0.3s ease;max-height:90vh;overflow-y:auto;}
+.modal-title{color:var(--primary);font-size:1.1rem;font-weight:bold;margin-bottom:18px;text-align:center;}
+.modal-hint{font-size:0.7rem;color:var(--text-soft);margin-top:3px;}
+.modal-btns{display:flex;gap:10px;margin-top:20px;}
+.btn-modal-save{flex:1;background:var(--primary);color:#0a0a00;border:none;padding:14px;border-radius:10px;font-weight:bold;font-size:1rem;cursor:pointer;}
+.btn-modal-cancel{flex:1;background:rgba(255,255,255,0.06);color:var(--text);border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:10px;font-weight:bold;font-size:1rem;cursor:pointer;}
+.glass{background:var(--card);border-radius:15px;padding:15px;margin-bottom:15px;border:1px solid var(--card-border);}
+.section-title{font-size:0.78rem;margin-bottom:10px;color:var(--text-soft);letter-spacing:0.3px;}
+.multi-res{background:var(--card);border-radius:15px;padding:14px;margin-bottom:15px;border:1px solid var(--card-border);display:none;}
+.multi-res.visible{display:block;}
+.multi-title{font-size:0.68rem;color:var(--text-soft);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.multi-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.multi-row:last-child{border-bottom:none;}
+.multi-lbl{font-size:0.82rem;color:var(--text-soft);}
+.multi-val{font-size:1rem;font-weight:bold;color:var(--success);}
+.multi-val.hl{color:var(--primary);font-size:1.1rem;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.rate-card{background:rgba(0,0,0,0.25);padding:12px;border-radius:12px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.rate-card:active{transform:scale(0.97);}
+.rate-card.selected{border-color:var(--primary);background:rgba(255,215,0,0.08);box-shadow:0 0 14px rgba(255,215,0,0.15);}
+.val{font-size:1.2rem;font-weight:bold;color:var(--success);display:block;}
+.lbl{font-size:0.68rem;color:var(--text-soft);text-transform:uppercase;}
+.trend{font-size:0.6rem;font-weight:bold;display:block;margin-top:2px;height:13px;}
+.trend.up{color:var(--success);}
+.trend.down{color:var(--danger);}
+.trend.flat{color:#444;}
+label{font-size:0.75rem;color:var(--primary);display:block;margin-top:12px;font-weight:bold;letter-spacing:0.2px;}
+.input-wrap{position:relative;margin:5px 0;}
+.input-wrap input,.input-wrap select{width:100%;padding:14px 42px 14px 14px;border-radius:10px;border:2px solid var(--card-border);background:var(--input-bg);color:var(--text);font-size:1.1rem;outline:none;transition:border-color 0.2s;}
+.input-wrap input:focus,.input-wrap select:focus{border-color:var(--primary);}
+.input-wrap input::placeholder{color:#555;}
+.input-wrap select option{background:var(--input-bg);}
+.btn-clear-field{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.08);border:none;color:var(--text-soft);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;}
+.btn-clear-field:active{background:rgba(255,107,107,0.3);color:var(--danger);}
+input[type="number"]{-moz-appearance:textfield;}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.tasa-input{border:2px solid var(--primary)!important;color:var(--primary)!important;font-weight:bold;}
+.tasa-input.manual{border:2px solid var(--warning)!important;color:var(--warning)!important;}
+.btn-usar-oficial{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:var(--primary);font-size:0.72rem;font-weight:bold;padding:6px 12px;border-radius:20px;cursor:pointer;margin-top:4px;display:none;}
+.montos-rapidos{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px;}
+.monto-btn{flex:1 0 auto;min-width:58px;padding:9px 0;border-radius:8px;border:1px solid rgba(255,215,0,0.25);background:rgba(255,215,0,0.05);color:var(--primary);font-size:0.88rem;font-weight:bold;cursor:pointer;}
+.monto-btn:active{background:rgba(255,215,0,0.2);transform:scale(0.96);}
+.acumulador-panel{background:rgba(0,0,0,0.3);border-radius:12px;padding:8px 12px;margin:5px 0 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.suma-actual{font-size:0.95rem;font-weight:bold;color:var(--primary);background:rgba(0,0,0,0.5);padding:6px 12px;border-radius:20px;}
+.btn-acum{background:rgba(255,255,255,0.08);border:none;color:var(--text);padding:6px 14px;border-radius:30px;font-size:0.8rem;font-weight:bold;cursor:pointer;}
+.btn-enter{background:var(--success);color:#0a0a0a;}
+.btn-limpiar-acum{background:rgba(255,107,107,0.6);}
+.toggle-container{display:flex;gap:8px;margin:15px 0;align-items:center;}
+.toggle-btn{flex:1;padding:12px;border-radius:8px;border:1px solid var(--card-border);background:rgba(0,0,0,0.25);color:var(--text-soft);font-weight:bold;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
+.active{background:var(--primary)!important;color:#0a0a00!important;border-color:var(--primary)!important;}
+.btn-swap{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--text);font-size:1.2rem;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-swap:active{transform:rotate(180deg) scale(0.9);}
+.op-type-section{margin-top:18px;border-top:1px solid rgba(255,255,255,0.05);padding-top:14px;}
+.op-type-label{font-size:0.75rem;color:var(--primary);font-weight:bold;margin-bottom:10px;display:block;}
+.op-type-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.op-type-btn{padding:11px 8px;border-radius:10px;border:2px solid var(--card-border);background:rgba(0,0,0,0.2);color:var(--text-soft);font-size:0.88rem;font-weight:bold;cursor:pointer;text-align:center;transition:all 0.2s;}
+.op-type-btn.sel-venta{border-color:var(--success);background:rgba(78,204,163,0.1);color:var(--success);}
+.op-type-btn.sel-compra{border-color:#7eb8ff;background:rgba(126,184,255,0.1);color:#7eb8ff;}
+.op-type-btn.sel-pago{border-color:var(--warning);background:rgba(255,165,0,0.1);color:var(--warning);}
+.op-type-btn.sel-cambio{border-color:var(--primary);background:rgba(255,215,0,0.08);color:var(--primary);}
+.op-type-btn.sel-fiado{border-color:var(--purple);background:rgba(192,132,252,0.1);color:var(--purple);}
+.op-detalles{display:none;animation:slideUp 0.25s ease;}
+.op-detalles.visible{display:block;}
+.op-hint{font-size:0.72rem;color:var(--text-soft);margin-bottom:4px;margin-top:10px;}
+.cantidad-row{display:none;gap:8px;margin-top:8px;}
+.cantidad-row.visible{display:flex;}
+.participantes-pill{display:none;background:rgba(0,0,0,0.4);border-radius:30px;padding:8px 14px;margin-top:10px;font-size:0.88rem;color:var(--text-soft);text-align:center;border:1px solid var(--card-border);}
+.participantes-pill.visible{display:block;}
+.pill-yo{color:var(--primary);font-weight:bold;}
+.pill-otro{color:var(--success);font-weight:bold;}
+.btn-limpiar-todo{width:100%;padding:11px;border-radius:10px;margin-top:12px;border:1px solid rgba(255,107,107,0.3);background:rgba(255,107,107,0.07);color:var(--danger);font-size:0.85rem;font-weight:bold;cursor:pointer;}
+.res-box{background:rgba(78,204,163,0.08);padding:15px;border-radius:12px;margin-top:15px;text-align:center;border:1px dashed rgba(78,204,163,0.4);animation:slideUp 0.3s ease;display:none;position:relative;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.res-label{font-size:0.8rem;color:var(--text-soft);margin-bottom:5px;}
+.res-total{color:var(--success);font-size:1.8rem;font-weight:bold;}
+.btn-copy-res{position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text-soft);font-size:0.85rem;padding:4px 9px;border-radius:8px;cursor:pointer;}
+.res-comp{font-size:0.72rem;margin-top:7px;padding:5px 10px;border-radius:7px;display:none;}
+.res-comp.mejor{background:rgba(78,204,163,0.12);color:var(--success);display:block;}
+.res-comp.peor{background:rgba(255,107,107,0.12);color:var(--danger);display:block;}
+.res-comp.igual{background:rgba(255,255,255,0.05);color:var(--text-soft);display:block;}
+.btn-wa{background:#25D366;color:#fff;border:none;width:100%;padding:16px;border-radius:10px;font-weight:bold;margin-top:15px;cursor:pointer;font-size:1rem;}
+.btn-wa:active{background:#128C7E;}
+.fiado-card{background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.2);border-radius:14px;padding:14px;margin-bottom:12px;}
+.fiado-nombre{font-size:1rem;font-weight:bold;color:var(--purple);}
+.fiado-desc{font-size:0.8rem;color:var(--text-soft);margin-top:2px;}
+.fiado-fecha{font-size:0.7rem;color:#555;margin-top:2px;}
+.fiado-monto-original{font-size:0.85rem;color:var(--text);margin-top:6px;}
+.fiado-monto-hoy{font-size:1.1rem;font-weight:bold;color:var(--primary);margin-top:4px;}
+.fiado-nota{font-size:0.7rem;color:#666;margin-top:3px;font-style:italic;}
+.fiado-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-cobrar{flex:1;background:var(--success);color:#0a0a0a;border:none;padding:10px;border-radius:8px;font-weight:bold;font-size:0.85rem;cursor:pointer;min-width:80px;}
+.btn-wa-fiado{flex:1;background:#25D366;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:bold;font-size:0.85rem;cursor:pointer;min-width:80px;}
+.btn-del-fiado{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.25);color:var(--danger);padding:10px 14px;border-radius:8px;font-size:0.85rem;cursor:pointer;}
+.historial-card{background:rgba(78,204,163,0.05);border:1px solid rgba(78,204,163,0.15);border-radius:14px;padding:12px;margin-bottom:10px;}
+.historial-badge{display:inline-block;background:rgba(78,204,163,0.15);color:var(--success);font-size:0.65rem;font-weight:bold;padding:2px 8px;border-radius:20px;margin-bottom:6px;}
+.empty-state{text-align:center;color:#444;padding:30px 0;font-size:0.9rem;}
+input[type="range"]{width:100%;margin:10px 0;accent-color:var(--primary);}
+.ahorro-val-slider{text-align:center;font-size:1.1rem;font-weight:bold;color:var(--primary);margin-bottom:8px;}
+.ahorro-resultado{background:rgba(0,0,0,0.3);border-radius:12px;padding:14px;margin-top:10px;}
+.ahorro-estado{margin-top:12px;text-align:center;font-size:0.95rem;font-weight:bold;padding:12px;border-radius:10px;display:none;}
+.ahorro-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.ahorro-tab{flex:1;padding:10px;border-radius:10px;border:none;font-weight:bold;font-size:0.85rem;cursor:pointer;transition:all 0.2s;}
+.ahorro-tab.modo1{background:rgba(78,204,163,0.15);color:var(--success);border:1px solid rgba(78,204,163,0.3);}
+.ahorro-tab.modo2{background:rgba(126,184,255,0.15);color:#7eb8ff;border:1px solid rgba(126,184,255,0.3);}
+.ahorro-tab.active-modo{opacity:1;transform:scale(1.02);box-shadow:0 0 14px rgba(255,255,255,0.15);}
+.ahorro-tab:not(.active-modo){opacity:0.4;filter:grayscale(0.4);}
+.ahorro-tab.modo1.active-modo{background:rgba(78,204,163,0.35);border-color:var(--success);}
+.ahorro-tab.modo2.active-modo{background:rgba(126,184,255,0.35);border-color:#7eb8ff;}
+.ahorro-panel{display:none!important;}
+.ahorro-panel.active{display:block!important;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:50px;background:#222;color:#fff;font-size:0.9rem;font-weight:500;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:tIn 0.3s ease,tOut 0.3s ease 2.7s forwards;}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes tOut{to{opacity:0}}
+.toast.success{background:var(--success);color:#0a0a0a;}
+.toast.error{background:var(--warning);color:#0a0a0a;}
+</style>
 </head>
 <body>
 
-<!-- ACCESO -->
 <div id="pantallaAcceso">
-    <div class="acceso-logo">⚡</div>
-    <h2>Epic Converter LUAN</h2>
-    <p>Ingresa tu código de acceso para continuar</p>
-    <input type="text" class="acceso-input" id="inputCodigo" placeholder="LUAN-XXXX-XXXX" maxlength="20" autocomplete="off">
-    <button class="btn-acceso" onclick="verificarAcceso()">Entrar →</button>
-    <p class="acceso-error" id="errorAcceso">⚠️ Código inválido o bloqueado</p>
-    <p class="acceso-version">LUANSystem™ Professional v3.1</p>
+<div class="acceso-logo">⚡</div>
+<h2>Epic Converter LUAN</h2>
+<p>Ingresa tu código de acceso para continuar</p>
+<input type="text" class="acceso-input" id="inputCodigo" placeholder="LUAN-XXXX-XXXX" maxlength="20" autocomplete="off">
+<button class="btn-acceso" onclick="verificarAcceso()">Entrar →</button>
+<p class="acceso-error" id="errorAcceso">⚠️ Código inválido o bloqueado</p>
+<p class="acceso-version">LUANSystem™ Professional v4.0</p>
 </div>
 
-<!-- ADMIN -->
 <div id="pantallaAdmin">
-    <div class="admin-header">
-        <span class="admin-title">⚙️ Panel Admin — LuisLa</span>
-        <button class="btn-salir-admin" onclick="salirAdmin()">✕ Salir</button>
-    </div>
-    <div class="admin-card">
-        <div class="admin-card-title">➕ Crear nuevo código de acceso</div>
-        <label>ALIAS DEL USUARIO</label>
-        <div class="input-wrap">
-            <input type="text" id="adminAlias" placeholder="Ej: Tito, Paito, Maita..." maxlength="20">
-            <button class="btn-clear-field" onclick="document.getElementById('adminAlias').value=''">✕</button>
-        </div>
-        <button class="btn-modal-save" style="margin-top:10px;width:100%;" onclick="crearCodigo()">🔑 Generar código</button>
-        <div id="codigoGenerado" style="display:none;margin-top:12px;background:rgba(0,0,0,0.4);border-radius:10px;padding:14px;text-align:center;">
-            <p style="font-size:0.75rem;color:var(--text-soft);">Código generado:</p>
-            <p id="codigoVal" style="font-size:1.3rem;font-weight:bold;color:var(--primary);letter-spacing:2px;margin:6px 0;"></p>
-            <button onclick="copiarCodigo()" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:var(--primary);padding:8px 16px;border-radius:20px;font-size:0.8rem;cursor:pointer;">📋 Copiar y enviar por WA</button>
-        </div>
-    </div>
-    <div class="admin-card">
-        <div class="admin-card-title">👥 Usuarios registrados</div>
-        <div id="listaCodigos"><div class="empty-state">⏳ Cargando...</div></div>
-    </div>
+<div class="admin-header">
+<span class="admin-title">⚙️ Panel Admin — LuisLa</span>
+<button class="btn-salir-admin" onclick="salirAdmin()">✕ Salir</button>
+</div>
+<div class="admin-card">
+<div class="admin-card-title">➕ Crear nuevo código de acceso</div>
+<label>ALIAS DEL USUARIO</label>
+<div class="input-wrap">
+<input type="text" id="adminAlias" placeholder="Ej: Tito, Paito, Maita..." maxlength="20">
+<button class="btn-clear-field" onclick="document.getElementById('adminAlias').value=''">✕</button>
+</div>
+<button class="btn-modal-save" style="margin-top:10px;width:100%;" onclick="crearCodigo()">🔑 Generar código</button>
+<div id="codigoGenerado" style="display:none;margin-top:12px;background:rgba(0,0,0,0.4);border-radius:10px;padding:14px;text-align:center;">
+<p style="font-size:0.75rem;color:var(--text-soft);">Código generado:</p>
+<p id="codigoVal" style="font-size:1.3rem;font-weight:bold;color:var(--primary);letter-spacing:2px;margin:6px 0;"></p>
+<button onclick="copiarCodigo()" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:var(--primary);padding:8px 16px;border-radius:20px;font-size:0.8rem;cursor:pointer;">📋 Copiar y enviar por WA</button>
+</div>
+</div>
+<div class="admin-card">
+<div class="admin-card-title">👥 Usuarios registrados</div>
+<div id="listaCodigos"><div class="empty-state">⏳ Cargando...</div></div>
+</div>
 </div>
 
-<!-- MODAL AJUSTES -->
 <div class="modal-overlay" id="modalAjustes">
-    <div class="modal">
-        <div class="modal-title">⚙️ Mis Ajustes</div>
-        <label>TU NOMBRE O ALIAS</label>
-        <div class="input-wrap">
-            <input type="text" id="inputMiNombre" placeholder="Ej: Tito, Paito, Maita..." maxlength="30">
-            <button class="btn-clear-field" onclick="document.getElementById('inputMiNombre').value=''">✕</button>
-        </div>
-        <p class="modal-hint">Así aparecerás en el mensaje de WhatsApp</p>
-        <div class="modal-btns">
-            <button class="btn-modal-cancel" onclick="cerrarAjustes()">Cancelar</button>
-            <button class="btn-modal-save" onclick="guardarAjustes()">💾 Guardar</button>
-        </div>
-
-        <!-- Separador Admin -->
-        <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">
-            <p style="font-size:0.72rem;color:var(--text-soft);margin-bottom:10px;text-align:center;">Acceso restringido</p>
-            <div class="input-wrap">
-                <input type="password" id="inputClaveAdmin" placeholder="Clave de administrador" maxlength="20">
-                <button class="btn-clear-field" onclick="document.getElementById('inputClaveAdmin').value=''">✕</button>
-            </div>
-            <button onclick="intentarAdmin()" style="width:100%;margin-top:10px;padding:12px;border-radius:10px;border:1px solid rgba(255,215,0,0.3);background:rgba(255,215,0,0.08);color:var(--primary);font-weight:bold;font-size:0.9rem;cursor:pointer;">
-                👑 Entrar al Panel Admin
-            </button>
-            <p style="font-size:0.68rem;color:var(--danger);margin-top:6px;text-align:center;display:none;" id="errorClaveAdmin">⚠️ Clave incorrecta</p>
-        </div>
-    </div>
+<div class="modal">
+<div class="modal-title">⚙️ Mis Ajustes</div>
+<label>TU NOMBRE O ALIAS</label>
+<div class="input-wrap">
+<input type="text" id="inputMiNombre" placeholder="Ej: Tito, Paito, Maita..." maxlength="30">
+<button class="btn-clear-field" onclick="document.getElementById('inputMiNombre').value=''">✕</button>
+</div>
+<p class="modal-hint">Así aparecerás en el mensaje de WhatsApp</p>
+<div class="modal-btns">
+<button class="btn-modal-cancel" onclick="cerrarAjustes()">Cancelar</button>
+<button class="btn-modal-save" onclick="guardarAjustes()">💾 Guardar</button>
+</div>
+<div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">
+<p style="font-size:0.72rem;color:var(--text-soft);margin-bottom:10px;text-align:center;">Acceso restringido</p>
+<div class="input-wrap">
+<input type="password" id="inputClaveAdmin" placeholder="Clave de administrador" maxlength="20">
+<button class="btn-clear-field" onclick="document.getElementById('inputClaveAdmin').value=''">✕</button>
+</div>
+<button onclick="intentarAdmin()" style="width:100%;margin-top:10px;padding:12px;border-radius:10px;border:1px solid rgba(255,215,0,0.3);background:rgba(255,215,0,0.08);color:var(--primary);font-weight:bold;font-size:0.9rem;cursor:pointer;">👑 Entrar al Panel Admin</button>
+<p style="font-size:0.68rem;color:var(--danger);margin-top:6px;text-align:center;display:none;" id="errorClaveAdmin">⚠️ Clave incorrecta</p>
+</div>
+</div>
 </div>
 
-<!-- MODAL FIADO -->
 <div class="modal-overlay" id="modalFiado">
-    <div class="modal">
-        <div class="modal-title">🤝 Registrar Fiado</div>
-        <label>¿A QUIÉN LE FÍAS?</label>
-        <div class="input-wrap">
-            <input type="text" id="fiadoDeudor" placeholder="Ej: Anunu, Paito..." maxlength="30">
-            <button class="btn-clear-field" onclick="document.getElementById('fiadoDeudor').value=''">✕</button>
-        </div>
-        <label>¿QUÉ LE FÍAS?</label>
-        <div class="input-wrap">
-            <input type="text" id="fiadoDesc" placeholder="Ej: Mantequilla Llanera..." maxlength="60">
-            <button class="btn-clear-field" onclick="document.getElementById('fiadoDesc').value=''">✕</button>
-        </div>
-        <label>MONTO PACTADO</label>
-        <div class="input-wrap">
-            <input type="number" id="fiadoMonto" placeholder="0.00" inputmode="decimal">
-            <button class="btn-clear-field" onclick="document.getElementById('fiadoMonto').value=''">✕</button>
-        </div>
-        <label>MONEDA</label>
-        <div class="input-wrap">
-            <select id="fiadoMoneda">
-                <option value="USD">💵 Dólares BCV ($)</option>
-                <option value="EUR">🇪🇺 Euros (€)</option>
-                <option value="BIN">💹 Binance P2P (USDT)</option>
-            </select>
-        </div>
-        <label>FECHA DEL FIADO</label>
-        <div class="input-wrap">
-            <input type="text" id="fiadoFecha" placeholder="DD/MM/AAAA" maxlength="10">
-            <button class="btn-clear-field" onclick="document.getElementById('fiadoFecha').value=''">✕</button>
-        </div>
-        <div class="modal-btns">
-            <button class="btn-modal-cancel" onclick="cerrarModalFiado()">Cancelar</button>
-            <button class="btn-modal-save" onclick="guardarFiado()">🤝 Registrar</button>
-        </div>
-    </div>
+<div class="modal">
+<div class="modal-title">🤝 Registrar Fiado</div>
+<label>¿A QUIÉN LE FÍAS?</label>
+<div class="input-wrap">
+<input type="text" id="fiadoDeudor" placeholder="Ej: Anunu, Paito..." maxlength="30">
+<button class="btn-clear-field" onclick="document.getElementById('fiadoDeudor').value=''">✕</button>
+</div>
+<label>¿QUÉ LE FÍAS?</label>
+<div class="input-wrap">
+<input type="text" id="fiadoDesc" placeholder="Ej: Mantequilla Llanera..." maxlength="60">
+<button class="btn-clear-field" onclick="document.getElementById('fiadoDesc').value=''">✕</button>
+</div>
+<label>CANTIDAD</label>
+<div class="input-wrap">
+<input type="number" id="fiadoCantidad" placeholder="Ej: 10" value="1" inputmode="decimal">
+<button class="btn-clear-field" onclick="document.getElementById('fiadoCantidad').value='1'">✕</button>
+</div>
+<label>PRECIO UNITARIO</label>
+<div class="input-wrap">
+<input type="number" id="fiadoMonto" placeholder="0.00" inputmode="decimal">
+<button class="btn-clear-field" onclick="document.getElementById('fiadoMonto').value=''">✕</button>
+</div>
+<label>MONEDA</label>
+<div class="input-wrap">
+<select id="fiadoMoneda">
+<option value="USD">💵 Dólares BCV ($)</option>
+<option value="EUR">🇪🇺 Euros (€)</option>
+<option value="BIN">💹 Binance P2P (USDT)</option>
+</select>
+</div>
+<label>FECHA DEL FIADO</label>
+<div class="input-wrap">
+<input type="text" id="fiadoFecha" placeholder="DD/MM/AAAA" maxlength="10">
+<button class="btn-clear-field" onclick="document.getElementById('fiadoFecha').value=''">✕</button>
+</div>
+<div class="modal-btns">
+<button class="btn-modal-cancel" onclick="cerrarModalFiado()">Cancelar</button>
+<button class="btn-modal-save" onclick="guardarFiado()">🤝 Registrar</button>
+</div>
+</div>
 </div>
 
-<!-- MODAL COBRAR -->
 <div class="modal-overlay" id="modalCobrar">
-    <div class="modal">
-        <div class="modal-title" id="cobrarTitulo">💰 Cobrar</div>
-        <p style="font-size:0.85rem;color:var(--text-soft);text-align:center;margin-bottom:10px;" id="cobrarDesc"></p>
-        <div style="background:rgba(0,0,0,0.4);border-radius:12px;padding:14px;text-align:center;margin-bottom:14px;">
-            <p style="font-size:0.75rem;color:var(--text-soft);">Deuda original</p>
-            <p style="font-size:1.1rem;font-weight:bold;color:var(--purple);" id="cobrarOriginal"></p>
-            <p style="font-size:0.75rem;color:var(--text-soft);margin-top:8px;">Tasa hoy</p>
-            <p style="font-size:1rem;color:var(--primary);" id="cobrarTasaHoy"></p>
-            <p style="font-size:0.75rem;color:var(--text-soft);margin-top:8px;">Cancela hoy</p>
-            <p style="font-size:1.5rem;font-weight:bold;color:var(--success);" id="cobrarTotal"></p>
-        </div>
-        <div class="modal-btns">
-            <button class="btn-modal-cancel" onclick="cerrarModalCobrar()">Cancelar</button>
-            <button class="btn-modal-save" style="background:var(--success);color:#0a0a0a;" onclick="confirmarCobro()">✅ Confirmar</button>
-        </div>
-    </div>
+<div class="modal">
+<div class="modal-title" id="cobrarTitulo">💰 Cobrar</div>
+<p style="font-size:0.85rem;color:var(--text-soft);text-align:center;margin-bottom:10px;" id="cobrarDesc"></p>
+<div style="background:rgba(0,0,0,0.4);border-radius:12px;padding:14px;text-align:center;margin-bottom:14px;">
+<p style="font-size:0.75rem;color:var(--text-soft);">Deuda original</p>
+<p style="font-size:1.1rem;font-weight:bold;color:var(--purple);" id="cobrarOriginal"></p>
+<p style="font-size:0.75rem;color:var(--text-soft);margin-top:8px;">Tasa hoy</p>
+<p style="font-size:1rem;color:var(--primary);" id="cobrarTasaHoy"></p>
+<p style="font-size:0.75rem;color:var(--text-soft);margin-top:8px;">Cancela hoy</p>
+<p style="font-size:1.5rem;font-weight:bold;color:var(--success);" id="cobrarTotal"></p>
+</div>
+<div class="modal-btns">
+<button class="btn-modal-cancel" onclick="cerrarModalCobrar()">Cancelar</button>
+<button class="btn-modal-save" style="background:var(--success);color:#0a0a0a;" onclick="confirmarCobro()">✅ Confirmar</button>
+</div>
+</div>
 </div>
 
-<!-- APP PRINCIPAL -->
 <div id="appPrincipal" style="display:none;">
-
 <div class="header">
-    <div class="header-btns-left">
-        <button class="btn-icon" onclick="abrirAjustes()" title="Ajustes">⚙️</button>
-        <button class="btn-icon" onclick="toggleTema()" id="btnTema" title="Cambiar tema">🌙</button>
-    </div>
-    <div class="header-btns-right">
-        <button class="btn-icon btn-refresh" id="refreshBtn" onclick="loadData()" title="Actualizar">🔄</button>
-    </div>
-    <h1>Epic Converter LUAN ⚡</h1>
-    <div id="lastUpdate">Actualizado: --:--</div>
-    <div class="usuario-badge" id="usuarioBadge"></div>
-    <span id="offlineBadge">📡 OFFLINE</span>
+<div class="header-btns-left">
+<button class="btn-icon" onclick="abrirAjustes()" title="Ajustes">⚙️</button>
+<button class="btn-icon" onclick="toggleTema()" id="btnTema" title="Cambiar tema">🌙</button>
+</div>
+<div class="header-btns-right">
+<button class="btn-icon btn-refresh" id="refreshBtn" onclick="loadData()" title="Actualizar">🔄</button>
+</div>
+<h1>Epic Converter LUAN ⚡</h1>
+<div id="lastUpdate">Actualizado: --:--</div>
+<div class="usuario-badge" id="usuarioBadge"></div>
+<span id="offlineBadge">📡 OFFLINE</span>
 </div>
 
 <div class="main-tabs">
-    <button class="main-tab active" onclick="cambiarTab('converter')">⚡ Conversor</button>
-    <button class="main-tab" onclick="cambiarTab('fiados')">🤝 Fiados</button>
-    <button class="main-tab" onclick="cambiarTab('historial')">📋 Historial</button>
-    <button class="main-tab" onclick="cambiarTab('ahorro')">💹 Ahorro</button>
+<button class="main-tab active" onclick="cambiarTab('converter')">⚡ Conversor</button>
+<button class="main-tab" onclick="cambiarTab('fiados')">🤝 Fiados</button>
+<button class="main-tab" onclick="cambiarTab('historial')">📋 Historial</button>
+<button class="main-tab" onclick="cambiarTab('ahorro')">💹 Ahorro</button>
 </div>
 
-<!-- TAB CONVERSOR -->
 <div class="tab-content active" id="tab-converter">
-    <div class="multi-res" id="multiRes">
-        <div class="multi-title">⚡ Con ese monto, al cambio de:</div>
-        <div class="multi-row"><span class="multi-lbl">🏦 BCV ($)</span><span class="multi-val" id="mUSD">--</span></div>
-        <div class="multi-row"><span class="multi-lbl">💹 Binance P2P</span><span class="multi-val" id="mBIN">--</span></div>
-        <div class="multi-row"><span class="multi-lbl">🇪🇺 Euro (€)</span><span class="multi-val" id="mEUR">--</span></div>
-        <div class="multi-row" id="rowBS"><span class="multi-lbl">💱 En Bolívares</span><span class="multi-val hl" id="mBS">--</span></div>
-    </div>
-    <div class="glass">
-        <div class="section-title">1. SELECCIONA REFERENCIA</div>
-        <div class="grid">
-            <div class="rate-card selected" id="card-USD" onclick="selectCurrency('USD','Dólares')"><span class="lbl">🏦 BCV ($)</span><span class="val" id="vUSD">--</span><span class="trend flat" id="tUSD"></span></div>
-            <div class="rate-card" id="card-EUR" onclick="selectCurrency('EUR','Euros')"><span class="lbl">🇪🇺 EURO (€)</span><span class="val" id="vEUR">--</span><span class="trend flat" id="tEUR"></span></div>
-            <div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN','Dólares')"><span class="lbl">💹 BINANCE P2P</span><span class="val" id="vBIN">--</span><span class="trend flat" id="tBIN"></span></div>
-            <div class="rate-card" id="card-CON" onclick="selectCurrency('CON','Acuerdo')"><span class="lbl">🤝 PERSONALIZADO</span><span class="val">---</span></div>
-        </div>
-    </div>
-    <div class="glass">
-        <div class="section-title">2. ¿QUÉ OPERACIÓN HARÁS?</div>
-        <div class="toggle-container">
-            <button id="btnDivisaABs" class="toggle-btn active" onclick="setDirection('DivisaABs')"><span id="txtDivisaABs">De $ a Bs</span></button>
-            <button class="btn-swap" onclick="intercambiarValores()">⇄</button>
-            <button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')"><span id="txtBsADivisa">De Bs a $</span></button>
-        </div>
-        <label id="labelMonto">MONTO EN DÓLARES</label>
-        <div class="montos-rapidos" id="montosRapidos"></div>
-        <div class="input-wrap">
-            <input type="number" id="monto" placeholder="0.00" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onMontoInput()">
-            <button class="btn-clear-field" onclick="clearField('monto')">✕</button>
-        </div>
-        <div class="acumulador-panel">
-            <span class="suma-actual" id="sumaActual">➕ Suma: 0</span>
-            <div style="display:flex;gap:6px;">
-                <button class="btn-acum btn-limpiar-acum" id="btnLimpiarAcum">🗑️</button>
-                <button class="btn-acum btn-enter" id="btnEnterAcum">✅ Enter</button>
-            </div>
-        </div>
-        <label id="labelTasa">TASA</label>
-        <div class="input-wrap">
-            <input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onTasaInput()">
-            <button class="btn-clear-field" onclick="clearField('tasa')">✕</button>
-        </div>
-        <button class="btn-usar-oficial" id="btnUsarOficial" onclick="usarTasaOficial()">← Usar tasa BCV</button>
-
-        <div class="op-type-section">
-            <span class="op-type-label">3. DETALLE DEL MENSAJE DE WHATSAPP</span>
-            <div class="op-type-btns">
-                <button class="op-type-btn" id="opVenta"  onclick="seleccionarTipoOp('venta')">💰 Vender</button>
-                <button class="op-type-btn" id="opCompra" onclick="seleccionarTipoOp('compra')">🛒 Comprar</button>
-                <button class="op-type-btn" id="opPago"   onclick="seleccionarTipoOp('pago')">💳 Pagar</button>
-                <button class="op-type-btn" id="opCambio" onclick="seleccionarTipoOp('cambio')">🔄 Cambiar</button>
-                <button class="op-type-btn" style="grid-column:span 2;" id="opFiado" onclick="seleccionarTipoOp('fiado')">🤝 Fiar (venta a crédito)</button>
-            </div>
-            <div class="op-detalles" id="opDetalles">
-                <p class="op-hint" id="hintQue"></p>
-                <div class="input-wrap">
-                    <input type="text" id="motivoInput" placeholder="" maxlength="80" autocomplete="off" oninput="actualizarPill();saveSession();">
-                    <button class="btn-clear-field" onclick="clearField('motivoInput')">✕</button>
-                </div>
-                <!-- Cantidad y unidad -->
-                <div id="cantidadWrap" style="display:none;gap:8px;margin-top:8px;">
-                    <div class="input-wrap" style="flex:1;">
-                        <input type="number" id="cantidadInput" placeholder="Cantidad" value="1" min="1" inputmode="decimal" oninput="saveSession();">
-                        <button class="btn-clear-field" onclick="document.getElementById('cantidadInput').value='1'">x</button>
-                    </div>
-                    <div class="input-wrap" style="flex:1;">
-                        <input type="text" id="unidadInput" placeholder="Ej: kg, meses..." maxlength="15" autocomplete="off" oninput="saveSession();">
-                        <button class="btn-clear-field" onclick="document.getElementById('unidadInput').value=''">x</button>
-                    </div>
-                </div>
-                <p class="op-hint">¿Con quién transas?</p>
-                <div class="input-wrap">
-                    <input type="text" id="contraparte" placeholder="Ej: Tito, Anunu, Paito..." maxlength="30" autocomplete="off" oninput="actualizarPill();saveSession();">
-                    <button class="btn-clear-field" onclick="clearField('contraparte')">✕</button>
-                </div>
-                <div class="participantes-pill" id="participantesPill">
-                    <span class="pill-yo" id="pillYo">Yo</span>
-                    <span id="pillFlecha"> → </span>
-                    <span class="pill-otro" id="pillOtro">?</span>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn-limpiar-todo" onclick="limpiarTodo()">🗑️ Limpiar todo y empezar de nuevo</button>
-
-        <div id="resBox" class="res-box">
-            <button class="btn-copy-res" onclick="copiarResultado()">📋</button>
-            <p class="res-label" id="resLabel">Resultado:</p>
-            <h2 class="res-total" id="resTotal">0.00</h2>
-            <div class="res-comp" id="resComp"></div>
-        </div>
-        <button class="btn-wa" onclick="sendWA()">📩 Enviar a WhatsApp</button>
-    </div>
+<div class="multi-res" id="multiRes">
+<div class="multi-title">⚡ Con ese monto, al cambio de:</div>
+<div class="multi-row"><span class="multi-lbl">🏦 BCV ($)</span><span class="multi-val" id="mUSD">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💹 Binance P2P</span><span class="multi-val" id="mBIN">--</span></div>
+<div class="multi-row"><span class="multi-lbl">🇪🇺 Euro (€)</span><span class="multi-val" id="mEUR">--</span></div>
+<div class="multi-row" id="rowBS"><span class="multi-lbl">💱 En Bolívares</span><span class="multi-val hl" id="mBS">--</span></div>
+</div>
+<div class="glass">
+<div class="section-title">1. SELECCIONA REFERENCIA</div>
+<div class="grid">
+<div class="rate-card selected" id="card-USD" onclick="selectCurrency('USD','Dólares')"><span class="lbl">🏦 BCV ($)</span><span class="val" id="vUSD">--</span><span class="trend flat" id="tUSD"></span></div>
+<div class="rate-card" id="card-EUR" onclick="selectCurrency('EUR','Euros')"><span class="lbl">🇪🇺 EURO (€)</span><span class="val" id="vEUR">--</span><span class="trend flat" id="tEUR"></span></div>
+<div class="rate-card" id="card-BIN" onclick="selectCurrency('BIN','Dólares')"><span class="lbl">💹 BINANCE P2P</span><span class="val" id="vBIN">--</span><span class="trend flat" id="tBIN"></span></div>
+<div class="rate-card" id="card-CON" onclick="selectCurrency('CON','Acuerdo')"><span class="lbl">🤝 PERSONALIZADO</span><span class="val">---</span></div>
+</div>
+</div>
+<div class="glass">
+<div class="section-title">2. ¿QUÉ OPERACIÓN HARÁS?</div>
+<div class="toggle-container">
+<button id="btnDivisaABs" class="toggle-btn active" onclick="setDirection('DivisaABs')"><span id="txtDivisaABs">De $ a Bs</span></button>
+<button class="btn-swap" onclick="intercambiarValores()">⇄</button>
+<button id="btnBsADivisa" class="toggle-btn" onclick="setDirection('BsADivisa')"><span id="txtBsADivisa">De Bs a $</span></button>
+</div>
+<label id="labelMonto">MONTO EN DÓLARES</label>
+<div class="montos-rapidos" id="montosRapidos"></div>
+<div class="input-wrap">
+<input type="number" id="monto" placeholder="0.00" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onMontoInput()">
+<button class="btn-clear-field" onclick="clearField('monto')">✕</button>
+</div>
+<div class="acumulador-panel">
+<span class="suma-actual" id="sumaActual">➕ Suma: 0</span>
+<div style="display:flex;gap:6px;">
+<button class="btn-acum btn-limpiar-acum" id="btnLimpiarAcum">🗑️</button>
+<button class="btn-acum btn-enter" id="btnEnterAcum">✅ Enter</button>
+</div>
+</div>
+<label id="labelTasa">TASA</label>
+<div class="input-wrap">
+<input type="number" id="tasa" class="tasa-input" step="0.01" inputmode="decimal" autocomplete="off" onfocus="this.select()" oninput="onTasaInput()">
+<button class="btn-clear-field" onclick="clearField('tasa')">✕</button>
+</div>
+<button class="btn-usar-oficial" id="btnUsarOficial" onclick="usarTasaOficial()">← Usar tasa BCV</button>
+<div class="op-type-section">
+<span class="op-type-label">3. DETALLE DEL MENSAJE DE WHATSAPP</span>
+<div class="op-type-btns">
+<button class="op-type-btn" id="opVenta" onclick="seleccionarTipoOp('venta')">💰 Vender</button>
+<button class="op-type-btn" id="opCompra" onclick="seleccionarTipoOp('compra')">🛒 Comprar</button>
+<button class="op-type-btn" id="opPago" onclick="seleccionarTipoOp('pago')">💳 Pagar</button>
+<button class="op-type-btn" id="opCambio" onclick="seleccionarTipoOp('cambio')">🔄 Cambiar</button>
+<button class="op-type-btn" style="grid-column:span 2;" id="opFiado" onclick="seleccionarTipoOp('fiado')">🤝 Fiar (venta a crédito)</button>
+</div>
+<div class="op-detalles" id="opDetalles">
+<p class="op-hint" id="hintQue"></p>
+<div class="input-wrap">
+<input type="text" id="motivoInput" placeholder="" maxlength="80" autocomplete="off" oninput="actualizarPill();saveSession();">
+<button class="btn-clear-field" onclick="clearField('motivoInput')">✕</button>
+</div>
+<div class="cantidad-row" id="cantidadWrap">
+<div class="input-wrap" style="flex:1;">
+<input type="number" id="cantidadInput" placeholder="Cantidad" value="1" min="1" inputmode="decimal" oninput="saveSession();">
+<button class="btn-clear-field" onclick="document.getElementById('cantidadInput').value='1'">✕</button>
+</div>
+<div class="input-wrap" style="flex:1;">
+<input type="text" id="unidadInput" placeholder="Ej: kg, meses..." maxlength="15" autocomplete="off" oninput="saveSession();">
+<button class="btn-clear-field" onclick="document.getElementById('unidadInput').value=''">✕</button>
+</div>
+</div>
+<p class="op-hint">¿Con quién transas?</p>
+<div class="input-wrap">
+<input type="text" id="contraparte" placeholder="Ej: Tito, Anunu, Paito..." maxlength="30" autocomplete="off" oninput="actualizarPill();saveSession();">
+<button class="btn-clear-field" onclick="clearField('contraparte')">✕</button>
+</div>
+<div class="participantes-pill" id="participantesPill">
+<span class="pill-yo" id="pillYo">Yo</span>
+<span id="pillFlecha"> → </span>
+<span class="pill-otro" id="pillOtro">?</span>
+</div>
+</div>
+</div>
+<button class="btn-limpiar-todo" onclick="limpiarTodo()">🗑️ Limpiar todo y empezar de nuevo</button>
+<div id="resBox" class="res-box">
+<button class="btn-copy-res" onclick="copiarResultado()">📋</button>
+<p class="res-label" id="resLabel">Resultado:</p>
+<h2 class="res-total" id="resTotal">0.00</h2>
+<div class="res-comp" id="resComp"></div>
+</div>
+<button class="btn-wa" onclick="sendWA()">📩 Enviar a WhatsApp</button>
+</div>
 </div>
 
-<!-- TAB FIADOS -->
 <div class="tab-content" id="tab-fiados">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-size:0.85rem;color:var(--text-soft);">Deudas pendientes</span>
-        <button onclick="abrirModalFiado()" style="background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.35);color:var(--purple);padding:8px 14px;border-radius:20px;font-weight:bold;font-size:0.82rem;cursor:pointer;">+ Nuevo fiado</button>
-    </div>
-    <div id="listFiados"><div class="empty-state">🤝 No hay fiados pendientes</div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<span style="font-size:0.85rem;color:var(--text-soft);">Deudas pendientes</span>
+<button onclick="abrirModalFiado()" style="background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.35);color:var(--purple);padding:8px 14px;border-radius:20px;font-weight:bold;font-size:0.82rem;cursor:pointer;">+ Nuevo fiado</button>
+</div>
+<div id="listFiados"><div class="empty-state">🤝 No hay fiados pendientes</div></div>
 </div>
 
-<!-- TAB HISTORIAL -->
 <div class="tab-content" id="tab-historial">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <span style="font-size:0.85rem;color:var(--text-soft);">Deudas cobradas</span>
-        <button onclick="limpiarHistorial()" style="background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);color:var(--danger);padding:8px 14px;border-radius:20px;font-size:0.78rem;cursor:pointer;">🗑️ Limpiar</button>
-    </div>
-    <div id="listHistorial"><div class="empty-state">📋 El historial está vacío</div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<span style="font-size:0.85rem;color:var(--text-soft);">Deudas cobradas</span>
+<button onclick="limpiarHistorial()" style="background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);color:var(--danger);padding:8px 14px;border-radius:20px;font-size:0.78rem;cursor:pointer;">🗑️ Limpiar</button>
+</div>
+<div id="listHistorial"><div class="empty-state">📋 El historial está vacío</div></div>
 </div>
 
-
-<!-- TAB AHORRO -->
 <div class="tab-content" id="tab-ahorro">
-    <div class="glass">
-        <div class="section-title">💹 CALCULADORA DE AHORRO EN DIVISAS</div>
-        <label>PRECIO DEL PRODUCTO ($)</label>
-        <div class="input-wrap">
-            <input type="number" id="aPrecio" placeholder="100.00" value="100" step="0.01" inputmode="decimal" oninput="calcAhorro()">
-            <button class="btn-clear-field" onclick="document.getElementById('aPrecio').value='';calcAhorro()">x</button>
-        </div>
-        <label>TASA BCV (Bs/$)</label>
-        <div class="input-wrap">
-            <input type="number" id="aBCV" placeholder="794.99" step="0.01" inputmode="decimal" oninput="calcAhorro()">
-            <button class="btn-clear-field" onclick="document.getElementById('aBCV').value='';calcAhorro()">x</button>
-        </div>
-        <label>TASA PARALELA / CALLE (Bs/$)</label>
-        <div class="input-wrap">
-            <input type="number" id="aParalelo" placeholder="910.00" step="0.01" inputmode="decimal" oninput="calcAhorro()">
-            <button class="btn-clear-field" onclick="document.getElementById('aParalelo').value='';calcAhorro()">x</button>
-        </div>
-        <input type="range" id="aSlider" min="100" max="3000" step="1" value="910"
-            style="width:100%;margin:10px 0;accent-color:var(--primary);"
-            oninput="document.getElementById('aParalelo').value=this.value;calcAhorro()">
-        <div style="text-align:center;font-size:1.1rem;font-weight:bold;color:var(--primary);margin-bottom:10px;" id="aSliderVal">910 Bs/$</div>
-        <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:14px;margin-top:8px;">
-            <div class="multi-row"><span class="multi-lbl">💰 Valor en Bs</span><span class="multi-val" id="aValBs">--</span></div>
-            <div class="multi-row"><span class="multi-lbl">💵 Debes vender</span><span class="multi-val" id="aVender">--</span></div>
-            <div class="multi-row"><span class="multi-lbl">💲 Ahorras en $</span><span class="multi-val" id="aAhorro">--</span></div>
-            <div class="multi-row"><span class="multi-lbl">📈 Ahorro %</span><span class="multi-val" id="aPorcentaje">--</span></div>
-        </div>
-        <div id="aEstado" style="margin-top:14px;text-align:center;font-size:1rem;font-weight:bold;padding:12px;border-radius:10px;display:none;"></div>
-        <button class="btn-wa" onclick="sendWAAhorro()" style="margin-top:15px;">📩 Compartir por WhatsApp</button>
-    </div>
+<div class="glass">
+<div class="section-title">💹 CALCULADORA DE AHORRO EN DIVISAS</div>
+<div class="ahorro-tabs">
+<button class="ahorro-tab modo1 active-modo" onclick="cambiarModoAhorro(1)">🟢 Precio Único</button>
+<button class="ahorro-tab modo2" onclick="cambiarModoAhorro(2)">🔵 BCV / Efectivo</button>
 </div>
-</div><!-- fin appPrincipal -->
+<div class="ahorro-panel active" id="aPanel1">
+<p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:10px;">¿Cuántos $ vender al paralelo para pagar en Bs y cuánto ahorras?</p>
+<label>PRECIO DEL PRODUCTO ($)</label>
+<div class="input-wrap"><input type="number" id="aPrecio" placeholder="100.00" value="100" step="0.01" inputmode="decimal" oninput="calcAhorro1()"><button class="btn-clear-field" onclick="document.getElementById('aPrecio').value='';calcAhorro1()">✕</button></div>
+<label>TASA BCV (Bs/$)</label>
+<div class="input-wrap"><input type="number" id="aBCV" placeholder="794.99" step="0.01" inputmode="decimal" oninput="calcAhorro1()"><button class="btn-clear-field" onclick="document.getElementById('aBCV').value='';calcAhorro1()">✕</button></div>
+<label>TASA PARALELA / CALLE (Bs/$)</label>
+<div class="input-wrap"><input type="number" id="aParalelo" placeholder="910.00" step="0.01" inputmode="decimal" oninput="document.getElementById('aSlider').value=this.value;calcAhorro1()"><button class="btn-clear-field" onclick="document.getElementById('aParalelo').value='';calcAhorro1()">✕</button></div>
+<input type="range" id="aSlider" min="100" max="3000" step="1" value="910" oninput="document.getElementById('aParalelo').value=this.value;calcAhorro1()">
+<div class="ahorro-val-slider" id="aSliderVal">910,00 Bs/$</div>
+<div class="ahorro-resultado">
+<div class="multi-row"><span class="multi-lbl">💰 Valor en Bs</span><span class="multi-val" id="aValBs">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💵 Debes vender</span><span class="multi-val" id="aVender">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💲 Ahorras en $</span><span class="multi-val" id="aAhorro">--</span></div>
+<div class="multi-row"><span class="multi-lbl">📈 Ahorro %</span><span class="multi-val" id="aPorcentaje">--</span></div>
+</div>
+<div class="ahorro-estado" id="aEstado1"></div>
+<button class="btn-wa" onclick="sendWAAhorro1()">📩 Compartir por WhatsApp</button>
+</div>
+<div class="ahorro-panel" id="aPanel2">
+<p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:10px;">El negocio tiene precio en BCV y precio en efectivo. ¿Cuál conviene?</p>
+<label>PRECIO BCV ($)</label>
+<div class="input-wrap"><input type="number" id="bPrecioBCV" placeholder="154.00" value="154" step="0.01" inputmode="decimal" oninput="calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bPrecioBCV').value='';calcAhorro2()">✕</button></div>
+<label>PRECIO EN EFECTIVO ($)</label>
+<div class="input-wrap"><input type="number" id="bPrecioEfectivo" placeholder="124.00" value="124" step="0.01" inputmode="decimal" oninput="calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bPrecioEfectivo').value='';calcAhorro2()">✕</button></div>
+<label>TASA BCV (Bs/$)</label>
+<div class="input-wrap"><input type="number" id="bBCV" placeholder="794.99" step="0.01" inputmode="decimal" oninput="calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bBCV').value='';calcAhorro2()">✕</button></div>
+<label>TASA PARALELA / CALLE (Bs/$)</label>
+<div class="input-wrap"><input type="number" id="bParalelo" placeholder="910.00" step="0.01" inputmode="decimal" oninput="document.getElementById('bSlider').value=this.value;calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bParalelo').value='';calcAhorro2()">✕</button></div>
+<input type="range" id="bSlider" min="100" max="3000" step="1" value="910" oninput="document.getElementById('bParalelo').value=this.value;calcAhorro2()">
+<div class="ahorro-val-slider" id="bSliderVal">910,00 Bs/$</div>
+<div class="ahorro-resultado">
+<div class="multi-row"><span class="multi-lbl">💰 Total BCV en Bs</span><span class="multi-val" id="bValBs">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💵 Debes vender (BCV)</span><span class="multi-val" id="bVender">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💵 Pagas en efectivo</span><span class="multi-val" id="bEfectivo">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💲 Diferencia</span><span class="multi-val" id="bDiferencia">--</span></div>
+</div>
+<div class="ahorro-estado" id="aEstado2"></div>
+<button class="btn-wa" onclick="sendWAAhorro2()">📩 Compartir por WhatsApp</button>
+</div>
+</div>
+</div>
+
+</div>
 <div id="toastContainer"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, limit }
-    from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCscR0z2OxroNGVfpRev4dbNikwoGoUosA",
-    authDomain: "epicconverterluan.firebaseapp.com",
-    projectId: "epicconverterluan",
-    storageBucket: "epicconverterluan.firebasestorage.app",
-    messagingSenderId: "230315416939",
-    appId: "1:230315416939:web:e80b2fd4087d5d4ffc002e"
-};
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
-
-// ══ STATE ══
-const state = {
-    rates:{ USD:0,EUR:0,BIN:0 }, prevRates:{ USD:0,EUR:0,BIN:0 },
-    current:{ code:'USD',name:'Dólares' }, direction:'DivisaABs',
-    lastFetch:null, tasaManual:false, tasaManualCode:null, tipoOp:null,
-    usuarioActual:null, esAdmin:false
-};
-let acumulador = 0, fiadoActivoId = null;
-
-const els = {
-    monto:document.getElementById('monto'), tasa:document.getElementById('tasa'),
-    resBox:document.getElementById('resBox'), resTotal:document.getElementById('resTotal'),
-    resLabel:document.getElementById('resLabel'), resComp:document.getElementById('resComp'),
-    labelMonto:document.getElementById('labelMonto'), labelTasa:document.getElementById('labelTasa'),
-    refreshBtn:document.getElementById('refreshBtn'), lastUpdate:document.getElementById('lastUpdate'),
-    offlineBadge:document.getElementById('offlineBadge'), btnUsarOf:document.getElementById('btnUsarOficial'),
-    montosRap:document.getElementById('montosRapidos'), multiRes:document.getElementById('multiRes'),
-    mUSD:document.getElementById('mUSD'), mBIN:document.getElementById('mBIN'),
-    mEUR:document.getElementById('mEUR'), mBS:document.getElementById('mBS'),
-    rowBS:document.getElementById('rowBS'), sumaActual:document.getElementById('sumaActual'),
-    opDetalles:document.getElementById('opDetalles'), motivoInput:document.getElementById('motivoInput'),
-    contraparte:document.getElementById('contraparte'), pill:document.getElementById('participantesPill'),
-    pillYo:document.getElementById('pillYo'), pillOtro:document.getElementById('pillOtro'),
-    pillFlecha:document.getElementById('pillFlecha')
-};
-
-// ══ TOAST ══
-function toast(msg, type='info', dur=3000){
-    const t = document.createElement('div');
-    t.className = `toast ${type}`; t.textContent = msg;
-    document.getElementById('toastContainer').appendChild(t);
-    setTimeout(() => t.remove(), dur);
-}
-window.toast = toast;
-
-// ══ TEMA ══
-function aplicarTema(tema){
-    document.documentElement.setAttribute('data-tema', tema);
-    localStorage.setItem('luan_tema', tema);
-    document.getElementById('btnTema').textContent = tema === 'dorado' ? '🌙' : '✨';
-}
-window.toggleTema = function(){
-    const actual = localStorage.getItem('luan_tema') || 'noche';
-    aplicarTema(actual === 'dorado' ? 'noche' : 'dorado');
-    toast(actual === 'dorado' ? '🌙 Modo Noche' : '✨ Modo Dorado', 'info', 1500);
-};
-
-// ══ LIMPIAR CAMPO ══
-window.clearField = function(id){
-    const el = document.getElementById(id); if(!el) return;
-    el.value = '';
-    if(id === 'monto' || id === 'tasa') calc();
-    if(id === 'motivoInput' || id === 'contraparte') actualizarPill();
-    if(id === 'tasa'){ state.tasaManual = false; el.classList.remove('manual'); }
-    saveSession();
-};
-
-// ══ LIMPIAR TODO ══
-window.limpiarTodo = function(){
-    els.monto.value = ''; els.tasa.value = '';
-    els.motivoInput.value = ''; els.contraparte.value = '';
-    state.tipoOp = null; state.tasaManual = false;
-    els.tasa.classList.remove('manual');
-    document.querySelectorAll('.op-type-btn').forEach(b => b.className = 'op-type-btn');
-    els.opDetalles.classList.remove("visible"); const _cw2=document.getElementById("cantidadWrap"); if(_cw2)_cw2.style.display="none";
-    els.pill.classList.remove('visible');
-    els.resBox.style.display = 'none';
-    els.multiRes.classList.remove('visible');
-    limpiarAcumulador(true);
-    if(state.current.code !== 'CON' && state.rates[state.current.code] > 0)
-        els.tasa.value = state.rates[state.current.code].toFixed(2);
-    saveSession();
-    toast('🗑️ Todo limpiado — nueva operación', 'info', 2000);
-};
-
-// ══ TABS ══
-window.cambiarTab = function(tab){
-    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    const tabs = ['converter','fiados','historial','ahorro'];
-    document.querySelectorAll('.main-tab')[tabs.indexOf(tab)].classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
-    if(tab === 'fiados') cargarFiados();
-    if(tab === 'historial') cargarHistorial();
-};
-
-// ══ ACCESO ══
-document.getElementById('inputCodigo').addEventListener('keydown', e => { if(e.key === 'Enter') verificarAcceso(); });
-
-window.verificarAcceso = async function(){
-    const codigo = document.getElementById('inputCodigo').value.trim().toUpperCase();
-    const errEl  = document.getElementById('errorAcceso');
-    errEl.classList.remove('visible');
-    if(!codigo){ errEl.textContent = '⚠️ Ingresa un código'; errEl.classList.add('visible'); return; }
-    try{
-        const adminDoc = await getDoc(doc(db,'config','admin'));
-        if(adminDoc.exists() && (codigo === adminDoc.data().clave.toUpperCase() || codigo === '252525')){
-            state.esAdmin = true;
-            state.usuarioActual = { alias:'LuisLa', codigo, esAdmin:true };
-            localStorage.setItem('luan_acceso', JSON.stringify(state.usuarioActual));
-            document.getElementById('pantallaAcceso').style.display = 'none';
-            document.getElementById('pantallaAdmin').classList.add('visible');
-            cargarCodigosAdmin(); return;
-        }
-        const snap = await getDocs(query(collection(db,'codigos'), where('codigo','==',codigo)));
-        if(snap.empty){ errEl.textContent = '⚠️ Código inválido'; errEl.classList.add('visible'); return; }
-        const userDoc = snap.docs[0], userData = userDoc.data();
-        if(!userData.activo){ errEl.textContent = '🚫 Acceso bloqueado. Contacta al administrador.'; errEl.classList.add('visible'); return; }
-        state.usuarioActual = { alias:userData.alias, codigo, esAdmin:false, id:userDoc.id };
-        localStorage.setItem('luan_acceso', JSON.stringify(state.usuarioActual));
-        if(userData.alias) localStorage.setItem('luan_nombre', userData.alias);
-        entrarApp();
-    }catch(e){ errEl.textContent = '❌ Error de conexión.'; errEl.classList.add('visible'); }
-};
-
-function entrarApp(){
-    document.getElementById('pantallaAcceso').style.display = 'none';
-    document.getElementById('appPrincipal').style.display   = 'block';
-    const alias = state.usuarioActual?.alias || '';
-    document.getElementById('usuarioBadge').textContent = alias ? `👤 ${alias}` : '';
-    loadData(); restoreSession(); setTimeout(() => els.monto.focus(), 500);
-}
-
-async function verificarAccesoGuardado(){
-    const saved = localStorage.getItem('luan_acceso'); if(!saved) return;
-    try{
-        const u = JSON.parse(saved);
-        if(u.esAdmin){ state.usuarioActual = u; state.esAdmin = true; document.getElementById('pantallaAcceso').style.display = 'none'; entrarApp(); return; }
-        const snap = await getDocs(query(collection(db,'codigos'), where('codigo','==',u.codigo)));
-        if(!snap.empty && snap.docs[0].data().activo){ state.usuarioActual = u; entrarApp(); }
-        else localStorage.removeItem('luan_acceso');
-    }catch(e){ localStorage.removeItem('luan_acceso'); }
-}
-
-// ══ ADMIN ══
-window.salirAdmin = function(){ document.getElementById('pantallaAdmin').classList.remove('visible'); entrarApp(); };
-
-window.crearCodigo = async function(){
-    const alias = document.getElementById('adminAlias').value.trim();
-    if(!alias){ toast('⚠️ Escribe el alias','error'); return; }
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const rand4 = Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-    const codigo = `LUAN-${alias.toUpperCase().replace(/\s/g,'')}-${rand4}`;
-    try{
-        await addDoc(collection(db,'codigos'), { alias, codigo, activo:true, creadoEn:new Date().toISOString() });
-        document.getElementById('codigoVal').textContent = codigo;
-        document.getElementById('codigoGenerado').style.display = 'block';
-        document.getElementById('adminAlias').value = '';
-        toast(`✅ Código creado para ${alias}`,'success',3000); cargarCodigosAdmin();
-    }catch(e){ toast('❌ Error','error'); }
-};
-
-window.copiarCodigo = function(){
-    const codigo = document.getElementById('codigoVal').textContent;
-    const msg = `⚡ *Epic Converter LUAN*\n\nHola! Te comparto acceso a mi app.\n\n🔑 *Tu código:*\n\`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;
-    navigator.clipboard.writeText(codigo).then(() => { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); toast('📋 Código copiado + WA abierto','success',2500); });
-};
-
-async function cargarCodigosAdmin(){
-    const lista = document.getElementById('listaCodigos');
-    lista.innerHTML = '<div class="empty-state">⏳ Cargando...</div>';
-    try{
-        const snap = await getDocs(collection(db,'codigos'));
-        if(snap.empty){ lista.innerHTML = '<div class="empty-state">No hay usuarios</div>'; return; }
-        lista.innerHTML = '';
-        snap.forEach(docSnap => {
-            const d = docSnap.data(), id = docSnap.id;
-            const item = document.createElement('div'); item.className = 'codigo-item';
-            item.innerHTML = `<div class="codigo-info"><div class="codigo-alias">👤 ${d.alias}</div><div class="codigo-val">${d.codigo}</div><div class="codigo-estado ${d.activo?'activo':'bloqueado'}">${d.activo?'✅ Activo':'🚫 Bloqueado'}</div></div><div class="codigo-btns"><button class="btn-copiar-codigo" onclick="copiarCodigoAdmin('${d.codigo}','${d.alias}')">📋</button>${d.activo?`<button class="btn-bloquear" onclick="toggleCodigo('${id}',false)">🚫</button>`:`<button class="btn-activar" onclick="toggleCodigo('${id}',true)">✅</button>`}<button class="btn-borrar-codigo" onclick="borrarCodigo('${id}','${d.alias}')">🗑️</button></div>`;
-            lista.appendChild(item);
-        });
-    }catch(e){ lista.innerHTML = '<div class="empty-state">❌ Error</div>'; }
-}
-window.cargarCodigosAdmin = cargarCodigosAdmin;
-window.toggleCodigo = async function(id,activo){ try{ await updateDoc(doc(db,'codigos',id),{activo}); toast(activo?'✅ Activado':'🚫 Bloqueado',activo?'success':'error',2000); cargarCodigosAdmin(); }catch(e){ toast('❌ Error','error'); } };
-window.borrarCodigo = async function(id,alias){ if(!confirm(`¿Eliminar acceso de ${alias}?`)) return; try{ await deleteDoc(doc(db,'codigos',id)); toast(`🗑️ ${alias} eliminado`,'info'); cargarCodigosAdmin(); }catch(e){ toast('❌ Error','error'); } };
-window.copiarCodigoAdmin = function(codigo,alias){
-    const msg = `⚡ *Epic Converter LUAN*\n\nHola ${alias}! Tu código:\n\n🔑 \`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;
-    navigator.clipboard.writeText(codigo).then(() => { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); toast('📋 Enviando por WA','success',2000); });
-};
-
-// ══ AJUSTES ══
-function getMiNombre(){ return localStorage.getItem('luan_nombre') || state.usuarioActual?.alias || ''; }
-window.abrirAjustes  = function(){ document.getElementById('inputMiNombre').value = getMiNombre(); document.getElementById('modalAjustes').classList.add('visible'); };
-window.cerrarAjustes = function(){ document.getElementById('modalAjustes').classList.remove('visible'); };
-window.guardarAjustes = function(){
-    const n = document.getElementById('inputMiNombre').value.trim();
-    if(!n){ toast('⚠️ Escribe tu nombre','error'); return; }
-    localStorage.setItem('luan_nombre', n); cerrarAjustes(); actualizarPill();
-    toast(`✅ Hola, ${n}!`,'success',2000);
-};
-
-window.intentarAdmin = async function(){
-    const clave = document.getElementById('inputClaveAdmin').value.trim();
-    const errEl = document.getElementById('errorClaveAdmin');
-    errEl.style.display = 'none';
-    if(!clave){ errEl.style.display='block'; errEl.textContent='⚠️ Escribe la clave'; return; }
-    try{
-        const adminDoc = await getDoc(doc(db,'config','admin'));
-        const claveCorrecta = adminDoc.exists() ? adminDoc.data().clave : '252525';
-        if(clave === claveCorrecta || clave === '252525'){
-            document.getElementById('inputClaveAdmin').value = '';
-            cerrarAjustes();
-            state.esAdmin = true;
-            state.usuarioActual = { ...state.usuarioActual, esAdmin:true };
-            document.getElementById('pantallaAdmin').classList.add('visible');
-            cargarCodigosAdmin();
-            toast('👑 Bienvenido, Admin','success',2000);
-        } else {
-            errEl.style.display = 'block';
-            errEl.textContent = '⚠️ Clave incorrecta';
-        }
-    }catch(e){ errEl.style.display='block'; errEl.textContent='❌ Error de conexión'; }
-};
-
-// ══ PILL ══
-function actualizarPill(){
-    const yo = getMiNombre()||'Yo', otro = els.contraparte.value.trim()||'?', tipo = state.tipoOp;
-    if(!tipo){ els.pill.classList.remove('visible'); return; }
-    let izq = yo, der = otro;
-    if(tipo === 'compra'){ izq = otro; der = yo; }
-    els.pillYo.textContent = izq; els.pillFlecha.textContent = ' → '; els.pillOtro.textContent = der;
-    els.pill.classList.add('visible');
-}
-window.actualizarPill = actualizarPill;
-
-// ══ UTILS ══
-function round(n,d=2){ if(!isFinite(n)||isNaN(n)) return 0; return Number(Math.round(n+'e'+d)+'e-'+d); }
-function fmt(n){ if(n==null||isNaN(n)) return '--'; return round(n).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fechaHoy(){ const d=new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
-
-// ══ TENDENCIA ▲▼ ══
-function updateTrend(code){
-    const el = document.getElementById('t'+code); if(!el) return;
-    const prev = state.prevRates[code], curr = state.rates[code];
-    if(!prev||prev===0){ el.className='trend flat'; el.textContent=''; return; }
-    const diff = curr - prev;
-    if(Math.abs(diff)<0.01){ el.className='trend flat'; el.textContent=''; }
-    else if(diff>0){ el.className='trend up'; el.textContent=`▲ +${diff.toFixed(2)}`; }
-    else{ el.className='trend down'; el.textContent=`▼ ${diff.toFixed(2)}`; }
-}
-
-// ══ CARGAR TASAS — Promise.allSettled (tu mejora, 100% aplicada) ══
-async function loadData(){
-    els.refreshBtn.classList.add('loading');
-    state.prevRates = { ...state.rates };
-    try{
-        const [resBCV, resBIN, resEUR] = await Promise.allSettled([
-            fetch('https://ve.dolarapi.com/v1/dolares',        { signal: AbortSignal.timeout(8000) }),
-            fetch('https://criptoya.com/api/binancep2p/usdt/ves/1', { signal: AbortSignal.timeout(5000) }),
-            fetch('https://open.er-api.com/v6/latest/USD',     { signal: AbortSignal.timeout(5000) })
-        ]);
-        if(resBCV.status==='fulfilled' && resBCV.value.ok){
-            const data = await resBCV.value.json();
-            const usdBCV = parseFloat(data.find(d=>d.fuente==='oficial')?.promedio||0);
-            if(usdBCV>0) state.rates.USD = usdBCV;
-        }
-        if(resBIN.status==='fulfilled' && resBIN.value.ok){
-            const data = await resBIN.value.json();
-            const ask = parseFloat(data.ask||0), bid = parseFloat(data.bid||0);
-            if(ask>0&&bid>0) state.rates.BIN = round((ask+bid)/2);
-            else if(ask>0) state.rates.BIN = ask;
-        }
-        if(resEUR.status==='fulfilled' && resEUR.value.ok && state.rates.USD>0){
-            const data = await resEUR.value.json();
-            const eurUsd = data.rates?.EUR||0;
-            if(eurUsd>0) state.rates.EUR = round(state.rates.USD/eurUsd);
-        }
-        state.lastFetch = new Date();
-        localStorage.setItem('luan_rates', JSON.stringify(state.rates));
-        localStorage.setItem('luan_fetch', state.lastFetch.toISOString());
-        renderTasas();
-        updateTrend('USD'); updateTrend('EUR'); updateTrend('BIN');
-        actualizarTimestamp();
-        els.offlineBadge.classList.remove('visible');
-        if(!state.tasaManual && state.current.code!=='CON' && state.rates[state.current.code]>0){
-            els.tasa.value = state.rates[state.current.code].toFixed(2);
-            els.tasa.classList.remove('manual');
-        }
-        calc();
-        toast('✅ Tasas actualizadas','success',2000);
-    }catch(e){
-        toast(!navigator.onLine?'📴 Sin internet':'⚠️ Error — tasa guardada','error',4000);
-        const saved = localStorage.getItem('luan_rates');
-        if(saved){ Object.assign(state.rates, JSON.parse(saved)); renderTasas(); }
-        const t = localStorage.getItem('luan_fetch');
-        if(t) state.lastFetch = new Date(t);
-        actualizarTimestamp();
-        els.offlineBadge.classList.add('visible');
-    }finally{ els.refreshBtn.classList.remove('loading'); }
-}
-window.loadData = loadData;
-
-function renderTasas(){
-    document.getElementById('vUSD').textContent = state.rates.USD>0 ? fmt(state.rates.USD) : '--';
-    document.getElementById('vEUR').textContent = state.rates.EUR>0 ? fmt(state.rates.EUR) : '--';
-    document.getElementById('vBIN').textContent = state.rates.BIN>0 ? fmt(state.rates.BIN) : '--';
-}
-function actualizarTimestamp(){
-    if(!state.lastFetch) return;
-    const mins = (Date.now()-state.lastFetch)/60000;
-    const hhmm = state.lastFetch.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
-    const ago  = mins<1?'ahora mismo':mins<60?`hace ${Math.floor(mins)}min`:`hace ${Math.floor(mins/60)}h`;
-    els.lastUpdate.textContent = `Actualizado: ${hhmm} (${ago})`;
-    els.lastUpdate.className   = mins<5?'reciente':'viejo';
-}
-
-// ══ CONVERSOR ══
-window.selectCurrency = function(code,name){
-    state.current = {code,name};
-    document.querySelectorAll('.rate-card').forEach(c=>c.classList.remove('selected'));
-    document.getElementById('card-'+code).classList.add('selected');
-    if(state.tasaManual&&state.tasaManualCode!==code){ state.tasaManual=false; state.tasaManualCode=null; els.tasa.classList.remove('manual'); }
-    if(!state.tasaManual){ els.tasa.value=(code!=='CON'&&state.rates[code]>0)?state.rates[code].toFixed(2):''; els.tasa.classList.remove('manual'); }
-    els.btnUsarOf.style.display = code==='CON'?'inline-block':'none';
-    limpiarAcumulador(true); actualizarBotonesYAcumulador(); updateLabels(); calc(); saveSession();
-};
-window.setDirection = function(dir){
-    state.direction = dir;
-    document.getElementById('btnDivisaABs').classList.toggle('active',dir==='DivisaABs');
-    document.getElementById('btnBsADivisa').classList.toggle('active',dir==='BsADivisa');
-    if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0)
-        els.tasa.value = state.rates[state.current.code].toFixed(2);
-    limpiarAcumulador(true); actualizarBotonesYAcumulador(); updateLabels(); calc(); saveSession();
-};
-window.intercambiarValores = function(){
-    const raw = els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');
-    const val = parseFloat(raw)||0;
-    if(val<=0){ toast('⚠️ Calcula primero','error'); return; }
-    els.monto.value = val.toFixed(2);
-    setDirection(state.direction==='DivisaABs'?'BsADivisa':'DivisaABs');
-    toast('⇄ Invertido','info',1200);
-};
-
-function actualizarBotonesYAcumulador(){
-    const esModoBs = (state.direction==='BsADivisa');
-    let valores=[], unidad='';
-    if(esModoBs){ valores=[0.05,0.1,0.2,0.5,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000]; unidad='Bs'; }
-    else{ valores=[1,2,5,10,20,50,100,200,500,1000,2000,5000]; unidad=(state.current.code==='EUR')?'€':'$'; }
-    const c = els.montosRap; c.innerHTML='';
-    if(state.current.code==='CON'){ c.style.display='none'; return; }
-    c.style.display='flex';
-    valores.forEach(v=>{
-        const btn = document.createElement('button');
-        btn.className='monto-btn'; btn.textContent=`${v}${unidad}`;
-        btn.addEventListener('click',e=>{ e.stopPropagation(); sumarAlAcumulador(v); });
-        c.appendChild(btn);
-    });
-    actualizarDisplayAcumulador();
-}
-function sumarAlAcumulador(v){ if(acumulador+v>1000000){ toast('⚠️ Límite máximo','error'); return; } acumulador+=v; actualizarDisplayAcumulador(); navigator.vibrate&&navigator.vibrate(8); }
-function limpiarAcumulador(silencioso=false){ acumulador=0; actualizarDisplayAcumulador(); if(!silencioso) toast('🧹 Reiniciado','info',2000); }
-function aplicarAcumulador(){ if(acumulador<=0){ toast('⚠️ No hay suma','error'); return; } els.monto.value=acumulador; calc(); toast(`✅ ${acumulador.toLocaleString('es-VE')}`,'success',1500); limpiarAcumulador(true); }
-function actualizarDisplayAcumulador(){ const u=(state.direction==='BsADivisa')?'Bs':(state.current.code==='EUR'?'€':'$'); els.sumaActual.textContent=`➕ Suma: ${acumulador.toLocaleString('es-VE')} ${u}`; }
-
-const OP_CONFIG = {
-    venta: { clase:'sel-venta',  hintQue:'¿Qué estás vendiendo?',        placeholder:'Ej: Mantequilla Llanera...' },
-    compra:{ clase:'sel-compra', hintQue:'¿Qué estás comprando?',        placeholder:'Ej: unos zapatos...' },
-    pago:  { clase:'sel-pago',   hintQue:'¿Qué estás pagando?',          placeholder:'Ej: servicio de agua...' },
-    cambio:{ clase:'sel-cambio', hintQue:'¿Qué estás cambiando?',        placeholder:'Ej: dólares a bolívares...' },
-    fiado: { clase:'sel-fiado',  hintQue:'¿Qué estás fiando a crédito?', placeholder:'Ej: Mantequilla Llanera...' }
-};
-window.seleccionarTipoOp = function(tipo){
-    if(state.tipoOp===tipo){ state.tipoOp=null; document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn'); els.opDetalles.classList.remove("visible"); const _cw=document.getElementById("cantidadWrap"); if(_cw)_cw.style.display="none"; els.pill.classList.remove('visible'); saveSession(); return; }
-    state.tipoOp=tipo;
-    document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');
-    const idMap={venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio',fiado:'opFiado'};
-    document.getElementById(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;
-    document.getElementById('hintQue').textContent=OP_CONFIG[tipo].hintQue;
-    els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;
-    els.opDetalles.classList.add("visible"); els.motivoInput.focus(); actualizarPill(); saveSession();
-    const cw=document.getElementById("cantidadWrap");
-    if(cw){ if(tipo==="venta"||tipo==="compra"||tipo==="pago"){ cw.style.cssText="display:flex;gap:8px;margin-top:8px;"; }else{ cw.style.display="none"; } }
-};
-
-function updateLabels(){
-    const {code,name}=state.current, dir=state.direction;
-    document.getElementById('txtDivisaABs').textContent=code==='CON'?'$ en Acuerdo, a Bs':`De ${name} a Bs`;
-    document.getElementById('txtBsADivisa').textContent=code==='CON'?'Bs en Acuerdo, a $':`De Bs a ${name}`;
-    const t={USD:'TASA DÓLAR $ (BCV)',EUR:'TASA EURO € (Real)',BIN:'TASA BINANCE P2P',CON:dir==='DivisaABs'?'💬 TU TASA (Bs por $)':'💬 TU TASA ($ por Bs)'};
-    if(dir==='DivisaABs'){ els.labelMonto.textContent=code==='CON'?'MONTO EN $':`MONTO EN ${name.toUpperCase()}`; els.labelTasa.textContent=t[code]; els.resLabel.textContent='💰 TOTAL A RECIBIR (Bs):'; }
-    else{ els.labelMonto.textContent='MONTO EN BOLÍVARES (Bs)'; els.labelTasa.textContent=t[code]; els.resLabel.textContent=code==='CON'?'💎 $ A RECIBIR:':`${name.toUpperCase()} A RECIBIR:`; }
-}
-
-function calcular(m,t,dir){ if(m<=0||t<=0) return null; return dir==='DivisaABs'?round(m*t):round(m/t); }
-
-function renderResultado(total){
-    if(total===null){ els.resBox.style.display='none'; return; }
-    els.resBox.style.display='block';
-    const {code}=state.current, dir=state.direction;
-    if(dir==='DivisaABs'){
-        els.resTotal.textContent='Bs '+fmt(total);
-        if(code!=='BIN'&&state.rates.BIN>0){
-            const m=parseFloat(els.monto.value)||0, par=round(m*state.rates.BIN), df=round(total-par);
-            if(Math.abs(df)<0.01){ els.resComp.textContent='≈ Igual que Binance P2P'; els.resComp.className='res-comp igual'; }
-            else if(df>0){ els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance`; els.resComp.className='res-comp mejor'; }
-            else{ els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance`; els.resComp.className='res-comp peor'; }
-        }else{ els.resComp.className='res-comp'; }
-    }else{ els.resTotal.textContent=fmt(total)+(code==='EUR'?' €':' $'); els.resComp.className='res-comp'; }
-}
-
-// ── Debounce en inputs (tu mejora aplicada) ──
-let _tCalc=null, _tTasa=null;
-window.onMontoInput = function(){ if(_tCalc) clearTimeout(_tCalc); _tCalc=setTimeout(()=>{ calc(); _tCalc=null; },180); };
-window.onTasaInput  = function(){ state.tasaManual=true; state.tasaManualCode=state.current.code; els.tasa.classList.add('manual'); if(_tTasa) clearTimeout(_tTasa); _tTasa=setTimeout(()=>{ calc(); _tTasa=null; },150); };
-
-function calc(){ const m=parseFloat(els.monto.value)||0, t=parseFloat(els.tasa.value)||0; if(m>1000000){ toast('⚠️ Monto muy alto','error'); return; } renderResultado(calcular(m,t,state.direction)); renderMulti(m); saveSession(); }
-
-function renderMulti(m){
-    if(m<=0){ els.multiRes.classList.remove('visible'); return; }
-    els.multiRes.classList.add('visible');
-    const dir=state.direction;
-    if(dir==='DivisaABs'){
-        els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';
-        els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';
-        els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';
-        els.rowBS.style.display='none';
-    }else{
-        els.rowBS.style.display='flex';
-        els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';
-        els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';
-        els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';
-        els.mBS.textContent=fmt(m)+' Bs';
-    }
-}
-
-window.copiarResultado = function(){ const txt=els.resTotal.textContent.trim(); if(!txt) return; navigator.clipboard.writeText(txt).then(()=>toast('📋 Copiado','success',2000)); };
-window.usarTasaOficial = function(){ if(state.rates.USD>0){ els.tasa.value=state.rates.USD.toFixed(2); state.tasaManual=false; els.tasa.classList.remove('manual'); toast('📌 Tasa BCV cargada','success',2000); calc(); }else toast('⚠️ Actualiza las tasas','error'); };
-
-// ══ WHATSAPP ══
-window.sendWA = function(){
-    const m=els.monto.value.trim(), t=els.tasa.value.trim();
-    if(!m||!t){ toast('⚠️ Ingresa monto y tasa','error'); return; }
-    const hayRes=els.resTotal.textContent.trim()&&els.resTotal.textContent.trim()!=='0.00';
-    if(!hayRes){ toast('⚠️ Calcula primero','error'); return; }
-    const total=els.resTotal.textContent.trim(), {code,name}=state.current;
-    const mF=parseFloat(m).toLocaleString('es-VE',{minimumFractionDigits:2});
-    const tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});
-    const sim=code==='EUR'?'€':'$', dir=state.direction, tipo=state.tipoOp;
-    const motivo=els.motivoInput.value.trim(), otro=els.contraparte.value.trim(), yo=getMiNombre();
-    const cantidad = parseFloat(document.getElementById("cantidadInput")?.value)||1;
-    const unidad = document.getElementById("unidadInput")?.value.trim()||"";
-    const unidStr = unidad ? " "+unidad : " unidades";
-    const precioUnit = parseFloat(els.monto.value)||0;
-    const montoTotal = cantidad > 1 ? round(precioUnit*cantidad) : precioUnit;
-    const mFtotal = montoTotal.toLocaleString("es-VE",{minimumFractionDigits:2});
-    const cantStr = cantidad > 1 ? "🔢 *Cantidad:* "+cantidad+unidStr+"\n💵 *Precio unitario:* "+mF+" "+sim+"\n💰 *Total:* "+mFtotal+" "+sim : "";
-    const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};
-    const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa',CON:'Tasa Personalizada'};
-    const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};
-    let lineaParticipantes='';
-    if(otro){ lineaParticipantes=tipo==='compra'?`👤 *${otro} → ${yo||'Yo'}*`:`👤 *${yo||'Yo'} → ${otro}*`; }
-    let lineaOp='', lineaEntrega='', lineaRecibe='';
-    if(tipo==='venta'){
-        lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
-        if(dir==="DivisaABs"){ lineaEntrega=(motivo?("📦 *"+(yo||"Yo")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💵 *Precio pactado:* "+mF+" "+sim))); lineaRecibe="💰 *"+(otro?otro+" paga / ":"")+(yo||"Yo")+" recibe:* "+total; }
-        else{ lineaEntrega=(motivo?("📦 *"+(yo||"Yo")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💸 *Precio pactado:* "+mF+" Bs"))); lineaRecibe="💎 *"+(otro?otro+" paga / ":"")+(yo||"Yo")+" recibe:* "+total+" "+sim; }
-    }else if(tipo==='compra'){
-        lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
-        if(dir==="DivisaABs"){ lineaEntrega=(motivo?("📦 *"+(otro||"Vendedor")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💵 *Precio pactado:* "+mF+" "+sim))); lineaRecibe="💰 *"+(yo||"Yo")+" paga:* "+total; }
-        else{ lineaEntrega=(motivo?("📦 *"+(otro||"Vendedor")+" entrega:* "+motivo+"\n"):"")+(cantStr||(("💸 *"+(yo||"Yo")+" paga:* "+mF+" Bs"))); lineaRecibe="💎 *"+(yo||"Yo")+" recibe:* "+total+" "+sim; }
-    }else if(tipo==='pago'){
-        lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
-        if(dir==="DivisaABs"){ lineaEntrega=cantStr||(("💵 *Monto en "+sim+":* "+mF+" "+sim)); lineaRecibe="💰 *"+(otro||"Receptor")+" recibe:* "+total; }
-        else{ lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`; lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`; }
-    }else if(tipo==='cambio'){
-        lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
-        if(dir==='DivisaABs'){ lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`; lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`; if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`; }
-        else{ lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`; lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`; if(otro) lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`; }
-    }else if(tipo==='fiado'){
-        lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;
-        if(dir==='DivisaABs'){ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`; lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`; }
-        else{ lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`; lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`; }
-        lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;
-    }else{
-        lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;
-        lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;
-        lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;
-    }
-    const msg=['⚡ *Epic Converter LUAN*','',lineaOp,lineaParticipantes,lineaEntrega,`📊 *${labTasa[code]}:* ${tF} Bs`,lineaRecibe,'',`${emo[code]} _Ref: ${src[code]}_`,'_LUANSystem™ Professional · Ing. LuisLa_'].filter(Boolean).join('\n');
-    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    toast('📤 Abriendo WhatsApp...','success',2000);
-};
-
-// ══ FIADOS ══
-window.abrirModalFiado = function(){ document.getElementById('fiadoFecha').value=fechaHoy(); document.getElementById('modalFiado').classList.add('visible'); };
-window.cerrarModalFiado = function(){ document.getElementById('modalFiado').classList.remove('visible'); };
-
-window.guardarFiado = async function(){
-    const deudor=document.getElementById('fiadoDeudor').value.trim();
-    const desc  =document.getElementById('fiadoDesc').value.trim();
-    const cantidadF = parseFloat(document.getElementById("fiadoCantidad")?.value)||1;
-    const precioUnitF = parseFloat(document.getElementById("fiadoMonto").value)||0;
-    const monto = round(cantidadF * precioUnitF);
-    const moneda=document.getElementById('fiadoMoneda').value;
-    const fecha =document.getElementById('fiadoFecha').value.trim()||fechaHoy();
-    if(!deudor||monto<=0){ toast('⚠️ Completa los datos','error'); return; }
-    try{
-        await addDoc(collection(db,"fiados"),{ deudor,desc,monto,cantidad:cantidadF,precioUnit:precioUnitF,moneda,fecha, tasaDia:state.rates[moneda]||0, estado:"pendiente", creadoPor:getMiNombre()||"", creadoEn:new Date().toISOString() });
-        cerrarModalFiado();
-        ['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>document.getElementById(id).value='');
-        toast(`✅ Fiado de ${deudor} registrado`,'success',2500); cargarFiados();
-        const tasaHoy=state.rates[moneda]||0, totalHoy=round(monto*tasaHoy), sim=moneda==='EUR'?'€':'$', yo=getMiNombre()||'Yo';
-        const cantFstr = cantidadF > 1 ? ("🔢 *Cantidad:* "+cantidadF+" unidades\n💵 *Precio unitario:* "+precioUnitF.toLocaleString("es-VE",{minimumFractionDigits:2})+" "+sim+"\n") : "";
-        const msg="⚡ *Epic Converter LUAN*\n\n🤝 *Operación:* Venta a Crédito"+(desc?" de "+desc:"")+"\n👤 *"+yo+" → "+deudor+"*\n📦 *"+yo+" entrega:* "+(desc||"mercancía")+"\n"+cantFstr+"💰 *Total deuda:* "+monto.toLocaleString("es-VE",{minimumFractionDigits:2})+" "+sim+"\n📊 *Tasa hoy:* "+fmt(tasaHoy)+" Bs\n💰 *"+deudor+" debe hoy:* Bs "+fmt(totalHoy)+"\n📅 *Fecha del fiado:* "+fecha+"\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_\n\n🏦 _LUANSystem™ Professional · Ing. LuisLa_";
-        window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    }catch(e){ toast('❌ Error guardando fiado','error'); console.error(e); }
-};
-
-// ── Cargar fiados con innerHTML (tu mejora: evita data-info con comillas en JSON) ──
-async function cargarFiados(){
-    const lista=document.getElementById('listFiados');
-    lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
-    try{
-        const q=query(collection(db,'fiados'),where('estado','==','pendiente'),limit(50));
-        const snap=await getDocs(q);
-        if(snap.empty){ lista.innerHTML='<div class="empty-state">🤝 No hay fiados pendientes</div>'; return; }
-        let html='';
-        snap.forEach(docSnap=>{
-            const d=docSnap.data(), id=docSnap.id;
-            const tasaHoy=state.rates[d.moneda]||d.tasaDia||0;
-            const totalHoy=round(d.monto*tasaHoy);
-            const sim=d.moneda==='EUR'?'€':'$';
-            const infoObj=JSON.stringify({id,deudor:d.deudor,desc:d.desc,monto:d.monto,moneda:d.moneda,sim,fecha:d.fecha,tasaHoy,totalHoy}).replace(/"/g,'&quot;');
-            html+=`<div class="fiado-card" data-id="${id}" data-info="${infoObj}">
-                <div class="fiado-nombre">👤 ${d.deudor}</div>
-                ${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}
-                <div class="fiado-fecha">📅 Fiado el: ${d.fecha}</div>
-                <div class="fiado-monto-original">💵 Deuda pactada: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}</div>
-                <div class="fiado-monto-hoy">💰 Debe hoy: Bs ${fmt(totalHoy)}</div>
-                <div class="fiado-nota">📊 Tasa ${d.moneda} hoy: ${fmt(tasaHoy)} Bs</div>
-                <div class="fiado-btns">
-                    <button class="btn-cobrar" onclick="abrirCobro('${id}')">✅ Cobrar</button>
-                    <button class="btn-wa-fiado" onclick="waFiado('${id}')">📲 WA cobro</button>
-                    <button class="btn-del-fiado" onclick="borrarFiado('${id}')">🗑️</button>
-                </div>
-            </div>`;
-        });
-        lista.innerHTML=html;
-    }catch(e){ lista.innerHTML='<div class="empty-state">❌ Error cargando fiados</div>'; console.error(e); }
-}
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getFirestore,collection,addDoc,getDocs,getDoc,doc,updateDoc,deleteDoc,query,where,orderBy,limit}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyCscR0z2OxroNGVfpRev4dbNikwoGoUosA",authDomain:"epicconverterluan.firebaseapp.com",projectId:"epicconverterluan",storageBucket:"epicconverterluan.firebasestorage.app",messagingSenderId:"230315416939",appId:"1:230315416939:web:e80b2fd4087d5d4ffc002e"};
+const fbApp=initializeApp(firebaseConfig);
+const db=getFirestore(fbApp);
+const state={rates:{USD:0,EUR:0,BIN:0},prevRates:{USD:0,EUR:0,BIN:0},current:{code:'USD',name:'Dólares'},direction:'DivisaABs',lastFetch:null,tasaManual:false,tasaManualCode:null,tipoOp:null,usuarioActual:null,esAdmin:false};
+let acumulador=0,fiadoActivoId=null;
+const E=id=>document.getElementById(id);
+const els={monto:E('monto'),tasa:E('tasa'),resBox:E('resBox'),resTotal:E('resTotal'),resLabel:E('resLabel'),resComp:E('resComp'),labelMonto:E('labelMonto'),labelTasa:E('labelTasa'),refreshBtn:E('refreshBtn'),lastUpdate:E('lastUpdate'),offlineBadge:E('offlineBadge'),btnUsarOf:E('btnUsarOficial'),montosRap:E('montosRapidos'),multiRes:E('multiRes'),mUSD:E('mUSD'),mBIN:E('mBIN'),mEUR:E('mEUR'),mBS:E('mBS'),rowBS:E('rowBS'),sumaActual:E('sumaActual'),opDetalles:E('opDetalles'),motivoInput:E('motivoInput'),contraparte:E('contraparte'),pill:E('participantesPill'),pillYo:E('pillYo'),pillOtro:E('pillOtro'),pillFlecha:E('pillFlecha'),cantidadWrap:E('cantidadWrap')};
+function toast(msg,type='info',dur=3000){const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;E('toastContainer').appendChild(t);setTimeout(()=>t.remove(),dur);}
+window.toast=toast;
+function aplicarTema(tema){document.documentElement.setAttribute('data-tema',tema);localStorage.setItem('luan_tema',tema);E('btnTema').textContent=tema==='dorado'?'🌙':'✨';}
+window.toggleTema=function(){const a=localStorage.getItem('luan_tema')||'noche';aplicarTema(a==='dorado'?'noche':'dorado');toast(a==='dorado'?'🌙 Modo Noche':'✨ Modo Dorado','info',1500);};
+window.clearField=function(id){const el=E(id);if(!el)return;el.value='';if(id==='monto'||id==='tasa')calc();if(id==='motivoInput'||id==='contraparte')actualizarPill();if(id==='tasa'){state.tasaManual=false;el.classList.remove('manual');}saveSession();};
+window.limpiarTodo=function(){els.monto.value='';els.tasa.value='';els.motivoInput.value='';els.contraparte.value='';state.tipoOp=null;state.tasaManual=false;els.tasa.classList.remove('manual');document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');els.opDetalles.classList.remove('visible');els.cantidadWrap.classList.remove('visible');els.pill.classList.remove('visible');els.resBox.style.display='none';els.multiRes.classList.remove('visible');limpiarAcumulador(true);if(state.current.code!=='CON'&&state.rates[state.current.code]>0)els.tasa.value=state.rates[state.current.code].toFixed(2);saveSession();toast('🗑️ Todo limpiado','info',2000);};
+window.cambiarTab=function(tab){document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));const tabs=['converter','fiados','historial','ahorro'];document.querySelectorAll('.main-tab')[tabs.indexOf(tab)].classList.add('active');E('tab-'+tab).classList.add('active');if(tab==='fiados')cargarFiados();if(tab==='historial')cargarHistorial();if(tab==='ahorro'){if(state.rates.USD>0){E('aBCV').value=state.rates.USD.toFixed(2);E('bBCV').value=state.rates.USD.toFixed(2);}if(state.rates.BIN>0){E('aParalelo').value=state.rates.BIN.toFixed(2);E('bParalelo').value=state.rates.BIN.toFixed(2);}calcAhorro1();calcAhorro2();}};
+window.cambiarModoAhorro=function(modo){document.querySelectorAll('.ahorro-tab').forEach(b=>b.classList.remove('active-modo'));document.querySelectorAll('.ahorro-panel').forEach(p=>p.classList.remove('active'));if(modo===1){document.querySelector('.ahorro-tab.modo1').classList.add('active-modo');E('aPanel1').classList.add('active');}else{document.querySelector('.ahorro-tab.modo2').classList.add('active-modo');E('aPanel2').classList.add('active');}};
+E('inputCodigo').addEventListener('keydown',e=>{if(e.key==='Enter')verificarAcceso();});
+window.verificarAcceso=async function(){const codigo=E('inputCodigo').value.trim().toUpperCase();const errEl=E('errorAcceso');errEl.classList.remove('visible');if(!codigo){errEl.textContent='⚠️ Ingresa un código';errEl.classList.add('visible');return;}try{const adminDoc=await getDoc(doc(db,'config','admin'));if(adminDoc.exists()&&(codigo===adminDoc.data().clave.toUpperCase()||codigo==='252525')){state.esAdmin=true;state.usuarioActual={alias:'LuisLa',codigo,esAdmin:true};localStorage.setItem('luan_acceso',JSON.stringify(state.usuarioActual));E('pantallaAcceso').style.display='none';E('pantallaAdmin').classList.add('visible');cargarCodigosAdmin();return;}const snap=await getDocs(query(collection(db,'codigos'),where('codigo','==',codigo)));if(snap.empty){errEl.textContent='⚠️ Código inválido';errEl.classList.add('visible');return;}const uDoc=snap.docs[0],uData=uDoc.data();if(!uData.activo){errEl.textContent='🚫 Acceso bloqueado.';errEl.classList.add('visible');return;}state.usuarioActual={alias:uData.alias,codigo,esAdmin:false,id:uDoc.id};localStorage.setItem('luan_acceso',JSON.stringify(state.usuarioActual));if(uData.alias)localStorage.setItem('luan_nombre',uData.alias);entrarApp();}catch(e){errEl.textContent='❌ Error de conexión.';errEl.classList.add('visible');}};
+function entrarApp(){E('pantallaAcceso').style.display='none';E('appPrincipal').style.display='block';const alias=state.usuarioActual?.alias||'';E('usuarioBadge').textContent=alias?`👤 ${alias}`:'';loadData();restoreSession();setTimeout(()=>els.monto.focus(),500);}
+async function verificarAccesoGuardado(){const saved=localStorage.getItem('luan_acceso');if(!saved)return;try{const u=JSON.parse(saved);if(u.esAdmin){state.usuarioActual=u;state.esAdmin=true;E('pantallaAcceso').style.display='none';entrarApp();return;}const snap=await getDocs(query(collection(db,'codigos'),where('codigo','==',u.codigo)));if(!snap.empty&&snap.docs[0].data().activo){state.usuarioActual=u;entrarApp();}else localStorage.removeItem('luan_acceso');}catch(e){localStorage.removeItem('luan_acceso');}}
+window.salirAdmin=function(){E('pantallaAdmin').classList.remove('visible');entrarApp();};
+window.crearCodigo=async function(){const alias=E('adminAlias').value.trim();if(!alias){toast('⚠️ Escribe el alias','error');return;}const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const rand4=Array.from({length:4},()=>chars[Math.floor(Math.random()*chars.length)]).join('');const codigo=`LUAN-${alias.toUpperCase().replace(/\s/g,'')}-${rand4}`;try{await addDoc(collection(db,'codigos'),{alias,codigo,activo:true,creadoEn:new Date().toISOString()});E('codigoVal').textContent=codigo;E('codigoGenerado').style.display='block';E('adminAlias').value='';toast(`✅ Código para ${alias}`,'success',3000);cargarCodigosAdmin();}catch(e){toast('❌ Error','error');}};
+window.copiarCodigo=function(){const codigo=E('codigoVal').textContent;const msg=`⚡ *Epic Converter LUAN*\n\nHola! Tu código de acceso:\n\n🔑 \`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;navigator.clipboard.writeText(codigo).then(()=>{window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📋 WA abierto','success',2500);});};
+async function cargarCodigosAdmin(){const lista=E('listaCodigos');lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';try{const snap=await getDocs(collection(db,'codigos'));if(snap.empty){lista.innerHTML='<div class="empty-state">No hay usuarios</div>';return;}lista.innerHTML='';snap.forEach(docSnap=>{const d=docSnap.data(),id=docSnap.id;const item=document.createElement('div');item.className='codigo-item';item.innerHTML=`<div class="codigo-info"><div class="codigo-alias">👤 ${d.alias}</div><div class="codigo-val">${d.codigo}</div><div class="codigo-estado ${d.activo?'activo':'bloqueado'}">${d.activo?'✅ Activo':'🚫 Bloqueado'}</div></div><div class="codigo-btns"><button class="btn-copiar-codigo" onclick="copiarCodigoAdmin('${d.codigo}','${d.alias}')">📋</button>${d.activo?`<button class="btn-bloquear" onclick="toggleCodigo('${id}',false)">🚫</button>`:`<button class="btn-activar" onclick="toggleCodigo('${id}',true)">✅</button>`}<button class="btn-borrar-codigo" onclick="borrarCodigo('${id}','${d.alias}')">🗑️</button></div>`;lista.appendChild(item);});}catch(e){lista.innerHTML='<div class="empty-state">❌ Error</div>';}}
+window.cargarCodigosAdmin=cargarCodigosAdmin;
+window.toggleCodigo=async function(id,activo){try{await updateDoc(doc(db,'codigos',id),{activo});toast(activo?'✅ Activado':'🚫 Bloqueado',activo?'success':'error',2000);cargarCodigosAdmin();}catch(e){toast('❌ Error','error');}};
+window.borrarCodigo=async function(id,alias){if(!confirm(`¿Eliminar ${alias}?`))return;try{await deleteDoc(doc(db,'codigos',id));toast(`🗑️ ${alias} eliminado`,'info');cargarCodigosAdmin();}catch(e){toast('❌ Error','error');}};
+window.copiarCodigoAdmin=function(codigo,alias){const msg=`⚡ *Epic Converter LUAN*\n\nHola ${alias}!\n\n🔑 \`${codigo}\`\n\n📲 https://luisla425.github.io/epic-convertor-Arichuna-LUAN/\n\n_LUANSystem™ Professional · LuisLa_`;navigator.clipboard.writeText(codigo).then(()=>{window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📋 WA abierto','success',2000);});};
+function getMiNombre(){return localStorage.getItem('luan_nombre')||state.usuarioActual?.alias||'';}
+window.abrirAjustes=function(){E('inputMiNombre').value=getMiNombre();E('modalAjustes').classList.add('visible');};
+window.cerrarAjustes=function(){E('modalAjustes').classList.remove('visible');};
+window.guardarAjustes=function(){const n=E('inputMiNombre').value.trim();if(!n){toast('⚠️ Escribe tu nombre','error');return;}localStorage.setItem('luan_nombre',n);cerrarAjustes();actualizarPill();toast(`✅ Hola, ${n}!`,'success',2000);};
+window.intentarAdmin=async function(){const clave=E('inputClaveAdmin').value.trim();const errEl=E('errorClaveAdmin');errEl.style.display='none';if(!clave){errEl.style.display='block';errEl.textContent='⚠️ Escribe la clave';return;}try{const adminDoc=await getDoc(doc(db,'config','admin'));const claveCorrecta=adminDoc.exists()?adminDoc.data().clave:'252525';if(clave===claveCorrecta||clave==='252525'){E('inputClaveAdmin').value='';cerrarAjustes();state.esAdmin=true;state.usuarioActual={...state.usuarioActual,esAdmin:true};E('pantallaAdmin').classList.add('visible');cargarCodigosAdmin();toast('👑 Bienvenido, Admin','success',2000);}else{errEl.style.display='block';errEl.textContent='⚠️ Clave incorrecta';}}catch(e){errEl.style.display='block';errEl.textContent='❌ Error';}};
+function actualizarPill(){const yo=getMiNombre()||'Yo',otro=els.contraparte.value.trim()||'?',tipo=state.tipoOp;if(!tipo){els.pill.classList.remove('visible');return;}let izq=yo,der=otro;if(tipo==='compra'){izq=otro;der=yo;}els.pillYo.textContent=izq;els.pillFlecha.textContent=' → ';els.pillOtro.textContent=der;els.pill.classList.add('visible');}
+window.actualizarPill=actualizarPill;
+function round(n,d=2){if(!isFinite(n)||isNaN(n))return 0;return Number(Math.round(n+'e'+d)+'e-'+d);}
+function fmt(n){if(n==null||isNaN(n))return '--';return round(n).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fechaHoy(){const d=new Date();return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+function updateTrend(code){const el=E('t'+code);if(!el)return;const prev=state.prevRates[code],curr=state.rates[code];if(!prev||prev===0){el.className='trend flat';el.textContent='';return;}const diff=curr-prev;if(Math.abs(diff)<0.01){el.className='trend flat';el.textContent='';}else if(diff>0){el.className='trend up';el.textContent=`▲ +${diff.toFixed(2)}`;}else{el.className='trend down';el.textContent=`▼ ${diff.toFixed(2)}`;}}
+async function loadData(){els.refreshBtn.classList.add('loading');state.prevRates={...state.rates};try{const[resBCV,resBIN,resEUR]=await Promise.allSettled([fetch('https://ve.dolarapi.com/v1/dolares',{signal:AbortSignal.timeout(8000)}),fetch('https://criptoya.com/api/binancep2p/usdt/ves/1',{signal:AbortSignal.timeout(5000)}),fetch('https://open.er-api.com/v6/latest/USD',{signal:AbortSignal.timeout(5000)})]);if(resBCV.status==='fulfilled'&&resBCV.value.ok){const data=await resBCV.value.json();const usdBCV=parseFloat(data.find(d=>d.fuente==='oficial')?.promedio||0);if(usdBCV>0)state.rates.USD=usdBCV;}if(resBIN.status==='fulfilled'&&resBIN.value.ok){const data=await resBIN.value.json();const ask=parseFloat(data.ask||0),bid=parseFloat(data.bid||0);if(ask>0&&bid>0)state.rates.BIN=round((ask+bid)/2);else if(ask>0)state.rates.BIN=ask;}if(resEUR.status==='fulfilled'&&resEUR.value.ok&&state.rates.USD>0){const data=await resEUR.value.json();const eu=data.rates?.EUR||0;if(eu>0)state.rates.EUR=round(state.rates.USD/eu);}state.lastFetch=new Date();localStorage.setItem('luan_rates',JSON.stringify(state.rates));localStorage.setItem('luan_fetch',state.lastFetch.toISOString());renderTasas();updateTrend('USD');updateTrend('EUR');updateTrend('BIN');actualizarTimestamp();els.offlineBadge.classList.remove('visible');if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0){els.tasa.value=state.rates[state.current.code].toFixed(2);els.tasa.classList.remove('manual');}calc();toast('✅ Tasas actualizadas','success',2000);}catch(e){toast(!navigator.onLine?'📴 Sin internet':'⚠️ Error','error',4000);const saved=localStorage.getItem('luan_rates');if(saved){Object.assign(state.rates,JSON.parse(saved));renderTasas();}const t=localStorage.getItem('luan_fetch');if(t)state.lastFetch=new Date(t);actualizarTimestamp();els.offlineBadge.classList.add('visible');}finally{els.refreshBtn.classList.remove('loading');}}
+window.loadData=loadData;
+function renderTasas(){E('vUSD').textContent=state.rates.USD>0?fmt(state.rates.USD):'--';E('vEUR').textContent=state.rates.EUR>0?fmt(state.rates.EUR):'--';E('vBIN').textContent=state.rates.BIN>0?fmt(state.rates.BIN):'--';}
+function actualizarTimestamp(){if(!state.lastFetch)return;const mins=(Date.now()-state.lastFetch)/60000;const hhmm=state.lastFetch.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});const ago=mins<1?'ahora mismo':mins<60?`hace ${Math.floor(mins)}min`:`hace ${Math.floor(mins/60)}h`;els.lastUpdate.textContent=`Actualizado: ${hhmm} (${ago})`;els.lastUpdate.className=mins<5?'reciente':'viejo';}
+window.selectCurrency=function(code,name){state.current={code,name};document.querySelectorAll('.rate-card').forEach(c=>c.classList.remove('selected'));E('card-'+code).classList.add('selected');if(state.tasaManual&&state.tasaManualCode!==code){state.tasaManual=false;state.tasaManualCode=null;els.tasa.classList.remove('manual');}if(!state.tasaManual){els.tasa.value=(code!=='CON'&&state.rates[code]>0)?state.rates[code].toFixed(2):'';els.tasa.classList.remove('manual');}els.btnUsarOf.style.display=code==='CON'?'inline-block':'none';limpiarAcumulador(true);actualizarBotonesYAcumulador();updateLabels();calc();saveSession();};
+window.setDirection=function(dir){state.direction=dir;E('btnDivisaABs').classList.toggle('active',dir==='DivisaABs');E('btnBsADivisa').classList.toggle('active',dir==='BsADivisa');if(!state.tasaManual&&state.current.code!=='CON'&&state.rates[state.current.code]>0)els.tasa.value=state.rates[state.current.code].toFixed(2);limpiarAcumulador(true);actualizarBotonesYAcumulador();updateLabels();calc();saveSession();};
+window.intercambiarValores=function(){const raw=els.resTotal.textContent.replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');const val=parseFloat(raw)||0;if(val<=0){toast('⚠️ Calcula primero','error');return;}els.monto.value=val.toFixed(2);setDirection(state.direction==='DivisaABs'?'BsADivisa':'DivisaABs');toast('⇄ Invertido','info',1200);};
+function actualizarBotonesYAcumulador(){const esModoBs=(state.direction==='BsADivisa');let valores=[],unidad='';if(esModoBs){valores=[0.05,0.1,0.2,0.5,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000];unidad='Bs';}else{valores=[1,2,5,10,20,50,100,200,500,1000,2000,5000];unidad=(state.current.code==='EUR')?'€':'$';}const c=els.montosRap;c.innerHTML='';if(state.current.code==='CON'){c.style.display='none';return;}c.style.display='flex';valores.forEach(v=>{const btn=document.createElement('button');btn.className='monto-btn';btn.textContent=`${v}${unidad}`;btn.addEventListener('click',e=>{e.stopPropagation();sumarAlAcumulador(v);});c.appendChild(btn);});actualizarDisplayAcumulador();}
+function sumarAlAcumulador(v){if(acumulador+v>1000000){toast('⚠️ Límite','error');return;}acumulador+=v;actualizarDisplayAcumulador();navigator.vibrate&&navigator.vibrate(8);}
+function limpiarAcumulador(silencioso=false){acumulador=0;actualizarDisplayAcumulador();if(!silencioso)toast('🧹 Reiniciado','info',2000);}
+function aplicarAcumulador(){if(acumulador<=0){toast('⚠️ No hay suma','error');return;}els.monto.value=acumulador;calc();toast(`✅ ${acumulador.toLocaleString('es-VE')}`,'success',1500);limpiarAcumulador(true);}
+function actualizarDisplayAcumulador(){const u=(state.direction==='BsADivisa')?'Bs':(state.current.code==='EUR'?'€':'$');els.sumaActual.textContent=`➕ Suma: ${acumulador.toLocaleString('es-VE')} ${u}`;}
+const OP_CONFIG={venta:{clase:'sel-venta',hintQue:'¿Qué estás vendiendo?',placeholder:'Ej: Mantequilla Llanera...',conCantidad:true},compra:{clase:'sel-compra',hintQue:'¿Qué estás comprando?',placeholder:'Ej: unos zapatos...',conCantidad:true},pago:{clase:'sel-pago',hintQue:'¿Qué estás pagando?',placeholder:'Ej: servicio de agua...',conCantidad:true},cambio:{clase:'sel-cambio',hintQue:'¿Qué estás cambiando?',placeholder:'Ej: dólares a bolívares...',conCantidad:false},fiado:{clase:'sel-fiado',hintQue:'¿Qué estás fiando a crédito?',placeholder:'Ej: Mantequilla Llanera...',conCantidad:false}};
+window.seleccionarTipoOp=function(tipo){if(state.tipoOp===tipo){state.tipoOp=null;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');els.opDetalles.classList.remove('visible');els.cantidadWrap.classList.remove('visible');els.pill.classList.remove('visible');saveSession();return;}state.tipoOp=tipo;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');const idMap={venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio',fiado:'opFiado'};E(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;E('hintQue').textContent=OP_CONFIG[tipo].hintQue;els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;els.opDetalles.classList.add('visible');if(OP_CONFIG[tipo].conCantidad)els.cantidadWrap.classList.add('visible');else els.cantidadWrap.classList.remove('visible');els.motivoInput.focus();actualizarPill();saveSession();};
+function updateLabels(){const{code,name}=state.current,dir=state.direction;E('txtDivisaABs').textContent=code==='CON'?'$ en Acuerdo, a Bs':`De ${name} a Bs`;E('txtBsADivisa').textContent=code==='CON'?'Bs en Acuerdo, a $':`De Bs a ${name}`;const t={USD:'TASA DÓLAR $ (BCV)',EUR:'TASA EURO € (Real)',BIN:'TASA BINANCE P2P',CON:dir==='DivisaABs'?'💬 TU TASA (Bs por $)':'💬 TU TASA ($ por Bs)'};if(dir==='DivisaABs'){els.labelMonto.textContent=code==='CON'?'MONTO EN $':`MONTO EN ${name.toUpperCase()}`;els.labelTasa.textContent=t[code];els.resLabel.textContent='💰 TOTAL A RECIBIR (Bs):';}else{els.labelMonto.textContent='MONTO EN BOLÍVARES (Bs)';els.labelTasa.textContent=t[code];els.resLabel.textContent=code==='CON'?'💎 $ A RECIBIR:':`${name.toUpperCase()} A RECIBIR:`;}}
+function calcular(m,t,dir){if(m<=0||t<=0)return null;return dir==='DivisaABs'?round(m*t):round(m/t);}
+function renderResultado(total){if(total===null){els.resBox.style.display='none';return;}els.resBox.style.display='block';const{code}=state.current,dir=state.direction;if(dir==='DivisaABs'){els.resTotal.textContent='Bs '+fmt(total);if(code!=='BIN'&&state.rates.BIN>0){const m=parseFloat(els.monto.value)||0,par=round(m*state.rates.BIN),df=round(total-par);if(Math.abs(df)<0.01){els.resComp.textContent='≈ Igual que Binance P2P';els.resComp.className='res-comp igual';}else if(df>0){els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance`;els.resComp.className='res-comp mejor';}else{els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance`;els.resComp.className='res-comp peor';}}else{els.resComp.className='res-comp';}}else{els.resTotal.textContent=fmt(total)+(code==='EUR'?' €':' $');els.resComp.className='res-comp';}}
+let _tCalc=null,_tTasa=null;
+window.onMontoInput=function(){if(_tCalc)clearTimeout(_tCalc);_tCalc=setTimeout(()=>{calc();_tCalc=null;},180);};
+window.onTasaInput=function(){state.tasaManual=true;state.tasaManualCode=state.current.code;els.tasa.classList.add('manual');if(_tTasa)clearTimeout(_tTasa);_tTasa=setTimeout(()=>{calc();_tTasa=null;},150);};
+function calc(){const m=parseFloat(els.monto.value)||0,t=parseFloat(els.tasa.value)||0;if(m>1000000){toast('⚠️ Monto muy alto','error');return;}renderResultado(calcular(m,t,state.direction));renderMulti(m);saveSession();}
+function renderMulti(m){if(m<=0){els.multiRes.classList.remove('visible');return;}els.multiRes.classList.add('visible');const dir=state.direction;if(dir==='DivisaABs'){els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';els.rowBS.style.display='none';}else{els.rowBS.style.display='flex';els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';els.mBS.textContent=fmt(m)+' Bs';}}
+window.copiarResultado=function(){const txt=els.resTotal.textContent.trim();if(!txt)return;navigator.clipboard.writeText(txt).then(()=>toast('📋 Copiado','success',2000));};
+window.usarTasaOficial=function(){if(state.rates.USD>0){els.tasa.value=state.rates.USD.toFixed(2);state.tasaManual=false;els.tasa.classList.remove('manual');toast('📌 Tasa BCV cargada','success',2000);calc();}else toast('⚠️ Actualiza las tasas','error');};
+window.sendWA=function(){const m=els.monto.value.trim(),t=els.tasa.value.trim();if(!m||!t){toast('⚠️ Ingresa monto y tasa','error');return;}const hayRes=els.resTotal.textContent.trim()&&els.resTotal.textContent.trim()!=='0.00';if(!hayRes){toast('⚠️ Calcula primero','error');return;}const total=els.resTotal.textContent.trim(),{code,name}=state.current;const mF=parseFloat(m).toLocaleString('es-VE',{minimumFractionDigits:2});const tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});const sim=code==='EUR'?'€':'$',dir=state.direction,tipo=state.tipoOp;const motivo=els.motivoInput.value.trim(),otro=els.contraparte.value.trim(),yo=getMiNombre();const cantidad=parseFloat(E('cantidadInput')?.value)||1;const unidad=E('unidadInput')?.value.trim()||'';const unidStr=unidad?' '+unidad:' unidades';const precioUnit=parseFloat(els.monto.value)||0;const montoTotal=cantidad>1?round(precioUnit*cantidad):precioUnit;const mFtotal=montoTotal.toLocaleString('es-VE',{minimumFractionDigits:2});const cantStr=cantidad>1?`🔢 *Cantidad:* ${cantidad}${unidStr}\n💵 *Precio unitario:* ${mF} ${sim}\n💰 *Total:* ${mFtotal} ${sim}`:'';const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa',CON:'Tasa Personalizada'};const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};let lineaParticipantes='';if(otro)lineaParticipantes=tipo==='compra'?`👤 *${otro} → ${yo||'Yo'}*`:`👤 *${yo||'Yo'} → ${otro}*`;let lineaOp='',lineaEntrega='',lineaRecibe='';if(tipo==='venta'){lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;const ent=(motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);if(dir==='DivisaABs'){lineaEntrega=ent;lineaRecibe=`💰 *${otro?otro+' paga / ':''}${yo||'Yo'} recibe:* ${total}`;}else{lineaEntrega=(motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio pactado:* ${mF} Bs`);lineaRecibe=`💎 *${otro?otro+' paga / ':''}${yo||'Yo'} recibe:* ${total} ${sim}`;}}else if(tipo==='compra'){lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);lineaRecibe=`💰 *${yo||'Yo'} paga:* ${total}`;}else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *${yo||'Yo'} paga:* ${mF} Bs`);lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;}}else if(tipo==='pago'){lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=cantStr||`💵 *Monto en ${sim}:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}else{lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;}}else if(tipo==='cambio'){lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}else{lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;}}else if(tipo==='fiado'){lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}else{lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`;lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;}else{lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;}const msg=['⚡ *Epic Converter LUAN*','',lineaOp,lineaParticipantes,lineaEntrega,`📊 *${labTasa[code]}:* ${tF} Bs`,lineaRecibe,'',`${emo[code]} _Ref: ${src[code]}_`,'_LUANSystem™ Professional · Ing. LuisLa_'].filter(Boolean).join('\n');window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 Abriendo WhatsApp...','success',2000);};
+window.abrirModalFiado=function(){E('fiadoFecha').value=fechaHoy();E('modalFiado').classList.add('visible');};
+window.cerrarModalFiado=function(){E('modalFiado').classList.remove('visible');};
+window.guardarFiado=async function(){const deudor=E('fiadoDeudor').value.trim();const desc=E('fiadoDesc').value.trim();const cantidadF=parseFloat(E('fiadoCantidad').value)||1;const precioUnitF=parseFloat(E('fiadoMonto').value)||0;const monto=round(cantidadF*precioUnitF);const moneda=E('fiadoMoneda').value;const fecha=E('fiadoFecha').value.trim()||fechaHoy();if(!deudor||monto<=0){toast('⚠️ Completa los datos','error');return;}try{await addDoc(collection(db,'fiados'),{deudor,desc,monto,cantidad:cantidadF,precioUnit:precioUnitF,moneda,fecha,tasaDia:state.rates[moneda]||0,estado:'pendiente',creadoPor:getMiNombre()||'',creadoEn:new Date().toISOString()});E('modalFiado').classList.remove('visible');['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>E(id).value='');E('fiadoCantidad').value='1';toast(`✅ Fiado de ${deudor} registrado`,'success',2500);cargarFiados();const tasaHoy=state.rates[moneda]||0,totalHoy=round(monto*tasaHoy);const sim=moneda==='EUR'?'€':'$',yo=getMiNombre()||'Yo';const cantFstr=cantidadF>1?`🔢 *Cantidad:* ${cantidadF} unidades\n💵 *Precio unitario:* ${precioUnitF.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}\n`:'';const msg=`⚡ *Epic Converter LUAN*\n\n🤝 *Operación:* Venta a Crédito${desc?' de '+desc:''}\n👤 *${yo} → ${deudor}*\n📦 *${yo} entrega:* ${desc||'mercancía'}\n${cantFstr}💰 *Total deuda:* ${monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}\n📊 *Tasa hoy:* ${fmt(tasaHoy)} Bs\n💰 *${deudor} debe hoy:* Bs ${fmt(totalHoy)}\n📅 *Fecha del fiado:* ${fecha}\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_\n\n🏦 _LUANSystem™ Professional · Ing. LuisLa_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}catch(e){toast('❌ Error guardando fiado','error');console.error(e);}};
+async function cargarFiados(){const lista=E('listFiados');lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';try{const snap=await getDocs(query(collection(db,'fiados'),where('estado','==','pendiente'),limit(50)));if(snap.empty){lista.innerHTML='<div class="empty-state">🤝 No hay fiados pendientes</div>';return;}let html='';snap.forEach(docSnap=>{const d=docSnap.data(),id=docSnap.id;const tasaHoy=state.rates[d.moneda]||d.tasaDia||0;const totalHoy=round(d.monto*tasaHoy);const sim=d.moneda==='EUR'?'€':'$';const info=JSON.stringify({id,deudor:d.deudor,desc:d.desc,monto:d.monto,moneda:d.moneda,sim,fecha:d.fecha,tasaHoy,totalHoy}).replace(/"/g,'&quot;');html+=`<div class="fiado-card" data-id="${id}" data-info="${info}"><div class="fiado-nombre">👤 ${d.deudor}</div>${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}<div class="fiado-fecha">📅 Fiado el: ${d.fecha}</div><div class="fiado-monto-original">💵 Deuda: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}</div><div class="fiado-monto-hoy">💰 Debe hoy: Bs ${fmt(totalHoy)}</div><div class="fiado-nota">📊 Tasa ${d.moneda} hoy: ${fmt(tasaHoy)} Bs</div><div class="fiado-btns"><button class="btn-cobrar" onclick="abrirCobro('${id}')">✅ Cobrar</button><button class="btn-wa-fiado" onclick="waFiado('${id}')">📲 WA cobro</button><button class="btn-del-fiado" onclick="borrarFiado('${id}')">🗑️</button></div></div>`;});lista.innerHTML=html;}catch(e){lista.innerHTML='<div class="empty-state">❌ Error cargando fiados</div>';console.error(e);}}
 window.cargarFiados=cargarFiados;
-
-// ── Helper seguro para leer data-info ──
-function getFiadoData(id){
-    const card=document.querySelector(`.fiado-card[data-id="${id}"]`);
-    if(!card) return null;
-    try{ return JSON.parse(card.dataset.info.replace(/&quot;/g,'"')); }catch{ return null; }
-}
-
-window.abrirCobro=function(id){
-    fiadoActivoId=id;
-    const d=getFiadoData(id); if(!d) return;
-    document.getElementById('cobrarTitulo').textContent=`💰 Cobrar a ${d.deudor}`;
-    document.getElementById('cobrarDesc').textContent=d.desc||'';
-    document.getElementById('cobrarOriginal').textContent=`${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim} — Fiado el ${d.fecha}`;
-    document.getElementById('cobrarTasaHoy').textContent=`${fmt(d.tasaHoy)} Bs/${d.sim}`;
-    document.getElementById('cobrarTotal').textContent=`Bs ${fmt(d.totalHoy)}`;
-    document.getElementById('modalCobrar').classList.add('visible');
-};
-window.cerrarModalCobrar=function(){ document.getElementById('modalCobrar').classList.remove('visible'); fiadoActivoId=null; };
-
-window.confirmarCobro=async function(){
-    if(!fiadoActivoId) return;
-    const d=getFiadoData(fiadoActivoId); if(!d) return;
-    try{
-        await addDoc(collection(db,'historial'),{...d,estado:'pagado',fechaPago:fechaHoy(),tasaCobro:d.tasaHoy,bsCobrado:d.totalHoy,pagadoEn:new Date().toISOString()});
-        await deleteDoc(doc(db,'fiados',fiadoActivoId));
-        cerrarModalCobrar(); toast(`✅ ¡${d.deudor} pagó! Bs ${fmt(d.totalHoy)}`,'success',3000); cargarFiados();
-        const yo=getMiNombre()||'Yo';
-        const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Cobro de deuda${d.desc?' — '+d.desc:''}*\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda contraída el:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *${d.deudor} cancela hoy:* Bs ${fmt(d.totalHoy)}\n\n✅ _Deuda saldada a tasa del día_\n_LUANSystem™ Professional · Ing. LuisLa_`;
-        window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    }catch(e){ toast('❌ Error al confirmar cobro','error'); }
-};
-
-window.waFiado=function(id){
-    const d=getFiadoData(id); if(!d) return;
-    const yo=getMiNombre()||'Yo';
-    const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Aviso de cobro:* ${d.desc||''}\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda del:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *Debes hoy:* Bs ${fmt(d.totalHoy)}\n\n⚠️ _Tasa del día — sujeta a cambio_\n_LUANSystem™ Professional · Ing. LuisLa_`;
-    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-};
-
-window.borrarFiado=async function(id){ if(!confirm('¿Borrar este fiado?')) return; try{ await deleteDoc(doc(db,'fiados',id)); toast('🗑️ Eliminado','info'); cargarFiados(); }catch(e){ toast('❌ Error','error'); } };
-
-// ── Historial con orderBy+limit (tu mejora aplicada) ──
-async function cargarHistorial(){
-    const lista=document.getElementById('listHistorial');
-    lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';
-    try{
-        const q=query(collection(db,'historial'),orderBy('pagadoEn','desc'),limit(30));
-        const snap=await getDocs(q);
-        if(snap.empty){ lista.innerHTML='<div class="empty-state">📋 El historial está vacío</div>'; return; }
-        let html='';
-        snap.forEach(docSnap=>{
-            const d=docSnap.data();
-            html+=`<div class="historial-card">
-                <span class="historial-badge">✅ PAGADO</span>
-                <div class="fiado-nombre" style="color:var(--success);">👤 ${d.deudor}</div>
-                ${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}
-                <div class="fiado-fecha">📅 Fiado: ${d.fecha} — Pagado: ${d.fechaPago}</div>
-                <div class="fiado-monto-original">💵 Deuda: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}</div>
-                <div class="fiado-monto-hoy" style="color:var(--success);">💰 Cobrado: Bs ${fmt(d.bsCobrado)}</div>
-                <div class="fiado-nota">📊 Tasa del cobro: ${fmt(d.tasaCobro)} Bs</div>
-            </div>`;
-        });
-        lista.innerHTML=html;
-    }catch(e){ lista.innerHTML='<div class="empty-state">❌ Error</div>'; console.error(e); }
-}
+function getFiadoData(id){const card=document.querySelector(`.fiado-card[data-id="${id}"]`);if(!card)return null;try{return JSON.parse(card.dataset.info.replace(/&quot;/g,'"'));}catch{return null;}}
+window.abrirCobro=function(id){fiadoActivoId=id;const d=getFiadoData(id);if(!d)return;E('cobrarTitulo').textContent=`💰 Cobrar a ${d.deudor}`;E('cobrarDesc').textContent=d.desc||'';E('cobrarOriginal').textContent=`${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim} — Fiado el ${d.fecha}`;E('cobrarTasaHoy').textContent=`${fmt(d.tasaHoy)} Bs/${d.sim}`;E('cobrarTotal').textContent=`Bs ${fmt(d.totalHoy)}`;E('modalCobrar').classList.add('visible');};
+window.cerrarModalCobrar=function(){E('modalCobrar').classList.remove('visible');fiadoActivoId=null;};
+window.confirmarCobro=async function(){if(!fiadoActivoId)return;const d=getFiadoData(fiadoActivoId);if(!d)return;try{await addDoc(collection(db,'historial'),{...d,estado:'pagado',fechaPago:fechaHoy(),tasaCobro:d.tasaHoy,bsCobrado:d.totalHoy,pagadoEn:new Date().toISOString()});await deleteDoc(doc(db,'fiados',fiadoActivoId));cerrarModalCobrar();toast(`✅ ¡${d.deudor} pagó! Bs ${fmt(d.totalHoy)}`,'success',3000);cargarFiados();const yo=getMiNombre()||'Yo';const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Cobro de deuda${d.desc?' — '+d.desc:''}*\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda contraída el:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *${d.deudor} cancela hoy:* Bs ${fmt(d.totalHoy)}\n\n✅ _Deuda saldada a tasa del día_\n_LUANSystem™ Professional · Ing. LuisLa_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}catch(e){toast('❌ Error','error');}};
+window.waFiado=function(id){const d=getFiadoData(id);if(!d)return;const yo=getMiNombre()||'Yo';const msg=`⚡ *Epic Converter LUAN*\n\n💰 *Aviso de cobro:* ${d.desc||''}\n👤 *${d.deudor} → ${yo}*\n📅 *Deuda del:* ${d.fecha}\n💵 *Deuda pactada:* ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}\n📊 *Tasa ${d.moneda} hoy:* ${fmt(d.tasaHoy)} Bs\n💰 *Debes hoy:* Bs ${fmt(d.totalHoy)}\n\n⚠️ _Tasa del día — sujeta a cambio_\n_LUANSystem™ Professional · Ing. LuisLa_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');};
+window.borrarFiado=async function(id){if(!confirm('¿Borrar este fiado?'))return;try{await deleteDoc(doc(db,'fiados',id));toast('🗑️ Eliminado','info');cargarFiados();}catch(e){toast('❌ Error','error');}};
+async function cargarHistorial(){const lista=E('listHistorial');lista.innerHTML='<div class="empty-state">⏳ Cargando...</div>';try{const snap=await getDocs(query(collection(db,'historial'),orderBy('pagadoEn','desc'),limit(30)));if(snap.empty){lista.innerHTML='<div class="empty-state">📋 El historial está vacío</div>';return;}let html='';snap.forEach(docSnap=>{const d=docSnap.data();html+=`<div class="historial-card"><span class="historial-badge">✅ PAGADO</span><div class="fiado-nombre" style="color:var(--success);">👤 ${d.deudor}</div>${d.desc?`<div class="fiado-desc">📦 ${d.desc}</div>`:''}<div class="fiado-fecha">📅 Fiado: ${d.fecha} — Pagado: ${d.fechaPago}</div><div class="fiado-monto-original">💵 Deuda: ${d.monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${d.sim}</div><div class="fiado-monto-hoy" style="color:var(--success);">💰 Cobrado: Bs ${fmt(d.bsCobrado)}</div><div class="fiado-nota">📊 Tasa del cobro: ${fmt(d.tasaCobro)} Bs</div></div>`;});lista.innerHTML=html;}catch(e){lista.innerHTML='<div class="empty-state">❌ Error</div>';}}
 window.cargarHistorial=cargarHistorial;
-window.limpiarHistorial=async function(){ if(!confirm('¿Limpiar todo el historial?')) return; try{ const snap=await getDocs(collection(db,'historial')); await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'historial',d.id)))); toast('🗑️ Historial limpiado','info'); cargarHistorial(); }catch(e){ toast('❌ Error','error'); } };
-
-// ══ CALCULADORA AHORRO ══
-window.calcAhorro = function(){
-    const p = parseFloat(document.getElementById("aPrecio").value)||0;
-    const bcv = parseFloat(document.getElementById("aBCV").value)||0;
-    const par = parseFloat(document.getElementById("aParalelo").value)||1;
-    document.getElementById("aSlider").value = par;
-    document.getElementById("aSliderVal").textContent = par.toFixed(2)+" Bs/$";
-    if(p<=0||bcv<=0){ return; }
-    const bs = p * bcv;
-    const vender = bs / par;
-    const ahorro = p - vender;
-    const pct = (ahorro/p)*100;
-    document.getElementById("aValBs").textContent = bs.toLocaleString("es-VE",{minimumFractionDigits:2})+" Bs";
-    document.getElementById("aVender").textContent = vender.toFixed(2)+" $";
-    document.getElementById("aAhorro").textContent = ahorro.toFixed(2)+" $";
-    document.getElementById("aPorcentaje").textContent = pct.toFixed(2)+" %";
-    const est = document.getElementById("aEstado");
-    est.style.display = "block";
-    if(ahorro > 1){ est.style.background="rgba(78,204,163,0.15)"; est.style.color="var(--success)"; est.textContent="🟢 Conviene vender dólares y pagar en Bs"; }
-    else if(ahorro > 0){ est.style.background="rgba(255,165,0,0.15)"; est.style.color="var(--warning)"; est.textContent="🟡 El ahorro es mínimo"; }
-    else{ est.style.background="rgba(255,107,107,0.15)"; est.style.color="var(--danger)"; est.textContent="🔴 No conviene — paga directo en $"; }
-};
-
-window.sendWAAhorro = function(){
-    const p = parseFloat(document.getElementById("aPrecio").value)||0;
-    const bcv = parseFloat(document.getElementById("aBCV").value)||0;
-    const par = parseFloat(document.getElementById("aParalelo").value)||1;
-    if(p<=0||bcv<=0||par<=0){ toast("⚠️ Completa los valores","error"); return; }
-    const bs = p*bcv;
-    const vender = bs/par;
-    const ahorro = p-vender;
-    const pct = (ahorro/p)*100;
-    const yo = getMiNombre()||"Yo";
-    const estado = ahorro>1?"🟢 Conviene vender $ y pagar en Bs":ahorro>0?"🟡 Ahorro mínimo":"🔴 No conviene";
-    const msg = "⚡ *Epic Converter LUAN*\n\n💹 *Calculadora de Ahorro en Divisas*\n\n💵 *Precio del producto:* "+p.toFixed(2)+" $\n📊 *Tasa BCV:* "+bcv.toFixed(2)+" Bs\n🏪 *Tasa paralela:* "+par.toFixed(2)+" Bs\n\n💰 *Valor en Bs:* "+bs.toLocaleString("es-VE",{minimumFractionDigits:2})+" Bs\n💵 *Debes vender:* "+vender.toFixed(2)+" $\n💲 *Ahorras:* "+ahorro.toFixed(2)+" $ ("+pct.toFixed(2)+"%)\n\n"+estado+"\n\n🏦 _Ref: BCV · LUANSystem™ Professional · "+yo+"_";
-    window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
-    toast("📤 Abriendo WhatsApp...","success",2000);
-};
-
-// Auto-cargar tasas BCV y Binance al abrir tab ahorro
-const _origCambiarTab = window.cambiarTab;
-window.cambiarTab = function(tab){
-    _origCambiarTab(tab);
-    if(tab==="ahorro"){
-        if(state.rates.USD>0) document.getElementById("aBCV").value = state.rates.USD.toFixed(2);
-        if(state.rates.BIN>0) document.getElementById("aParalelo").value = state.rates.BIN.toFixed(2);
-        calcAhorro();
-    }
-};
-
-// ══ SESIÓN ══
-function saveSession(){
-    localStorage.setItem('luan_session', JSON.stringify({
-        monto:els.monto.value, tasa:els.tasa.value,
-        code:state.current.code, name:state.current.name,
-        direction:state.direction, tasaManual:state.tasaManual,
-        tasaManualCode:state.tasaManualCode, acumulador,
-        tipoOp:state.tipoOp, motivo:els.motivoInput.value,
-        contraparte:els.contraparte.value
-    }));
-}
+window.limpiarHistorial=async function(){if(!confirm('¿Limpiar todo el historial?'))return;try{const snap=await getDocs(collection(db,'historial'));await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'historial',d.id))));toast('🗑️ Historial limpiado','info');cargarHistorial();}catch(e){toast('❌ Error','error');}};
+window.calcAhorro1=function(){const p=parseFloat(E('aPrecio').value)||0;const bcv=parseFloat(E('aBCV').value)||0;const par=parseFloat(E('aParalelo').value)||1;E('aSlider').value=par;E('aSliderVal').textContent=par.toLocaleString('es-VE',{minimumFractionDigits:2})+' Bs/$';if(p<=0||bcv<=0)return;const bs=round(p*bcv);const vender=round(bs/par);const ahorro=round(p-vender);const pct=round((ahorro/p)*100);E('aValBs').textContent=fmt(bs)+' Bs';E('aVender').textContent=vender.toFixed(2)+' $';E('aAhorro').textContent=ahorro.toFixed(2)+' $';E('aPorcentaje').textContent=pct.toFixed(2)+' %';const est=E('aEstado1');est.style.display='block';if(ahorro>1){est.style.background='rgba(78,204,163,0.15)';est.style.color='var(--success)';est.textContent='🟢 Conviene vender dólares y pagar en Bs';}else if(ahorro>0){est.style.background='rgba(255,165,0,0.15)';est.style.color='var(--warning)';est.textContent='🟡 El ahorro es mínimo';}else{est.style.background='rgba(255,107,107,0.15)';est.style.color='var(--danger)';est.textContent='🔴 No conviene — paga directo en $';}};
+window.calcAhorro2=function(){const pBCV=parseFloat(E('bPrecioBCV').value)||0;const pEf=parseFloat(E('bPrecioEfectivo').value)||0;const bcv=parseFloat(E('bBCV').value)||0;const par=parseFloat(E('bParalelo').value)||1;E('bSlider').value=par;E('bSliderVal').textContent=par.toLocaleString('es-VE',{minimumFractionDigits:2})+' Bs/$';if(pBCV<=0||bcv<=0)return;const bs=round(pBCV*bcv);const vender=round(bs/par);const dif=round(pEf-vender);E('bValBs').textContent=fmt(bs)+' Bs';E('bVender').textContent=vender.toFixed(2)+' $';E('bEfectivo').textContent=pEf.toFixed(2)+' $';E('bDiferencia').textContent=dif.toFixed(2)+' $';const est=E('aEstado2');est.style.display='block';if(dif>0){est.style.background='rgba(78,204,163,0.15)';est.style.color='var(--success)';est.textContent='🟢 Conviene vender $ y pagar en Bs (precio BCV)';}else{est.style.background='rgba(255,107,107,0.15)';est.style.color='var(--danger)';est.textContent='🔴 Conviene pagar en efectivo en $';}};
+window.sendWAAhorro1=function(){const p=parseFloat(E('aPrecio').value)||0;const bcv=parseFloat(E('aBCV').value)||0;const par=parseFloat(E('aParalelo').value)||1;if(p<=0||bcv<=0){toast('⚠️ Completa los valores','error');return;}const bs=round(p*bcv);const vender=round(bs/par);const ahorro=round(p-vender);const pct=round((ahorro/p)*100);const yo=getMiNombre()||'Yo';const estado=ahorro>1?'🟢 Conviene vender $ y pagar en Bs':ahorro>0?'🟡 Ahorro mínimo':'🔴 No conviene';const msg=`⚡ *Epic Converter LUAN*\n\n💹 *Calculadora de Ahorro — Precio Único*\n\n💵 *Precio del producto:* ${p.toFixed(2)} $\n📊 *Tasa BCV:* ${bcv.toFixed(2)} Bs\n🏪 *Tasa paralela:* ${par.toFixed(2)} Bs\n\n💰 *Valor en Bs:* ${fmt(bs)} Bs\n💵 *Debes vender:* ${vender.toFixed(2)} $\n💲 *Ahorras:* ${ahorro.toFixed(2)} $ (${pct.toFixed(2)}%)\n\n${estado}\n\n🏦 _Ref: BCV · LUANSystem™ · ${yo}_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 WhatsApp...','success',2000);};
+window.sendWAAhorro2=function(){const pBCV=parseFloat(E('bPrecioBCV').value)||0;const pEf=parseFloat(E('bPrecioEfectivo').value)||0;const bcv=parseFloat(E('bBCV').value)||0;const par=parseFloat(E('bParalelo').value)||1;if(pBCV<=0||bcv<=0){toast('⚠️ Completa los valores','error');return;}const bs=round(pBCV*bcv);const vender=round(bs/par);const dif=round(pEf-vender);const yo=getMiNombre()||'Yo';const estado=dif>0?'🟢 Conviene vender $ y pagar en Bs':'🔴 Conviene pagar en efectivo en $';const msg=`⚡ *Epic Converter LUAN*\n\n💹 *Calculadora de Ahorro — BCV / Efectivo*\n\n💵 *Precio BCV:* ${pBCV.toFixed(2)} $\n💵 *Precio efectivo:* ${pEf.toFixed(2)} $\n📊 *Tasa BCV:* ${bcv.toFixed(2)} Bs\n🏪 *Tasa paralela:* ${par.toFixed(2)} Bs\n\n💰 *Total en Bs (BCV):* ${fmt(bs)} Bs\n💵 *Debes vender:* ${vender.toFixed(2)} $\n💵 *Pagas en efectivo:* ${pEf.toFixed(2)} $\n💲 *Diferencia:* ${dif.toFixed(2)} $\n\n${estado}\n\n🏦 _Ref: BCV · LUANSystem™ · ${yo}_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 WhatsApp...','success',2000);};
+function saveSession(){localStorage.setItem('luan_session',JSON.stringify({monto:els.monto.value,tasa:els.tasa.value,code:state.current.code,name:state.current.name,direction:state.direction,tasaManual:state.tasaManual,tasaManualCode:state.tasaManualCode,acumulador,tipoOp:state.tipoOp,motivo:els.motivoInput.value,contraparte:els.contraparte.value}));}
 window.saveSession=saveSession;
-
-function restoreSession(){
-    try{
-        const s=JSON.parse(localStorage.getItem('luan_session')||'null'); if(!s) return;
-        if(s.monto) els.monto.value=s.monto;
-        if(s.tasa)  els.tasa.value=s.tasa;
-        if(s.tasaManual){ state.tasaManual=true; state.tasaManualCode=s.tasaManualCode||null; els.tasa.classList.add('manual'); }
-        if(s.code) selectCurrency(s.code, s.name||s.code);
-        if(s.direction) setTimeout(()=>setDirection(s.direction),60);
-        if(s.acumulador>0){ acumulador=s.acumulador; actualizarDisplayAcumulador(); }
-        if(s.tipoOp) setTimeout(()=>seleccionarTipoOp(s.tipoOp),80);
-        if(s.motivo) setTimeout(()=>{ els.motivoInput.value=s.motivo; },90);
-        if(s.contraparte) setTimeout(()=>{ els.contraparte.value=s.contraparte; actualizarPill(); },95);
-    }catch(e){}
-}
-
-// ══ INIT — con visibilitychange (tu mejora aplicada) ══
-document.addEventListener('DOMContentLoaded',()=>{
-    aplicarTema(localStorage.getItem('luan_tema')||'noche');
-    document.getElementById('btnLimpiarAcum').addEventListener('click',()=>limpiarAcumulador());
-    document.getElementById('btnEnterAcum').addEventListener('click',()=>aplicarAcumulador());
-    verificarAccesoGuardado();
-
-    // Intervalo inteligente: pausa cuando la app está en background
-    let intervalo=null;
-    function iniciarIntervalo(){ if(intervalo) clearInterval(intervalo); intervalo=setInterval(()=>{ if(navigator.onLine&&document.visibilityState==='visible') loadData(); },5*60*1000); }
-    document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ loadData(); iniciarIntervalo(); }else{ if(intervalo) clearInterval(intervalo); } });
-    iniciarIntervalo();
-});
-
-if('serviceWorker' in navigator){
-    window.addEventListener('load',async()=>{
-        try{
-            const reg=await navigator.serviceWorker.register('./service-worker.js');
-            reg.addEventListener('updatefound',()=>{
-                reg.installing?.addEventListener('statechange',function(){
-                    if(this.state==='installed'&&navigator.serviceWorker.controller)
-                        toast('🔄 Nueva versión disponible','info',5000);
-                });
-            });
-        }catch(e){}
-    });
-}
+function restoreSession(){try{const s=JSON.parse(localStorage.getItem('luan_session')||'null');if(!s)return;if(s.monto)els.monto.value=s.monto;if(s.tasa)els.tasa.value=s.tasa;if(s.tasaManual){state.tasaManual=true;state.tasaManualCode=s.tasaManualCode||null;els.tasa.classList.add('manual');}if(s.code)selectCurrency(s.code,s.name||s.code);if(s.direction)setTimeout(()=>setDirection(s.direction),60);if(s.acumulador>0){acumulador=s.acumulador;actualizarDisplayAcumulador();}if(s.tipoOp)setTimeout(()=>seleccionarTipoOp(s.tipoOp),80);if(s.motivo)setTimeout(()=>{els.motivoInput.value=s.motivo;},90);if(s.contraparte)setTimeout(()=>{els.contraparte.value=s.contraparte;actualizarPill();},95);}catch(e){}}
+document.addEventListener('DOMContentLoaded',()=>{aplicarTema(localStorage.getItem('luan_tema')||'noche');E('btnLimpiarAcum').addEventListener('click',()=>limpiarAcumulador());E('btnEnterAcum').addEventListener('click',()=>aplicarAcumulador());verificarAccesoGuardado();let intervalo=null;function iniciarIntervalo(){if(intervalo)clearInterval(intervalo);intervalo=setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')loadData();},5*60*1000);}document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadData();iniciarIntervalo();}else{if(intervalo)clearInterval(intervalo);}});iniciarIntervalo();});
+if('serviceWorker'in navigator){window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./service-worker.js');reg.addEventListener('updatefound',()=>{reg.installing?.addEventListener('statechange',function(){if(this.state==='installed'&&navigator.serviceWorker.controller)toast('🔄 Nueva versión disponible','info',5000);});});}catch(e){}});}
 </script>
 </body>
 </html>
