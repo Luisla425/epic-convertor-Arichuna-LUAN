@@ -594,7 +594,7 @@ else{lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`�
 }else if(tipo==='compra'){
 lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);lineaRecibe=`💰 *${yo} paga:* ${total}`;}
-else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio en Bs:* ${mF} Bs`);lineaRecibe=`💎 *${yo} paga en ${sim}:* ${total} ${sim}`;}
+else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio en Bs:* ${mF} Bs`);const totalReal=cantidad>1?fmt(round(montoTotal/tasa))+' '+sim:total;lineaRecibe=`💎 *${yo} paga:* ${totalReal}`;}
 }else if(tipo==='pago'){
 lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}
