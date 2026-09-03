@@ -562,7 +562,108 @@ function calc(){const m=parseFloat(els.monto.value)||0,t=parseFloat(els.tasa.val
 function renderMulti(m){if(m<=0){els.multiRes.classList.remove('visible');return;}els.multiRes.classList.add('visible');const dir=state.direction;if(dir==='DivisaABs'){els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';els.rowBS.style.display='none';}else{els.rowBS.style.display='flex';els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';els.mBS.textContent=fmt(m)+' Bs';}}
 window.copiarResultado=function(){const txt=els.resTotal.textContent.trim();if(!txt)return;navigator.clipboard.writeText(txt).then(()=>toast('📋 Copiado','success',2000));};
 window.usarTasaOficial=function(){if(state.rates.USD>0){els.tasa.value=state.rates.USD.toFixed(2);state.tasaManual=false;els.tasa.classList.remove('manual');toast('📌 Tasa BCV cargada','success',2000);calc();}else toast('⚠️ Actualiza las tasas','error');};
-window.sendWA=function(){const m=els.monto.value.trim(),t=els.tasa.value.trim();if(!m||!t){toast('⚠️ Ingresa monto y tasa','error');return;}const hayRes=els.resTotal.textContent.trim()&&els.resTotal.textContent.trim()!=='0.00';if(!hayRes){toast('⚠️ Calcula primero','error');return;}const total=els.resTotal.textContent.trim(),{code,name}=state.current;const mF=parseFloat(m).toLocaleString('es-VE',{minimumFractionDigits:2});const tF=parseFloat(t).toLocaleString('es-VE',{minimumFractionDigits:2});const sim=code==='EUR'?'€':'$',dir=state.direction,tipo=state.tipoOp;const motivo=els.motivoInput.value.trim(),otro=els.contraparte.value.trim(),yo=getMiNombre();const cantidad=parseFloat(E('cantidadInput')?.value)||1;const unidad=E('unidadInput')?.value.trim()||'';const unidStr=unidad?' '+unidad:' unidades';const precioUnit=parseFloat(els.monto.value)||0;const montoTotal=cantidad>1?round(precioUnit*cantidad):precioUnit;const mFtotal=montoTotal.toLocaleString('es-VE',{minimumFractionDigits:2});const cantStr=cantidad>1?`🔢 *Cantidad:* ${cantidad}${unidStr}\n💵 *Precio unitario:* ${mF} ${sim}\n💰 *Total:* ${mFtotal} ${sim}`:'';const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa',CON:'Tasa Personalizada'};const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};let lineaParticipantes='';if(otro)lineaParticipantes=tipo==='compra'?`👤 *${otro} → ${yo||'Yo'}*`:`👤 *${yo||'Yo'} → ${otro}*`;let lineaOp='',lineaEntrega='',lineaRecibe='';if(tipo==='venta'){lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;const ent=(motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);if(dir==='DivisaABs'){lineaEntrega=ent;lineaRecibe=`💰 *${otro?otro+' paga / ':''}${yo||'Yo'} recibe:* ${total}`;}else{lineaEntrega=(motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio pactado:* ${mF} Bs`);lineaRecibe=`💎 *${otro?otro+' paga / ':''}${yo||'Yo'} recibe:* ${total} ${sim}`;}}else if(tipo==='compra'){lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);lineaRecibe=`💰 *${yo||'Yo'} paga:* ${total}`;}else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *${yo||'Yo'} paga:* ${mF} Bs`);lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;}}else if(tipo==='pago'){lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=cantStr||`💵 *Monto en ${sim}:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}else{lineaEntrega=`💸 *${yo||'Yo'} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;}}else if(tipo==='cambio'){lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo||'Yo'} entrega:* ${mF} ${sim}`;lineaRecibe=`💰 *${yo||'Yo'} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}else{lineaEntrega=`💸 *${yo||'Yo'} entrega:* ${mF} Bs`;lineaRecibe=`💎 *${yo||'Yo'} recibe:* ${total} ${sim}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;}}else if(tipo==='fiado'){lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}else{lineaEntrega=motivo?`📦 *${yo||'Yo'} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`;lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;}else{lineaOp=dir==='DivisaABs'?`🤝 *Operación:* Conversión ${name} → Bs`:`🤝 *Operación:* Conversión Bs → ${name}`;lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;}const msg=['⚡ *Epic Converter LUAN*','',lineaOp,lineaParticipantes,lineaEntrega,`📊 *${labTasa[code]}:* ${tF} Bs`,lineaRecibe,'',`${emo[code]} _Ref: ${src[code]}_`,'_LUANSystem™ Professional · Ing. LuisLa_'].filter(Boolean).join('\n');window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 Abriendo WhatsApp...','success',2000);};
+window.sendWA=function(){
+const m=els.monto.value.trim(),t=els.tasa.value.trim();
+if(!m||!t){toast('⚠️ Ingresa monto y tasa','error');return;}
+const hayRes=els.resTotal.textContent.trim()&&els.resTotal.textContent.trim()!=='0.00';
+if(!hayRes){toast('⚠️ Calcula primero','error');return;}
+const total=els.resTotal.textContent.trim(),{code,name}=state.current;
+const monto=parseFloat(m)||0;
+const tasa=parseFloat(t)||0;
+const dir=state.direction,tipo=state.tipoOp;
+const sim=code==='EUR'?'€':'$';
+// Símbolo y etiqueta según dirección
+const simEntrada=dir==='DivisaABs'?sim:'Bs';
+const simSalida=dir==='DivisaABs'?'Bs':sim;
+const mF=monto.toLocaleString('es-VE',{minimumFractionDigits:2});
+const tF=tasa.toLocaleString('es-VE',{minimumFractionDigits:2});
+const motivo=els.motivoInput.value.trim(),otro=els.contraparte.value.trim(),yo=getMiNombre()||'Yo';
+const cantidad=parseFloat(E('cantidadInput')?.value)||1;
+const unidad=E('unidadInput')?.value.trim()||'';
+const unidStr=unidad?' '+unidad:' unidades';
+// Precio unitario y total siempre en la moneda de entrada
+const montoTotal=cantidad>1?round(monto*cantidad):monto;
+const mFtotal=montoTotal.toLocaleString('es-VE',{minimumFractionDigits:2});
+const cantStr=cantidad>1?`🔢 *Cantidad:* ${cantidad}${unidStr}\n💵 *Precio unitario:* ${mF} ${simEntrada}\n💰 *Total:* ${mFtotal} ${simEntrada}`:'';
+const labTasa={USD:'Tasa BCV',EUR:'Tasa Euro',BIN:'Tasa Binance P2P',CON:'Tasa Acordada'};
+const src={USD:'Banco Central de Venezuela (BCV)',EUR:'Tasa Euro Oficial',BIN:'Binance P2P · CriptoYa',CON:'Tasa Personalizada'};
+const emo={USD:'🏦',EUR:'🇪🇺',BIN:'💹',CON:'🤝'};
+let lineaParticipantes='';
+if(otro)lineaParticipantes=tipo==='compra'?`👤 *${otro} → ${yo}*`:`👤 *${yo} → ${otro}*`;
+let lineaOp='',lineaEntrega='',lineaRecibe='';
+if(tipo==='venta'){
+  // VENTA: Yo entrego mercancía, recibo dinero
+  lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
+  if(dir==='DivisaABs'){
+    // Vendo en $ → recibo Bs
+    lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);
+    lineaRecibe=`💰 *${otro?otro+' paga — ':''}${yo} recibe:* ${total}`;
+  }else{
+    // Vendo en Bs → recibo $
+    lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio pactado:* ${mF} Bs`);
+    lineaRecibe=`💎 *${otro?otro+' paga — ':''}${yo} recibe:* ${total} ${sim}`;
+  }
+}else if(tipo==='compra'){
+  // COMPRA: Otro entrega mercancía, yo pago
+  lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
+  if(dir==='DivisaABs'){
+    // Compro pagando en $ → entrego Bs como resultado
+    lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);
+    lineaRecibe=`💰 *${yo} paga:* ${total}`;
+  }else{
+    // Compro pagando en Bs → resultado en $
+    lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio en Bs:* ${mF} Bs`);
+    lineaRecibe=`💎 *${yo} paga en $:* ${total} ${sim}`;
+  }
+}else if(tipo==='pago'){
+  // PAGO: Yo pago un servicio/deuda
+  lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
+  if(dir==='DivisaABs'){
+    lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;
+    lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;
+  }else{
+    lineaEntrega=`💸 *${yo} paga:* ${mF} Bs`;
+    lineaRecibe=`💎 *Equivalente en ${sim}:* ${total} ${sim}`;
+  }
+}else if(tipo==='cambio'){
+  // CAMBIO: Intercambio de divisas
+  lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
+  if(dir==='DivisaABs'){
+    lineaEntrega=`💵 *${yo} entrega:* ${mF} ${sim}`;
+    lineaRecibe=`💰 *${yo} recibe:* ${total}`;
+    if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;
+  }else{
+    lineaEntrega=`💸 *${yo} entrega:* ${mF} Bs`;
+    lineaRecibe=`💎 *${yo} recibe:* ${total} ${sim}`;
+    if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;
+  }
+}else if(tipo==='fiado'){
+  // FIADO: Yo entrego mercancía, otro me debe
+  lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;
+  if(dir==='DivisaABs'){
+    lineaEntrega=motivo?`📦 *${yo} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`;
+    lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;
+  }else{
+    lineaEntrega=motivo?`📦 *${yo} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`;
+    lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`;
+  }
+  lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;
+}else{
+  // Sin tipo seleccionado — conversión simple
+  lineaOp=dir==='DivisaABs'?`💱 *Conversión:* ${name} → Bs`:`💱 *Conversión:* Bs → ${name}`;
+  lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;
+  lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total} ${sim}`;
+}
+const msg=[
+  '⚡ *Epic Converter LUAN*','',
+  lineaOp,lineaParticipantes,lineaEntrega,
+  `📊 *${labTasa[code]}:* ${tF} Bs`,
+  lineaRecibe,'',
+  `${emo[code]} _Ref: ${src[code]}_`,
+  '_LUANSystem™ Professional · Ing. LuisLa_'
+].filter(Boolean).join('\n');
+window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+toast('📤 Abriendo WhatsApp...','success',2000);e}`;lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;}const msg=['⚡ *Epic Converter LUAN*','',lineaOp,lineaParticipantes,lineaEntrega,`📊 *${labTasa[code]}:* ${tF} Bs`,lineaRecibe,'',`${emo[code]} _Ref: ${src[code]}_`,'_LUANSystem™ Professional · Ing. LuisLa_'].filter(Boolean).join('\n');window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 Abriendo WhatsApp...','success',2000);};
 window.abrirModalFiado=function(){E('fiadoFecha').value=fechaHoy();E('modalFiado').classList.add('visible');};
 window.cerrarModalFiado=function(){E('modalFiado').classList.remove('visible');};
 window.guardarFiado=async function(){const deudor=E('fiadoDeudor').value.trim();const desc=E('fiadoDesc').value.trim();const cantidadF=parseFloat(E('fiadoCantidad').value)||1;const precioUnitF=parseFloat(E('fiadoMonto').value)||0;const monto=round(cantidadF*precioUnitF);const moneda=E('fiadoMoneda').value;const fecha=E('fiadoFecha').value.trim()||fechaHoy();if(!deudor||monto<=0){toast('⚠️ Completa los datos','error');return;}try{await addDoc(collection(db,'fiados'),{deudor,desc,monto,cantidad:cantidadF,precioUnit:precioUnitF,moneda,fecha,tasaDia:state.rates[moneda]||0,estado:'pendiente',creadoPor:getMiNombre()||'',creadoEn:new Date().toISOString()});E('modalFiado').classList.remove('visible');['fiadoDeudor','fiadoDesc','fiadoMonto'].forEach(id=>E(id).value='');E('fiadoCantidad').value='1';toast(`✅ Fiado de ${deudor} registrado`,'success',2500);cargarFiados();const tasaHoy=state.rates[moneda]||0,totalHoy=round(monto*tasaHoy);const sim=moneda==='EUR'?'€':'$',yo=getMiNombre()||'Yo';const cantFstr=cantidadF>1?`🔢 *Cantidad:* ${cantidadF} unidades\n💵 *Precio unitario:* ${precioUnitF.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}\n`:'';const msg=`⚡ *Epic Converter LUAN*\n\n🤝 *Operación:* Venta a Crédito${desc?' de '+desc:''}\n👤 *${yo} → ${deudor}*\n📦 *${yo} entrega:* ${desc||'mercancía'}\n${cantFstr}💰 *Total deuda:* ${monto.toLocaleString('es-VE',{minimumFractionDigits:2})} ${sim}\n📊 *Tasa hoy:* ${fmt(tasaHoy)} Bs\n💰 *${deudor} debe hoy:* Bs ${fmt(totalHoy)}\n📅 *Fecha del fiado:* ${fecha}\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_\n\n🏦 _LUANSystem™ Professional · Ing. LuisLa_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}catch(e){toast('❌ Error guardando fiado','error');console.error(e);}};
