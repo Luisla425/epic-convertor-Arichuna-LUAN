@@ -466,8 +466,8 @@ input[type="range"]{width:100%;margin:10px 0;accent-color:var(--primary);}
 </div>
 <div class="ahorro-panel" id="aPanel2">
 <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:12px;">Compara si conviene pagar en Bs o entregar billetes verdes.</p>
-<label>① PRECIO EN Bs — Lo que cobra el local en bolívares</label>
-<div class="input-wrap"><input type="number" id="bPrecioBs" placeholder="Ej: 80000" step="0.01" inputmode="decimal" oninput="calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bPrecioBs').value='';calcAhorro2()">✕</button></div>
+<label>① PRECIO EN $ — Lo que pide el negocio en dólares (se calcula en Bs según ③)</label>
+<div class="input-wrap"><input type="number" id="bPrecioBs" placeholder="Ej: 230.00" step="0.01" inputmode="decimal" oninput="calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bPrecioBs').value='';calcAhorro2()">✕</button></div>
 <label>② PRECIO EN $ — Lo que pagas si tienes billetes verdes</label>
 <div class="input-wrap"><input type="number" id="bPrecioEfectivo" placeholder="Ej: 90.00" step="0.01" inputmode="decimal" oninput="calcAhorro2()"><button class="btn-clear-field" onclick="document.getElementById('bPrecioEfectivo').value='';calcAhorro2()">✕</button></div>
 <label>③ TASA DEL NEGOCIO — La que exige ese local (Bs/$)</label>
@@ -483,7 +483,7 @@ input[type="range"]{width:100%;margin:10px 0;accent-color:var(--primary);}
 <input type="range" id="bSlider" min="100" max="3000" step="1" value="910" oninput="document.getElementById('bParalelo').value=this.value;calcAhorro2()">
 <div class="ahorro-val-slider" id="bSliderVal">-- Bs/$</div>
 <div class="ahorro-resultado">
-<div class="multi-row"><span class="multi-lbl">🏪 Precio local en Bs</span><span class="multi-val" id="bValBs">--</span></div>
+<div class="multi-row"><span class="multi-lbl">💰 Precio en Bs (①×③)</span><span class="multi-val" id="bValBs">--</span></div>
 <div class="multi-row"><span class="multi-lbl">💵 Debes vender</span><span class="multi-val" id="bVender">--</span></div>
 <div class="multi-row"><span class="multi-lbl">💵 Si pagas en efectivo</span><span class="multi-val" id="bEfectivo">--</span></div>
 <div class="multi-row"><span class="multi-lbl">💲 Diferencia</span><span class="multi-val" id="bDiferencia">--</span></div>
@@ -590,28 +590,28 @@ let lineaOp='',lineaEntrega='',lineaRecibe='';
 if(tipo==='venta'){
 lineaOp=`💰 *Operación:* Venta${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);lineaRecibe=`💰 *${otro?otro+' paga — ':''}${yo} recibe:* ${total}`;}
-else{lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio pactado:* ${mF} Bs`);lineaRecibe=`💎 *${otro?otro+' paga — ':''}${yo} recibe:* ${total} ${sim}`;}
+else{lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio pactado:* ${mF} Bs`);lineaRecibe=`💎 *${otro?otro+' paga — ':''}${yo} recibe:* ${total}`;}
 }else if(tipo==='compra'){
 lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);lineaRecibe=`💰 *${yo} paga:* ${total}`;}
 else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio en Bs:* ${mF} Bs`);const totalReal=cantidad>1?fmt(round(montoTotal/tasa))+' '+sim:total;lineaRecibe=`💎 *${yo} paga:* ${totalReal}`;}
 }else if(tipo==='pago'){
 lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
-if(dir==='DivisaABs'){lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}
-else{lineaEntrega=`💸 *${yo} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total} ${sim}`;}
+if(dir==='DivisaABs'){const totalPago=cantidad>1?'Bs '+fmt(round(montoTotal*tasa)):total;lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${totalPago}`;}
+else{lineaEntrega=`💸 *${yo} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;}
 }else if(tipo==='cambio'){
 lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo} entrega:* ${mF} ${sim}`;lineaRecibe=`💰 *${yo} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}
-else{lineaEntrega=`💸 *${yo} entrega:* ${mF} Bs`;lineaRecibe=`💎 *${yo} recibe:* ${total} ${sim}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${mF} Bs`;}
+else{lineaEntrega=`💸 *${yo} entrega:* ${mF} Bs`;lineaRecibe=`💎 *${yo} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}
 }else if(tipo==='fiado'){
 lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${yo} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}
-else{lineaEntrega=motivo?`📦 *${yo} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`;lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total} ${sim}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}
+else{lineaEntrega=motivo?`📦 *${yo} entrega:* ${motivo}\n💸 *Deuda pactada:* ${mF} Bs`:`💸 *Deuda pactada:* ${mF} Bs`;lineaRecibe=`💎 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}
 lineaRecibe+=`\n\n⚠️ _El monto en Bs variará según la tasa del día que se cancele_`;
 }else{
 lineaOp=dir==='DivisaABs'?`💱 *Conversión:* ${name} → Bs`:`💱 *Conversión:* Bs → ${name}`;
 lineaEntrega=dir==='DivisaABs'?`💵 *Cantidad:* ${mF} ${sim}`:`💸 *Monto:* ${mF} Bs`;
-lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total} ${sim}`;
+lineaRecibe=dir==='DivisaABs'?`💰 *Total en Bs:* ${total}`:`💎 *Total en ${sim}:* ${total}`;
 }
 const msg=['⚡ *Epic Converter LUAN*','',lineaOp,lineaParticipantes,lineaEntrega,`📊 *${labTasa[code]}:* ${tF} Bs`,lineaRecibe,'',`${emo[code]} _Ref: ${src[code]}_`,'_LUANSystem™ Professional · Ing. LuisLa_'].filter(Boolean).join('\n');
 window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
@@ -633,7 +633,31 @@ window.cargarHistorial=cargarHistorial;
 window.limpiarHistorial=async function(){if(!confirm('¿Limpiar todo el historial?'))return;try{const snap=await getDocs(collection(db,'historial'));await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'historial',d.id))));toast('🗑️ Historial limpiado','info');cargarHistorial();}catch(e){toast('❌ Error','error');}};
 window.calcAhorro1=function(){const p=parseFloat(E('aPrecio').value)||0;const bcv=parseFloat(E('aBCV').value)||0;const par=parseFloat(E('aParalelo').value)||1;E('aSlider').value=par;E('aSliderVal').textContent=par.toLocaleString('es-VE',{minimumFractionDigits:2})+' Bs/$';if(p<=0||bcv<=0)return;const bs=round(p*bcv);const vender=round(bs/par);const ahorro=round(p-vender);const pct=round((ahorro/p)*100);E('aValBs').textContent=fmt(bs)+' Bs';E('aVender').textContent=vender.toFixed(2)+' $';E('aAhorro').textContent=ahorro.toFixed(2)+' $';E('aPorcentaje').textContent=pct.toFixed(2)+' %';const est=E('aEstado1');est.style.display='block';if(ahorro>1){est.style.background='rgba(78,204,163,0.15)';est.style.color='var(--success)';est.textContent='🟢 Conviene vender dólares y pagar en Bs';}else if(ahorro>0){est.style.background='rgba(255,165,0,0.15)';est.style.color='var(--warning)';est.textContent='🟡 El ahorro es mínimo';}else{est.style.background='rgba(255,107,107,0.15)';est.style.color='var(--danger)';est.textContent='🔴 No conviene — paga directo en $';}};
 window.selTasaNegocio=function(code){['BCV','BIN','EUR','CON'].forEach(c=>E('bSel'+c).classList.remove('sel-activo'));E('bSel'+code).classList.add('sel-activo');const tasaMap={BCV:state.rates.USD,BIN:state.rates.BIN,EUR:state.rates.EUR};if(code!=='CON'&&tasaMap[code]>0){E('bTasaNegocio').value=tasaMap[code].toFixed(2);}else if(code==='CON'){E('bTasaNegocio').value='';E('bTasaNegocio').focus();}calcAhorro2();};
-window.calcAhorro2=function(){const pBs=parseFloat(E('bPrecioBs').value)||0;const pEf=parseFloat(E('bPrecioEfectivo').value)||0;const tNeg=parseFloat(E('bTasaNegocio').value)||0;const par=parseFloat(E('bParalelo').value)||1;E('bSlider').value=par;E('bSliderVal').textContent=par.toLocaleString('es-VE',{minimumFractionDigits:2})+' Bs/$';if(pBs<=0||par<=0)return;const vender=round(pBs/par);const dif=round(pEf-vender);E('bValBs').textContent=fmt(pBs)+' Bs';E('bVender').textContent=vender.toFixed(2)+' $';E('bEfectivo').textContent=pEf>0?pEf.toFixed(2)+' $':'--';E('bDiferencia').textContent=pEf>0?dif.toFixed(2)+' $':'--';const est=E('aEstado2');est.style.display='block';if(pEf>0){if(dif>0){est.style.background='rgba(78,204,163,0.15)';est.style.color='var(--success)';est.textContent='🟢 Conviene vender $ y pagar en Bs';}else{est.style.background='rgba(255,107,107,0.15)';est.style.color='var(--danger)';est.textContent='🔴 Conviene pagar en efectivo en $';}}else{est.style.background='rgba(255,165,0,0.1)';est.style.color='var(--warning)';est.textContent='💡 Ingresa el precio en $ para comparar';}};
+window.calcAhorro2=function(){
+const pDolar=parseFloat(E('bPrecioBs').value)||0;
+const pEf=parseFloat(E('bPrecioEfectivo').value)||0;
+const tNeg=parseFloat(E('bTasaNegocio').value)||0;
+const par=parseFloat(E('bParalelo').value)||1;
+E('bSlider').value=par;
+E('bSliderVal').textContent=par.toLocaleString('es-VE',{minimumFractionDigits:2})+' Bs/$';
+if(pDolar<=0)return;
+// Precio en Bs = precio$ × tasa del negocio
+const pBs=tNeg>0?round(pDolar*tNeg):0;
+// Para pagar en Bs necesitas vender tus $ al valor de tus billetes
+const vender=par>0&&pBs>0?round(pBs/par):0;
+// Diferencia vs pagar en efectivo
+const dif=pEf>0?round(pEf-vender):0;
+E('bValBs').textContent=pBs>0?fmt(pBs)+' Bs':'Elige tasa ③';
+E('bVender').textContent=vender>0?vender.toFixed(2)+' $':'--';
+E('bEfectivo').textContent=pEf>0?pEf.toFixed(2)+' $':'--';
+E('bDiferencia').textContent=pEf>0?dif.toFixed(2)+' $':'--';
+const est=E('aEstado2');est.style.display='block';
+if(pEf>0&&vender>0){
+if(dif>0){est.style.background='rgba(78,204,163,0.15)';est.style.color='var(--success)';est.textContent='🟢 Conviene vender $ y pagar en Bs';}
+else if(dif<0){est.style.background='rgba(255,107,107,0.15)';est.style.color='var(--danger)';est.textContent='🔴 Conviene pagar en efectivo en $';}
+else{est.style.background='rgba(255,165,0,0.1)';est.style.color='var(--warning)';est.textContent='🟡 Da igual — mismo costo';}
+}else{est.style.background='rgba(255,165,0,0.1)';est.style.color='var(--warning)';est.textContent='💡 Ingresa precio en $ efectivo para comparar';}
+};
 window.sendWAAhorro1=function(){const p=parseFloat(E('aPrecio').value)||0;const bcv=parseFloat(E('aBCV').value)||0;const par=parseFloat(E('aParalelo').value)||1;if(p<=0||bcv<=0){toast('⚠️ Completa los valores','error');return;}const bs=round(p*bcv);const vender=round(bs/par);const ahorro=round(p-vender);const pct=round((ahorro/p)*100);const yo=getMiNombre()||'Yo';const estado=ahorro>1?'🟢 Conviene vender $ y pagar en Bs':ahorro>0?'🟡 Ahorro mínimo':'🔴 No conviene';const msg=`⚡ *Epic Converter LUAN*\n\n💹 *Calculadora de Ahorro — Precio Único*\n\n💵 *Precio del producto:* ${p.toFixed(2)} $\n📊 *Tasa BCV:* ${bcv.toFixed(2)} Bs\n🏪 *Tasa paralela:* ${par.toFixed(2)} Bs\n\n💰 *Valor en Bs:* ${fmt(bs)} Bs\n💵 *Debes vender:* ${vender.toFixed(2)} $\n💲 *Ahorras:* ${ahorro.toFixed(2)} $ (${pct.toFixed(2)}%)\n\n${estado}\n\n🏦 _Ref: BCV · LUANSystem™ · ${yo}_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 WhatsApp...','success',2000);};
 window.sendWAAhorro2=function(){const pBs=parseFloat(E('bPrecioBs').value)||0;const pEf=parseFloat(E('bPrecioEfectivo').value)||0;const tNeg=parseFloat(E('bTasaNegocio').value)||0;const par=parseFloat(E('bParalelo').value)||1;if(pBs<=0||par<=0){toast('⚠️ Completa los valores','error');return;}const vender=round(pBs/par);const dif=round(pEf-vender);const yo=getMiNombre()||'Yo';const estado=dif>0?'🟢 Conviene vender $ y pagar en Bs':'🔴 Conviene pagar en efectivo en $';const negLabel=E('bSelBCV').classList.contains('sel-activo')?'BCV':E('bSelBIN').classList.contains('sel-activo')?'Binance P2P':E('bSelEUR').classList.contains('sel-activo')?'Euro':'Personalizada';const msg=`⚡ *Epic Converter LUAN*\n\n💹 *Calculadora BCV / Efectivo*\n\n💰 *Precio local en Bs:* ${fmt(pBs)} Bs\n💵 *Precio en efectivo:* ${pEf>0?pEf.toFixed(2)+' $':'no indicado'}\n📊 *Tasa del negocio (${negLabel}):* ${tNeg>0?tNeg.toFixed(2)+' Bs':'no indicada'}\n🏪 *Valor de tus $:* ${par.toFixed(2)} Bs\n\n💵 *Debes vender:* ${vender.toFixed(2)} $\n💵 *Si pagas en efectivo:* ${pEf>0?pEf.toFixed(2)+' $':'--'}\n💲 *Diferencia:* ${pEf>0?dif.toFixed(2)+' $':'--'}\n\n${pEf>0?estado:''}\n\n🏦 _LUANSystem™ Professional · ${yo}_`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');toast('📤 WhatsApp...','success',2000);};
 function saveSession(){localStorage.setItem('luan_session',JSON.stringify({monto:els.monto.value,tasa:els.tasa.value,code:state.current.code,name:state.current.name,direction:state.direction,tasaManual:state.tasaManual,tasaManualCode:state.tasaManualCode,acumulador,tipoOp:state.tipoOp,motivo:els.motivoInput.value,contraparte:els.contraparte.value}));}
