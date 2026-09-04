@@ -393,8 +393,8 @@ input[type="range"]{width:100%;margin:10px 0;accent-color:var(--primary);}
 </div>
 <div class="cantidad-row" id="cantidadWrap">
 <div class="input-wrap" style="flex:1;">
-<input type="number" id="cantidadInput" placeholder="Cantidad" value="1" min="1" inputmode="decimal" oninput="saveSession();">
-<button class="btn-clear-field" onclick="document.getElementById('cantidadInput').value='1'">✕</button>
+<input type="number" id="cantidadInput" placeholder="Cantidad" value="1" min="1" inputmode="decimal" oninput="calc();saveSession();">
+<button class="btn-clear-field" onclick="document.getElementById('cantidadInput').value='1';calc()">✕</button>
 </div>
 <div class="input-wrap" style="flex:1;">
 <input type="text" id="unidadInput" placeholder="Ej: kg, meses..." maxlength="15" autocomplete="off" oninput="saveSession();">
@@ -560,7 +560,14 @@ function renderResultado(total){if(total===null){els.resBox.style.display='none'
 let _tCalc=null,_tTasa=null;
 window.onMontoInput=function(){if(_tCalc)clearTimeout(_tCalc);_tCalc=setTimeout(()=>{calc();_tCalc=null;},180);};
 window.onTasaInput=function(){state.tasaManual=true;state.tasaManualCode=state.current.code;els.tasa.classList.add('manual');if(_tTasa)clearTimeout(_tTasa);_tTasa=setTimeout(()=>{calc();_tTasa=null;},150);};
-function calc(){const m=parseFloat(els.monto.value)||0,t=parseFloat(els.tasa.value)||0;if(m>1000000){toast('⚠️ Monto muy alto','error');return;}renderResultado(calcular(m,t,state.direction));renderMulti(m);saveSession();}
+function calc(){
+const m=parseFloat(els.monto.value)||0,t=parseFloat(els.tasa.value)||0;
+if(m>1000000){toast('⚠️ Monto muy alto','error');return;}
+const cant=parseFloat(E('cantidadInput')?.value)||1;
+const tieneDetalle=state.tipoOp==='venta'||state.tipoOp==='compra'||state.tipoOp==='pago';
+const mEfectivo=(cant>1&&tieneDetalle)?round(m*cant):m;
+renderResultado(calcular(mEfectivo,t,state.direction));renderMulti(m);saveSession();
+}
 function renderMulti(m){if(m<=0){els.multiRes.classList.remove('visible');return;}els.multiRes.classList.add('visible');const dir=state.direction;if(dir==='DivisaABs'){els.mUSD.textContent=state.rates.USD>0?'Bs '+fmt(round(m*state.rates.USD)):'--';els.mBIN.textContent=state.rates.BIN>0?'Bs '+fmt(round(m*state.rates.BIN)):'--';els.mEUR.textContent=state.rates.EUR>0?'Bs '+fmt(round(m*state.rates.EUR)):'--';els.rowBS.style.display='none';}else{els.rowBS.style.display='flex';els.mUSD.textContent=state.rates.USD>0?fmt(round(m/state.rates.USD))+' $':'--';els.mBIN.textContent=state.rates.BIN>0?fmt(round(m/state.rates.BIN))+' $':'--';els.mEUR.textContent=state.rates.EUR>0?fmt(round(m/state.rates.EUR))+' €':'--';els.mBS.textContent=fmt(m)+' Bs';}}
 window.copiarResultado=function(){const txt=els.resTotal.textContent.trim();if(!txt)return;navigator.clipboard.writeText(txt).then(()=>toast('📋 Copiado','success',2000));};
 window.usarTasaOficial=function(){if(state.rates.USD>0){els.tasa.value=state.rates.USD.toFixed(2);state.tasaManual=false;els.tasa.classList.remove('manual');toast('📌 Tasa BCV cargada','success',2000);calc();}else toast('⚠️ Actualiza las tasas','error');};
@@ -596,15 +603,15 @@ else{lineaEntrega=(motivo?`📦 *${yo} entrega:* ${motivo}\n`:'')+( cantStr||`�
 }else if(tipo==='compra'){
 lineaOp=`🛒 *Operación:* Compra${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💵 *Precio pactado:* ${mF} ${sim}`);lineaRecibe=`💰 *${yo} paga:* ${total}`;}
-else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio en Bs:* ${mF} Bs`);const totalReal=cantidad>1?fmt(round(montoTotal/tasa))+' '+sim:total;lineaRecibe=`💎 *${yo} paga:* ${totalReal}`;}
+else{lineaEntrega=(motivo?`📦 *${otro||'Vendedor'} entrega:* ${motivo}\n`:'')+( cantStr||`💸 *Precio en Bs:* ${mF} Bs`);lineaRecibe=`💎 *${yo} paga:* ${total}`;}
 }else if(tipo==='pago'){
 lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
-if(dir==='DivisaABs'){const totalPago=cantidad>1?'Bs '+fmt(round(montoTotal*tasa)):total;lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${totalPago}`;}
+if(dir==='DivisaABs'){lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}
 else{lineaEntrega=`💸 *${yo} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;}
 }else if(tipo==='cambio'){
 lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
-if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo} entrega:* ${mF} ${sim}`;lineaRecibe=`💰 *${yo} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}
-else{lineaEntrega=`💸 *${yo} entrega:* ${mF} Bs`;lineaRecibe=`💎 *${yo} recibe:* ${total}`;if(otro)lineaRecibe+=`\n💱 *${otro} entrega:* ${total}`;}
+if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo} entrega:* ${mF} ${sim}`;lineaRecibe=otro?`💱 *${otro} entrega:* ${total}`:`💰 *${yo} recibe:* ${total}`;}
+else{lineaEntrega=`💸 *${yo} entrega:* ${mF} Bs`;lineaRecibe=otro?`💱 *${otro} entrega:* ${total}`:`💎 *${yo} recibe:* ${total}`;}
 }else if(tipo==='fiado'){
 lineaOp=`🤝 *Operación:* Venta a Crédito${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=motivo?`📦 *${yo} entrega:* ${motivo}\n💵 *Deuda pactada:* ${mF} ${sim}`:`💵 *Deuda pactada:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Deudor'} debe hoy:* ${total}\n📅 *Fecha del fiado:* ${fechaHoy()}`;}
