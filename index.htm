@@ -401,7 +401,7 @@ input[type="range"]{width:100%;margin:10px 0;accent-color:var(--primary);}
 <button class="btn-clear-field" onclick="document.getElementById('unidadInput').value=''">✕</button>
 </div>
 </div>
-<p class="op-hint">¿Con quién transas?</p>
+<p class="op-hint" id="hintContraparte">¿Con quién transas?</p>
 <div class="input-wrap">
 <input type="text" id="contraparte" placeholder="Ej: Tito, Anunu, Paito..." maxlength="30" autocomplete="off" oninput="actualizarPill();saveSession();">
 <button class="btn-clear-field" onclick="clearField('contraparte')">✕</button>
@@ -552,8 +552,19 @@ function sumarAlAcumulador(v){if(acumulador+v>1000000){toast('⚠️ Límite','e
 function limpiarAcumulador(silencioso=false){acumulador=0;actualizarDisplayAcumulador();if(!silencioso)toast('🧹 Reiniciado','info',2000);}
 function aplicarAcumulador(){if(acumulador<=0){toast('⚠️ No hay suma','error');return;}els.monto.value=acumulador;calc();toast(`✅ ${acumulador.toLocaleString('es-VE')}`,'success',1500);limpiarAcumulador(true);}
 function actualizarDisplayAcumulador(){const u=(state.direction==='BsADivisa')?'Bs':(state.current.code==='EUR'?'€':'$');els.sumaActual.textContent=`➕ Suma: ${acumulador.toLocaleString('es-VE')} ${u}`;}
-const OP_CONFIG={solo:{clase:'sel-cambio',hintQue:'',placeholder:'',conCantidad:false},venta:{clase:'sel-venta',hintQue:'¿Qué estás vendiendo?',placeholder:'Ej: Mantequilla Llanera...',conCantidad:true},compra:{clase:'sel-compra',hintQue:'¿Qué estás comprando?',placeholder:'Ej: unos zapatos...',conCantidad:true},pago:{clase:'sel-pago',hintQue:'¿Qué estás pagando?',placeholder:'Ej: servicio de agua...',conCantidad:true},cambio:{clase:'sel-cambio',hintQue:'¿Con quién cambias?',placeholder:'Ej: dólares a bolívares...',conCantidad:false}};
-window.seleccionarTipoOp=function(tipo){if(state.tipoOp===tipo){state.tipoOp=null;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');els.opDetalles.classList.remove('visible');els.cantidadWrap.classList.remove('visible');els.pill.classList.remove('visible');saveSession();return;}state.tipoOp=tipo;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');const idMap={solo:'opSolo',venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio'};E(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;E('hintQue').textContent=OP_CONFIG[tipo].hintQue;els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;els.opDetalles.classList.add('visible');if(tipo==='solo'){els.opDetalles.classList.remove('visible');els.cantidadWrap.classList.remove('visible');els.pill.classList.remove('visible');updateLabels();saveSession();return;}if(OP_CONFIG[tipo].conCantidad)els.cantidadWrap.classList.add('visible');else els.cantidadWrap.classList.remove('visible');els.motivoInput.focus();actualizarPill();updateLabels();saveSession();};
+const OP_CONFIG={solo:{clase:'sel-cambio',hintQue:'',placeholder:'',conCantidad:false},venta:{clase:'sel-venta',hintQue:'¿Qué estás vendiendo?',placeholder:'Ej: Mantequilla Llanera...',conCantidad:true},compra:{clase:'sel-compra',hintQue:'¿Qué estás comprando?',placeholder:'Ej: unos zapatos...',conCantidad:true},pago:{clase:'sel-pago',hintQue:'¿Qué estás pagando?',placeholder:'Ej: servicio de agua...',conCantidad:true},cambio:{clase:'sel-cambio',hintQue:'',placeholder:'',conCantidad:false,soloContraparte:true}};
+window.seleccionarTipoOp=function(tipo){if(state.tipoOp===tipo){state.tipoOp=null;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');els.opDetalles.classList.remove('visible');els.cantidadWrap.classList.remove('visible');els.pill.classList.remove('visible');saveSession();return;}state.tipoOp=tipo;document.querySelectorAll('.op-type-btn').forEach(b=>b.className='op-type-btn');const idMap={solo:'opSolo',venta:'opVenta',compra:'opCompra',pago:'opPago',cambio:'opCambio'};E(idMap[tipo]).className=`op-type-btn ${OP_CONFIG[tipo].clase}`;E('hintQue').textContent=OP_CONFIG[tipo].hintQue;els.motivoInput.placeholder=OP_CONFIG[tipo].placeholder;els.opDetalles.classList.add('visible');if(tipo==='solo'){els.opDetalles.classList.remove('visible');els.cantidadWrap.classList.remove('visible');els.pill.classList.remove('visible');updateLabels();saveSession();return;}if(OP_CONFIG[tipo].conCantidad)els.cantidadWrap.classList.add('visible');else els.cantidadWrap.classList.remove('visible');
+if(OP_CONFIG[tipo].soloContraparte){
+  E('hintQue').textContent='';
+  els.motivoInput.closest('.input-wrap').style.display='none';
+  E('hintQue').style.display='none';
+  E('hintContraparte')&&(E('hintContraparte').textContent='¿Con quién realizas la conversión?');
+}else{
+  els.motivoInput.closest('.input-wrap').style.display='';
+  E('hintQue').style.display='';
+  E('hintContraparte')&&(E('hintContraparte').textContent='¿Con quién transas?');
+}
+els.motivoInput.focus();actualizarPill();updateLabels();saveSession();};
 function updateLabels(){const{code,name}=state.current,dir=state.direction;E('txtDivisaABs').textContent=code==='CON'?'$ en Acuerdo, a Bs':`De ${name} a Bs`;E('txtBsADivisa').textContent=code==='CON'?'Bs en Acuerdo, a $':`De Bs a ${name}`;const t={USD:'TASA DÓLAR $ (BCV)',EUR:'TASA EURO € (Real)',BIN:'TASA BINANCE P2P',CON:dir==='DivisaABs'?'💬 TU TASA (Bs por $)':'💬 TU TASA ($ por Bs)'};if(dir==='DivisaABs'){const lDin=(state.tipoOp==='venta'||state.tipoOp==='compra'||state.tipoOp==='pago')?`PRECIO/UNIDAD EN ${code==='EUR'?'€':'$'}`:code==='CON'?'MONTO EN $':`MONTO EN ${name.toUpperCase()}`;els.labelMonto.textContent=lDin;els.labelTasa.textContent=t[code];els.resLabel.textContent='💰 TOTAL A RECIBIR (Bs)';}else{const lDin=(state.tipoOp==='venta'||state.tipoOp==='compra'||state.tipoOp==='pago')?'PRECIO/UNIDAD EN Bs':'MONTO EN BOLÍVARES (Bs)';els.labelMonto.textContent=lDin;els.labelTasa.textContent=t[code];els.resLabel.textContent=code==='CON'?'💎 $ A RECIBIR:':`${name.toUpperCase()} A RECIBIR:`;}}
 function calcular(m,t,dir){if(m<=0||t<=0)return null;return dir==='DivisaABs'?round(m*t):round(m/t);}
 function renderResultado(total){if(total===null){els.resBox.style.display='none';return;}els.resBox.style.display='block';const{code}=state.current,dir=state.direction;if(dir==='DivisaABs'){els.resTotal.textContent='Bs '+fmt(total);if(code!=='BIN'&&state.rates.BIN>0){const m=parseFloat(els.monto.value)||0,par=round(m*state.rates.BIN),df=round(total-par);if(Math.abs(df)<0.01){els.resComp.textContent='≈ Igual que Binance P2P';els.resComp.className='res-comp igual';}else if(df>0){els.resComp.textContent=`✅ Bs ${fmt(df)} más que Binance`;els.resComp.className='res-comp mejor';}else{els.resComp.textContent=`⚠️ Bs ${fmt(Math.abs(df))} menos que Binance`;els.resComp.className='res-comp peor';}}else{els.resComp.className='res-comp';}}else{els.resTotal.textContent=fmt(total)+(code==='EUR'?' €':' $');els.resComp.className='res-comp';}}
@@ -609,7 +620,7 @@ lineaOp=`💳 *Operación:* Pago${motivo?' de '+motivo:''}`;
 if(dir==='DivisaABs'){lineaEntrega=cantStr||`💵 *Monto a pagar:* ${mF} ${sim}`;lineaRecibe=`💰 *${otro||'Receptor'} recibe:* ${total}`;}
 else{lineaEntrega=`💸 *${yo} paga:* ${mF} Bs`;lineaRecibe=`💎 *Equivalente en ${sim}:* ${total}`;}
 }else if(tipo==='cambio'){
-lineaOp=`🔄 *Operación:* Cambio de divisas${motivo?' — '+motivo:''}`;
+lineaOp=`💱 *Operación:* Conversión de divisas`;
 if(dir==='DivisaABs'){lineaEntrega=`💵 *${yo} entrega:* ${mF} ${sim}`;lineaRecibe=otro?`💱 *${otro} entrega:* ${total}`:`💰 *${yo} recibe:* ${total}`;}
 else{lineaEntrega=`💸 *${yo} entrega:* ${mF} Bs`;lineaRecibe=otro?`💱 *${otro} entrega:* ${total}`:`💎 *${yo} recibe:* ${total}`;}
 }else if(tipo==='fiado'){
